@@ -17,4 +17,9 @@ public class NormalUser extends User{
     public NormalUser(Long userId, String name, String email, String password, String newsAgency, String phoneNumber, BankInfo bankInfo, UserAgree userAgree, Boolean adultCertification, Gender gender, String profileImage, Role role) {
         super(userId, name, email, password, newsAgency, phoneNumber, bankInfo, userAgree, adultCertification, gender, profileImage, role);
     }
+    public void encryptPassword(String encryptPassword){
+        super.encryptPassword(
+                encryptPassword
+        );
+    }
 }

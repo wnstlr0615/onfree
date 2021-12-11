@@ -50,4 +50,8 @@ public abstract class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private Role role; // 권한
+
+    public void encryptPassword(String encryptPassword){
+        this.password=encryptPassword;
+    }
 }
