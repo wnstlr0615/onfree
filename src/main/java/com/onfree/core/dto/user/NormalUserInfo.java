@@ -1,6 +1,5 @@
-package com.onfree.core.dto;
+package com.onfree.core.dto.user;
 
-import com.onfree.core.dto.user.CreateNormalUser;
 import com.onfree.core.entity.user.NormalUser;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;

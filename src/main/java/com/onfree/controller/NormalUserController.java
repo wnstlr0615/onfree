@@ -1,6 +1,7 @@
 package com.onfree.controller;
 
-import com.onfree.core.dto.NormalUserInfo;
+import com.onfree.core.dto.user.DeletedUserResponse;
+import com.onfree.core.dto.user.NormalUserInfo;
 import com.onfree.core.dto.user.CreateNormalUser;
 import com.onfree.core.service.UserService;
 import com.onfree.error.code.UserErrorCode;
@@ -8,7 +9,6 @@ import com.onfree.error.exception.UserException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
@@ -42,6 +42,15 @@ public class NormalUserController {
     ){
         return userService.getUserInfo(userId);
     }
+    @ApiOperation(value = "일반 유저 사용자 deleted 처리")
+    @DeleteMapping("/{deletedUserId}")
+    public DeletedUserResponse deletedNormalUser(
+            @ApiParam(value = "사용자 userId ") @PathVariable(name = "deletedUserId") Long userId
+    ){
+        return userService.deletedNormalUser(userId);
+    }
+
+
 
 
 

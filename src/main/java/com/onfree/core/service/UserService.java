@@ -1,9 +1,9 @@
 package com.onfree.core.service;
 
-import com.onfree.core.dto.NormalUserInfo;
+import com.onfree.core.dto.user.DeletedUserResponse;
+import com.onfree.core.dto.user.NormalUserInfo;
 import com.onfree.core.dto.user.CreateNormalUser;
 import com.onfree.core.entity.user.NormalUser;
-import com.onfree.core.entity.user.User;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.error.exception.UserException;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.onfree.error.code.UserErrorCode.NOT_FOUND_USERID;
-import static com.onfree.error.code.UserErrorCode.USER_EMAIL_DUPLICATED;
+import static com.onfree.error.code.UserErrorCode.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -70,5 +69,30 @@ public class UserService {
                 .orElseThrow(
                         () -> new UserException(NOT_FOUND_USERID)
                 );
+    }
+    /** 사용자 deleted 처리*/
+    public DeletedUserResponse deletedNormalUser(Long userId) {
+        return DeletedUserResponse.fromEntity(
+                setNormalUserDeleted(
+                        duplicatedUserId(userId)
+                )
+        );
+    }
+
+    private NormalUser setNormalUserDeleted(NormalUser normalUser) {
+        if(normalUserIsDeleted(normalUser)){
+            throw new UserException(ALREADY_USER_DELETED);
+        }
+        normalUser.setDeleted();
+        return normalUser;
+    }
+
+    private boolean normalUserIsDeleted(NormalUser normalUser) {
+        return normalUser.getDeleted();
+    }
+
+    private NormalUser duplicatedUserId(Long userId) {
+        return (NormalUser) userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(NOT_FOUND_USERID));
     }
 }

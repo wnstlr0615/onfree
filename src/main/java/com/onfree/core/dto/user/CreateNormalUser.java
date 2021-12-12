@@ -86,7 +86,7 @@ public class CreateNormalUser {
                     .policy(policyAgree)
                     .build();
             return NormalUser.builder()
-                    .adultCertification(Boolean.TRUE)
+                    .adultCertification(adultCertification)
                     .email(email)
                     .password(password)
                     .gender(gender)
@@ -97,6 +97,7 @@ public class CreateNormalUser {
                     .userAgree(userAgree)
                     .adultCertification(adultCertification)
                     .profileImage(profileImage)
+                    .deleted(false)
                     .role(Role.NORMAL)
                     .build();
         }

@@ -44,8 +44,11 @@ public abstract class User extends BaseTimeEntity {
     @Column(nullable = false, length = 5)
     private Gender gender; // 성별
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String profileImage; //프로필이미지
+
+    @Column(nullable = false)
+    private Boolean deleted;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
@@ -53,5 +56,9 @@ public abstract class User extends BaseTimeEntity {
 
     public void encryptPassword(String encryptPassword){
         this.password=encryptPassword;
+    }
+
+    protected void setDeleted() {
+        this.deleted=true;
     }
 }

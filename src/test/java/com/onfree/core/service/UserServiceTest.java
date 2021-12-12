@@ -1,10 +1,9 @@
 package com.onfree.core.service;
 
-import com.onfree.core.dto.NormalUserInfo;
+import com.onfree.core.dto.user.DeletedUserResponse;
+import com.onfree.core.dto.user.NormalUserInfo;
 import com.onfree.core.dto.user.CreateNormalUser;
-import com.onfree.core.entity.user.BankName;
-import com.onfree.core.entity.user.Gender;
-import com.onfree.core.entity.user.NormalUser;
+import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.error.code.UserErrorCode;
 import com.onfree.error.exception.UserException;
@@ -105,10 +104,10 @@ class UserServiceTest {
                 .profileImage("http://onfree.io/images/123456789")
                 .build();
     }
-
-    private NormalUser getNormalUserEntity(CreateNormalUser.Request request) {
-        return request.toEntity();
+    private NormalUser getNormalUserEntity(CreateNormalUser.Request request){
+        return  getNormalUserEntity(request, 1L);
     }
+
 
     @Test
     @DisplayName("[성공] 사용자 정보 조회 ")
@@ -161,5 +160,103 @@ class UserServiceTest {
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", errorCode)
                 .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
+    }
+    @Test
+    @DisplayName("[성공] 사용자 계정 삭제")
+    public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse() throws Exception{
+        //given
+        final long deletedUserId = 1L;
+        when(userRepository.findById(deletedUserId))
+                .thenReturn(
+                        Optional.of(getNormalUserEntity(
+                                givenCreateNormalUserReq(), deletedUserId
+                        ))
+                );
+        //when
+        final DeletedUserResponse deletedUserResponse = userService.deletedNormalUser(deletedUserId);
+        //then
+        assertThat(deletedUserResponse)
+                .hasFieldOrPropertyWithValue("userId", deletedUserId)
+                .hasFieldOrPropertyWithValue("deleted", true);
+        verify(userRepository, times(1)).findById(eq(deletedUserId));
+    }
+
+    private NormalUser getNormalUserEntity(CreateNormalUser.Request request, Long userId) {
+        return getNormalUserEntity(request, userId, false);
+    }
+
+    @Test
+    @DisplayName("[실패] 사용자 계정 삭제 - userId가 없는 경우")
+    public void givenWrongDeletedUserId_whenDeletedUser_thenNotFoundUserId() throws Exception{
+        //given
+        final long deletedUserId = 1L;
+        final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
+
+        when(userRepository.findById(deletedUserId))
+                .thenReturn(
+                        Optional.empty()
+                );
+        //when
+        final UserException userException = assertThrows(UserException.class,
+                () -> userService.deletedNormalUser(deletedUserId));
+        //then
+        assertThat(userException)
+                .hasFieldOrPropertyWithValue("errorCode", errorCode)
+                .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
+        verify(userRepository, times(1)).findById(eq(deletedUserId));
+    }
+
+    @Test
+    @DisplayName("[실패] 사용자 계정 삭제 - 이미 삭제된 계정인 경우")
+    public void givenAlreadyDeletedUserId_whenDeletedUser_thenAlreadyUserDeleted() throws Exception{
+        //given
+        final long deletedUserId = 1L;
+        final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
+        final boolean deleted = true;
+
+        when(userRepository.findById(deletedUserId))
+                .thenReturn(
+                        Optional.of(
+                                getNormalUserEntity(
+                                        givenCreateNormalUserReq(), deletedUserId, deleted
+                                )
+                        )
+                );
+        //when
+        final UserException userException = assertThrows(UserException.class,
+                () -> userService.deletedNormalUser(deletedUserId));
+        //then
+        assertThat(userException)
+                .hasFieldOrPropertyWithValue("errorCode", errorCode)
+                .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
+        verify(userRepository, times(1)).findById(eq(deletedUserId));
+    }
+    private NormalUser getNormalUserEntity(CreateNormalUser.Request request, Long userId, boolean deleted){
+        BankInfo bankInfo = BankInfo.builder()
+                .bankName(request.getBankName())
+                .accountNumber(request.getAccountNumber())
+                .build();
+        UserAgree userAgree = UserAgree.builder()
+                .advertisement(request.getAdvertisementAgree())
+                .personalInfo(request.getPersonalInfoAgree())
+                .service(request.getServiceAgree())
+                .policy(request.getPolicyAgree())
+                .build();
+        return NormalUser.builder()
+                .userId(userId)
+                .adultCertification(Boolean.TRUE)
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .gender(request.getGender())
+                .name(request.getName())
+                .newsAgency(request.getNewsAgency())
+                .phoneNumber(request.getPhoneNumber())
+                .bankInfo(bankInfo)
+                .userAgree(userAgree)
+                .adultCertification(request.getAdultCertification())
+                .profileImage(request.getProfileImage())
+                .deleted(deleted)
+                .role(Role.NORMAL)
+                .build();
     }
 }

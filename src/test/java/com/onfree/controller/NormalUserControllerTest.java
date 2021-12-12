@@ -1,7 +1,8 @@
 package com.onfree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onfree.core.dto.NormalUserInfo;
+import com.onfree.core.dto.user.DeletedUserResponse;
+import com.onfree.core.dto.user.NormalUserInfo;
 import com.onfree.core.dto.user.CreateNormalUser;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
@@ -10,10 +11,8 @@ import com.onfree.core.service.UserService;
 import com.onfree.error.code.ErrorCode;
 import com.onfree.error.code.UserErrorCode;
 import com.onfree.error.exception.UserException;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,8 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -129,7 +127,7 @@ class NormalUserControllerTest {
                 )
         )
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
@@ -245,5 +243,65 @@ class NormalUserControllerTest {
         ;
         verify(userService, times(1)).getUserInfo(any());
 
+    }
+    @Test
+    @DisplayName("[성공][DELETE] 사용자 계정 Flag 삭제")
+    public void givenDeleteUserId_whenDeleteNormalUser_thenReturnDeletedUserResponse() throws Exception{
+
+        //given
+        final long deletedUserId = 1L;
+        when(userService.deletedNormalUser(deletedUserId))
+                .thenReturn(getDeletedUserResponse(1L));
+        //when && then
+        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(deletedUserId))
+                .andExpect(jsonPath("$.deleted").value(true))
+        ;
+        verify(userService, times(1)).deletedNormalUser(any());
+    }
+
+    private DeletedUserResponse getDeletedUserResponse(long userId) {
+        return DeletedUserResponse.builder()
+                .userId(userId)
+                .deleted(true)
+                .build();
+    }
+
+    @Test
+    @DisplayName("[실패][DELETE] 사용자 계정 Flag 삭제 - userId가 없는 경우")
+    public void givenWrongDeleteUserId_whenDeleteNormalUser_thenNotFoundUserId() throws Exception{
+        //given
+        final long deletedUserId = 1L;
+        final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
+        when(userService.deletedNormalUser(deletedUserId))
+                .thenThrow(new UserException(errorCode));
+        //when && then
+        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
+                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+        ;
+        verify(userService, times(1)).deletedNormalUser(any());
+    }
+
+    @Test
+    @DisplayName("[실패][DELETE] 사용자 계정 Flag 삭제 - 이미 사용자가 제거된 경우")
+    public void givenAlreadyDeleteUserId_whenDeleteNormalUser_thenAlreadyUserDeleted() throws Exception{
+        //given
+        final long deletedUserId = 1L;
+        final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
+        when(userService.deletedNormalUser(deletedUserId))
+                .thenThrow(new UserException(errorCode));
+        //when && then
+        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
+                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+        ;
+        verify(userService, times(1)).deletedNormalUser(any());
     }
 }
