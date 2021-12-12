@@ -37,7 +37,7 @@ public enum BankName {
     private final String bankName;
     private final String code;
 
-    public static String joinString(){
+    public  String joinString(){
         return Arrays.stream(BankName.values()).map(String::valueOf).collect(Collectors.joining(","));
     }
 }

@@ -35,7 +35,7 @@ public class CreateNormalUser {
         @Pattern(regexp = "^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", message="핸드폰번호 패턴이 올바르지 않습니다.")
         private String phoneNumber;
 
-        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = "${BankName.joinString()}" )
+        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = " ${BankName.joinString()}" )
         @NotNull(message = "은행명은 공백일 수 없습니다.")
         private BankName bankName;
 
@@ -66,7 +66,7 @@ public class CreateNormalUser {
         @NotNull(message = "성인인증 체크는 필수 입니다.")
         private Boolean adultCertification;
 
-        @ApiModelProperty(value = "MAN", example = "${Gender.joinString()}")
+        @ApiModelProperty(value = "성별", example = "MAN", allowableValues = "${Gender.joinString()}")
         @NotNull(message = "성별입력은 필수 입니다.")
         private Gender gender;
 
@@ -151,6 +151,7 @@ public class CreateNormalUser {
                     .email(entity.getEmail())
                     .gender(entity.getGender().getName())
                     .name(entity.getName())
+                    .newsAgency(entity.getNewsAgency())
                     .phoneNumber(entity.getPhoneNumber())
                     .bankName(entity.getBankInfo().getBankName().getBankName())
                     .accountNumber(entity.getBankInfo().getAccountNumber())
