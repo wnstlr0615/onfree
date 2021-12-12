@@ -1,9 +1,11 @@
 package com.onfree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.onfree.core.dto.NormalUserInfo;
 import com.onfree.core.dto.user.CreateNormalUser;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
+import com.onfree.core.entity.user.NormalUser;
 import com.onfree.core.service.UserService;
 import com.onfree.error.code.ErrorCode;
 import com.onfree.error.code.UserErrorCode;
@@ -11,6 +13,7 @@ import com.onfree.error.exception.UserException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -175,7 +179,71 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
         verify(userService, times(1)).createNormalUser(any());
-
     }
 
+    @Test
+    @DisplayName("[성공][GET] 사용자 정보 조회 ")
+    public void givenUserId_whenGetUserInfo_thenReturnUserInfo() throws Exception {
+        //given
+        final Long userId = 1L;
+        when(userService.getUserInfo(userId))
+                .thenReturn(
+                        getNormalUserInfo()
+                );
+        //when
+
+        //then
+        mvc.perform(get("/api/users/normal/{userId}", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("준식"))
+                .andExpect(jsonPath("$.email").value("jun@naver.com"))
+                .andExpect(jsonPath("$.newsAgency").value("SKT"))
+                .andExpect(jsonPath("$.phoneNumber").value("010-8888-9999"))
+                .andExpect(jsonPath("$.bankName").value(BankName.IBK_BANK.getBankName()))
+                .andExpect(jsonPath("$.accountNumber").value("010-8888-9999"))
+                .andExpect(jsonPath("$.serviceAgree").value(true))
+                .andExpect(jsonPath("$.policyAgree").value(true))
+                .andExpect(jsonPath("$.personalInfoAgree").value(true))
+                .andExpect(jsonPath("$.advertisementAgree").value(true))
+                .andExpect(jsonPath("$.adultCertification").value(true))
+                .andExpect(jsonPath("$.gender").value(Gender.MAN.getName()))
+                .andExpect(jsonPath("$.profileImage").value("http://onfree.io/images/123456789"))
+                ;
+        verify(userService, times(1)).getUserInfo(any());
+    }
+    public NormalUserInfo getNormalUserInfo(){
+            return NormalUserInfo
+                    .fromEntity(
+                            getNormalUserEntityFromCreateNormalUserRequest()
+                    );
+        }
+
+    public NormalUser getNormalUserEntityFromCreateNormalUserRequest(){
+            return givenCreateNormalUserReq().toEntity();
+        }
+    @Test
+    @DisplayName("[실패][GET] 사용자 정보 조회 - 없는 userId 검색 시 예외발생  ")
+    public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserError() throws Exception {
+        //given
+        final Long userId = 1L;
+        final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
+        when(userService.getUserInfo(userId))
+                .thenThrow(new UserException(errorCode));
+        //when
+
+        //then
+        mvc.perform(get("/api/users/normal/{userId}", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("errorCode").value(errorCode.toString()))
+                .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
+        ;
+        verify(userService, times(1)).getUserInfo(any());
+
+    }
 }
