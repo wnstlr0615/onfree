@@ -3,6 +3,7 @@ package com.onfree.core.service;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.NormalUserInfo;
 import com.onfree.core.dto.user.CreateNormalUser;
+import com.onfree.core.dto.user.UpdateNormalUser;
 import com.onfree.core.entity.user.NormalUser;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.error.exception.UserException;
@@ -74,7 +75,7 @@ public class UserService {
     public DeletedUserResponse deletedNormalUser(Long userId) {
         return DeletedUserResponse.fromEntity(
                 setNormalUserDeleted(
-                        duplicatedUserId(userId)
+                        getNormalUser(userId)
                 )
         );
     }
@@ -90,9 +91,12 @@ public class UserService {
     private boolean normalUserIsDeleted(NormalUser normalUser) {
         return normalUser.getDeleted();
     }
-
-    private NormalUser duplicatedUserId(Long userId) {
-        return (NormalUser) userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(NOT_FOUND_USERID));
+    /** 사용자 계정 수정*/
+    @Transactional
+    public UpdateNormalUser.Response modifyedUser(Long userId, UpdateNormalUser.Request request) {
+        NormalUser normalUser = getNormalUser(userId);
+        normalUser.update(request);
+        return UpdateNormalUser.Response
+                .fromEntity(normalUser);
     }
 }

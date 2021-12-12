@@ -4,6 +4,7 @@ Content-Type: application/json
 
 {
   "name": "준식",
+  "nickname": "온프리!!",
   "email": "jun@naver.com",
   "password": "!Abcderghijk112",
   "newsAgency": "SKT",
@@ -38,3 +39,22 @@ Content-Type: application/json
   "gender": "MAN",
   "profileImage": "http://onfree.io/images/123456789"
 }
+
+### 회원 정보 조회
+GET {{host}}/api/users/normal/1
+Content-Type: application/json
+
+### 회원정보 수정
+PUT {{host}}/api/users/normal/1
+Content-Type: application/json
+
+{
+  "nickname": "온프리프리",
+  "newsAgency": "SKT1",
+  "phoneNumber": "010-0000-0000",
+  "bankName": "IBK_BANK",
+  "accountNumber": "010-0000-0000",
+  "adultCertification": true,
+  "profileImage": "http://onfree.io/images/aaa123"
+}
+

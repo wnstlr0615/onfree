@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.NormalUserInfo;
 import com.onfree.core.dto.user.CreateNormalUser;
+import com.onfree.core.dto.user.UpdateNormalUser;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
 import com.onfree.core.entity.user.NormalUser;
@@ -81,6 +82,7 @@ class NormalUserControllerTest {
                 .email("jun@naver.com")
                 .password("!Abcderghijk112")
                 .gender(Gender.MAN)
+                .nickname("온프리짱짱")
                 .name("준식")
                 .newsAgency("SKT")
                 .phoneNumber("010-8888-9999")
@@ -253,7 +255,9 @@ class NormalUserControllerTest {
         when(userService.deletedNormalUser(deletedUserId))
                 .thenReturn(getDeletedUserResponse(1L));
         //when && then
-        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId))
+        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(deletedUserId))
@@ -278,7 +282,9 @@ class NormalUserControllerTest {
         when(userService.deletedNormalUser(deletedUserId))
                 .thenThrow(new UserException(errorCode));
         //when && then
-        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId))
+        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
@@ -296,7 +302,9 @@ class NormalUserControllerTest {
         when(userService.deletedNormalUser(deletedUserId))
                 .thenThrow(new UserException(errorCode));
         //when && then
-        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId))
+        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
@@ -304,4 +312,118 @@ class NormalUserControllerTest {
         ;
         verify(userService, times(1)).deletedNormalUser(any());
     }
+    @Test
+    @DisplayName("[성공][PUT] 사용자 정보 수정")
+    public void givenUpdateUserInfo_whenModifiedUser_thenReturnUpdateInfo() throws Exception{
+        //given
+        final long userId = 1L;
+        when(userService.modifyedUser(any(), any()))
+                .thenReturn(
+                        getUpdateNormalUserRes()
+                );
+        //when then
+        mvc.perform(put("/api/users/normal/{userId}", userId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                    mapper.writeValueAsString(
+                            givenUpdateNormalUserReq()
+                    )
+            )
+        )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.nickname").value("온프리프리"))
+            .andExpect(jsonPath("$.bankName").value(BankName.IBK_BANK.toString()))
+            .andExpect(jsonPath("$.accountNumber").value("010-0000-0000"))
+            .andExpect(jsonPath("$.newsAgency").value("SKT"))
+            .andExpect(jsonPath("$.phoneNumber").value("010-0000-0000"))
+            .andExpect(jsonPath("$.adultCertification").value(true))
+            .andExpect(jsonPath("$.profileImage").value("http://onfree.io/images/aaa123"))
+        ;
+        verify(userService, times(1)).modifyedUser(eq(userId), any());
+    }
+
+    private UpdateNormalUser.Response getUpdateNormalUserRes() {
+        return UpdateNormalUser.Response.builder()
+                .nickname("온프리프리")
+                .bankName(BankName.IBK_BANK)
+                .accountNumber("010-0000-0000")
+                .newsAgency("SKT")
+                .phoneNumber("010-0000-0000")
+                .adultCertification(Boolean.TRUE)
+                .profileImage("http://onfree.io/images/aaa123")
+                .build();
+    }
+
+    private UpdateNormalUser.Request givenUpdateNormalUserReq() {
+        return UpdateNormalUser.Request.builder()
+                .nickname("온프리프리")
+                .bankName(BankName.IBK_BANK)
+                .accountNumber("010-0000-0000")
+                .newsAgency("SKT")
+                .phoneNumber("010-0000-0000")
+                .adultCertification(Boolean.TRUE)
+                .profileImage("http://onfree.io/images/aaa123")
+                .build();
+    }
+
+    @Test
+    @DisplayName("[실패][PUT] 사용자 정보 수정 - 잘못된 데이터 입력 ")
+    public void givenWrongUpdateUserInfo_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
+        //given
+        final long userId = 1L;
+        final UserErrorCode errorCode = UserErrorCode.NOT_VALID_REQUEST_PARAMETERS;
+
+        //when then
+        mvc.perform(put("/api/users/normal/{userId}", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                        mapper.writeValueAsString(
+                                givenWrongUpdateNormalUserReq()
+                        )
+                )
+        )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
+                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+           ;
+        verify(userService, never()).modifyedUser(eq(userId), any());
+    }
+
+    private UpdateNormalUser.Request givenWrongUpdateNormalUserReq() {
+        return UpdateNormalUser.Request.builder()
+                .nickname("온프리프리")
+                .accountNumber("010-0000-0000")
+                .newsAgency("SKT")
+                .phoneNumber("010-0000-0000")
+                .adultCertification(Boolean.TRUE)
+                .profileImage("http://onfree.io/images/aaa123")
+                .build();
+    }
+    @Test
+    @DisplayName("[실패][PUT] 사용자 정보 수정 - 없는 userId 사용 ")
+    public void givenWrongUserId_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
+        //given
+        final long wrongUserId = 1L;
+        final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
+        when(userService.modifyedUser(eq(wrongUserId), any()))
+                .thenThrow(new UserException(errorCode));
+        //when then
+        mvc.perform(put("/api/users/normal/{userId}", wrongUserId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                        mapper.writeValueAsString(
+                                givenUpdateNormalUserReq()
+                        )
+                )
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
+                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+        ;
+        verify(userService, times(1)).modifyedUser(eq(wrongUserId), any());
+    }
+
 }

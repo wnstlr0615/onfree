@@ -3,6 +3,7 @@ package com.onfree.controller;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.NormalUserInfo;
 import com.onfree.core.dto.user.CreateNormalUser;
+import com.onfree.core.dto.user.UpdateNormalUser;
 import com.onfree.core.service.UserService;
 import com.onfree.error.code.UserErrorCode;
 import com.onfree.error.exception.UserException;
@@ -42,6 +43,7 @@ public class NormalUserController {
     ){
         return userService.getUserInfo(userId);
     }
+
     @ApiOperation(value = "일반 유저 사용자 deleted 처리")
     @DeleteMapping("/{deletedUserId}")
     public DeletedUserResponse deletedNormalUser(
@@ -49,10 +51,17 @@ public class NormalUserController {
     ){
         return userService.deletedNormalUser(userId);
     }
+    @ApiOperation(value = "일반 유저 정보수정")
+    @PutMapping("/{userId}")
+    public UpdateNormalUser.Response updateUserInfo(
+            @ApiParam(value = "업데이트 할 사용자 ID") @PathVariable("userId") Long userId,
+            @RequestBody @Valid UpdateNormalUser.Request request,
+            BindingResult errors
+    ){
+        validParameter(errors);
+        return userService.modifyedUser(userId, request);
 
-
-
-
+    }
 
     private void validParameter(BindingResult errors) {
         if(errors.hasErrors()){

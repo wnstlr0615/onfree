@@ -3,6 +3,7 @@ package com.onfree.core.service;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.NormalUserInfo;
 import com.onfree.core.dto.user.CreateNormalUser;
+import com.onfree.core.dto.user.UpdateNormalUser;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.error.code.UserErrorCode;
@@ -232,10 +233,7 @@ class UserServiceTest {
         verify(userRepository, times(1)).findById(eq(deletedUserId));
     }
     private NormalUser getNormalUserEntity(CreateNormalUser.Request request, Long userId, boolean deleted){
-        BankInfo bankInfo = BankInfo.builder()
-                .bankName(request.getBankName())
-                .accountNumber(request.getAccountNumber())
-                .build();
+        final BankInfo bankInfo = getBankInfo(request.getBankName(), request.getAccountNumber());
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(request.getAdvertisementAgree())
                 .personalInfo(request.getPersonalInfoAgree())
@@ -258,5 +256,95 @@ class UserServiceTest {
                 .deleted(deleted)
                 .role(Role.NORMAL)
                 .build();
+    }
+    @Test
+    @DisplayName("[성공] 사용자 계정 수정 ")
+    public void givenUpdateNormalUserReq_whenModifiedUser_thenReturnUpdateNormalUserResponse() throws Exception{
+        //given
+        final long userId = 1L;
+        final UpdateNormalUser.Request request = givenUpdateNormalUserReq();
+        when(userRepository.findById(any()))
+                .thenReturn(
+                        Optional.of(getNormalUserEntity(userId))
+                );
+        //when
+        final UpdateNormalUser.Response response = userService.modifyedUser(userId, request);
+        //then
+        assertThat(response)
+            .hasFieldOrPropertyWithValue("nickname",request.getNickname())
+            .hasFieldOrPropertyWithValue("bankName",request.getBankName())
+            .hasFieldOrPropertyWithValue("accountNumber",request.getAccountNumber())
+            .hasFieldOrPropertyWithValue("newsAgency",request.getNewsAgency())
+            .hasFieldOrPropertyWithValue("phoneNumber",request.getPhoneNumber())
+            .hasFieldOrPropertyWithValue("adultCertification",request.getAdultCertification())
+            .hasFieldOrPropertyWithValue("profileImage",request.getProfileImage())
+        ;
+        verify(userRepository, times(1)).findById(eq(userId));
+    }
+    public NormalUser getNormalUserEntity(long userId){
+        return NormalUser.builder()
+                .userId(userId)
+                .adultCertification(Boolean.TRUE)
+                .email("jun@naver.com")
+                .password("!Abcderghijk112")
+                .gender(Gender.MAN)
+                .name("준식")
+                .newsAgency("SKT")
+                .phoneNumber("010-8888-9999")
+                .bankInfo(
+                        getBankInfo(BankName.IBK_BANK, "010-8888-9999")
+                )
+                .userAgree(
+                        getUserAgree()
+                )
+                .profileImage("http://onfree.io/images/123456789")
+                .build();
+
+    }
+
+    private UserAgree getUserAgree() {
+        return UserAgree.builder()
+                .advertisement(true)
+                .policy(true)
+                .service(true)
+                .personalInfo(true)
+                .build();
+    }
+    private UpdateNormalUser.Request givenUpdateNormalUserReq() {
+        return UpdateNormalUser.Request.builder()
+                .nickname("온프리프리")
+                .bankName(BankName.IBK_BANK)
+                .accountNumber("010-0000-0000")
+                .newsAgency("SKT")
+                .phoneNumber("010-0000-0000")
+                .adultCertification(Boolean.TRUE)
+                .profileImage("http://onfree.io/images/aaa123")
+                .build();
+    }
+
+    private BankInfo getBankInfo(BankName bankName, String accountNumber) {
+        return BankInfo.builder()
+                .bankName(bankName)
+                .accountNumber(accountNumber)
+                .build();
+    }
+    @Test
+    @DisplayName("[실패] 사용자 계정 수정 - userId가 존재하지 않는 경우")
+    public void givenWrongUserId_whenModifiedUser_thenNorFoundUserId() throws Exception{
+        //given
+        final long wrongUserId = 1L;
+        final UpdateNormalUser.Request request = givenUpdateNormalUserReq();
+        when(userRepository.findById(any()))
+                .thenReturn(
+                        Optional.empty()
+                );
+        //when
+        final UserException userException = assertThrows(UserException.class, () -> userService.modifyedUser(wrongUserId, request));
+        //then
+        assertThat(userException)
+                .hasFieldOrPropertyWithValue("errorCode", UserErrorCode.NOT_FOUND_USERID)
+                .hasFieldOrPropertyWithValue("errorMessage", UserErrorCode.NOT_FOUND_USERID.getDescription())
+        ;
+        verify(userRepository, times(1)).findById(eq(wrongUserId));
     }
 }

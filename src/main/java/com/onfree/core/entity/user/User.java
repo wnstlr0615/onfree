@@ -1,5 +1,6 @@
 package com.onfree.core.entity.user;
 
+import com.onfree.core.dto.user.UpdateNormalUser;
 import com.onfree.core.model.BaseTimeEntity;
 import lombok.*;
 
@@ -18,6 +19,9 @@ public abstract class User extends BaseTimeEntity {
 
     @Column(nullable = false, length = 100)
     private String name; //회원이름
+
+    @Column(nullable = false, length = 100)
+    private String nickname; //회원이름
 
     @Column(nullable = false, length = 100)
     private String email; // 회원이메일(아이디)
@@ -60,5 +64,17 @@ public abstract class User extends BaseTimeEntity {
 
     protected void setDeleted() {
         this.deleted=true;
+    }
+
+    protected void update(UpdateNormalUser.Request request) {
+        this.bankInfo= BankInfo.builder()
+                .bankName(request.getBankName())
+                .accountNumber(request.getAccountNumber())
+                .build();
+        this.adultCertification=request.getAdultCertification();
+        this.nickname=request.getNickname();
+        this.newsAgency=request.getNewsAgency();
+        this.phoneNumber=request.getPhoneNumber();
+        this.profileImage=request.getProfileImage();
     }
 }

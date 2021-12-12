@@ -1,5 +1,6 @@
 package com.onfree.core.entity.user;
 
+import com.onfree.core.dto.user.UpdateNormalUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,8 +16,8 @@ import javax.persistence.Entity;
 public class NormalUser extends User{
 
     @Builder
-    public NormalUser(Long userId, String name, String email, String password, String newsAgency, String phoneNumber, BankInfo bankInfo, UserAgree userAgree, Boolean adultCertification, Gender gender, String profileImage, Boolean deleted, Role role) {
-        super(userId, name, email, password, newsAgency, phoneNumber, bankInfo, userAgree, adultCertification, gender, profileImage, deleted, role);
+    public NormalUser(Long userId, String name, String nickname, String email, String password, String newsAgency, String phoneNumber, BankInfo bankInfo, UserAgree userAgree, Boolean adultCertification, Gender gender, String profileImage, Boolean deleted, Role role) {
+        super(userId, name, nickname, email, password, newsAgency, phoneNumber, bankInfo, userAgree, adultCertification, gender, profileImage, deleted, role);
     }
 
     public void encryptPassword(String encryptPassword){
@@ -27,5 +28,9 @@ public class NormalUser extends User{
 
     public void setDeleted() {
         super.setDeleted();
+    }
+
+    public void update(UpdateNormalUser.Request request) {
+        super.update(request);
     }
 }
