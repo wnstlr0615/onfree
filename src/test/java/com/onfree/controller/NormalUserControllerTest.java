@@ -2,9 +2,9 @@ package com.onfree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.NormalUserDetail;
-import com.onfree.core.dto.user.CreateNormalUser;
-import com.onfree.core.dto.user.UpdateNormalUser;
+import com.onfree.core.dto.user.normal.NormalUserDetail;
+import com.onfree.core.dto.user.normal.CreateNormalUser;
+import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
 import com.onfree.core.entity.user.NormalUser;

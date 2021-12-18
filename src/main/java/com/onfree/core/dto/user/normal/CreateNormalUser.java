@@ -1,4 +1,4 @@
-package com.onfree.core.dto.user;
+package com.onfree.core.dto.user.normal;
 
 import com.onfree.core.entity.user.*;
 import io.swagger.annotations.ApiModel;
