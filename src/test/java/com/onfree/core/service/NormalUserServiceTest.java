@@ -1,7 +1,7 @@
 package com.onfree.core.service;
 
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.NormalUserInfo;
+import com.onfree.core.dto.user.NormalUserDetail;
 import com.onfree.core.dto.user.CreateNormalUser;
 import com.onfree.core.dto.user.UpdateNormalUser;
 import com.onfree.core.entity.user.*;
@@ -37,32 +37,35 @@ class NormalUserServiceTest {
     @DisplayName("[성공] 회원가입 요청 - 정상적인 요청 성공")
     public void givenCreateUserRes_whenCreateUser_thenReturnSuccessfulResponse() throws Exception {
         //given
+        final CreateNormalUser.Request userReq = givenCreateNormalUserReq();
         when(userRepository.save(any()))
                 .thenReturn(
-                        getNormalUserEntity(givenCreateNormalUserReq())
+                        getNormalUserEntity(userReq)
                 );
         when(userRepository.countByEmail(any()))
                 .thenReturn(0);
         //when
-        CreateNormalUser.Response response = normalUserService.createNormalUser(
-                givenCreateNormalUserReq()
+        CreateNormalUser.Response response = normalUserService.createdNormalUser(
+                userReq
         );
         //then
+
         verify(userRepository, times(1)).save(any());
         assertThat(response)
-                .hasFieldOrPropertyWithValue("adultCertification", Boolean.TRUE)
-                .hasFieldOrPropertyWithValue("email", "jun@naver.com")
-                .hasFieldOrPropertyWithValue("gender", Gender.MAN.getName())
-                .hasFieldOrPropertyWithValue("name", "준식")
-                .hasFieldOrPropertyWithValue("newsAgency", "SKT")
-                .hasFieldOrPropertyWithValue("phoneNumber", "010-8888-9999")
-                .hasFieldOrPropertyWithValue("bankName", BankName.IBK_BANK.getBankName())
-                .hasFieldOrPropertyWithValue("accountNumber", "010-8888-9999")
-                .hasFieldOrPropertyWithValue("advertisementAgree", true)
-                .hasFieldOrPropertyWithValue("personalInfoAgree", true)
-                .hasFieldOrPropertyWithValue("policyAgree", true)
-                .hasFieldOrPropertyWithValue("serviceAgree", true)
-                .hasFieldOrPropertyWithValue("profileImage", "http://onfree.io/images/123456789");
+                .hasFieldOrPropertyWithValue("adultCertification", userReq.getAdultCertification())
+                .hasFieldOrPropertyWithValue("email", userReq.getEmail())
+                .hasFieldOrPropertyWithValue("gender", userReq.getGender().getName())
+                .hasFieldOrPropertyWithValue("name", userReq.getName())
+                .hasFieldOrPropertyWithValue("nickname", userReq.getNickname())
+                .hasFieldOrPropertyWithValue("newsAgency", userReq.getNewsAgency())
+                .hasFieldOrPropertyWithValue("phoneNumber", userReq.getPhoneNumber())
+                .hasFieldOrPropertyWithValue("bankName", userReq.getBankName().getBankName())
+                .hasFieldOrPropertyWithValue("accountNumber", userReq.getAccountNumber())
+                .hasFieldOrPropertyWithValue("advertisementAgree", userReq.getAdvertisementAgree())
+                .hasFieldOrPropertyWithValue("personalInfoAgree", userReq.getPersonalInfoAgree())
+                .hasFieldOrPropertyWithValue("policyAgree", userReq.getPolicyAgree())
+                .hasFieldOrPropertyWithValue("serviceAgree", userReq.getServiceAgree())
+                .hasFieldOrPropertyWithValue("profileImage", userReq.getProfileImage());
     }
 
     @Test
@@ -75,7 +78,7 @@ class NormalUserServiceTest {
 
         //when
         UserException userException = assertThrows(UserException.class,
-                () -> normalUserService.createNormalUser(
+                () -> normalUserService.createdNormalUser(
                         givenCreateNormalUserReq()
                 ));
 
@@ -95,6 +98,7 @@ class NormalUserServiceTest {
                 .password("!Abcderghijk112")
                 .gender(Gender.MAN)
                 .name("준식")
+                .nickname("온프리프리")
                 .newsAgency("SKT")
                 .phoneNumber("010-8888-9999")
                 .bankName(BankName.IBK_BANK)
@@ -119,10 +123,12 @@ class NormalUserServiceTest {
         final CreateNormalUser.Request request = givenCreateNormalUserReq();
         when(userRepository.findById(any()))
                 .thenReturn(
-                        Optional.of(getNormalUserEntity(request))
+                        Optional.of(
+                                getNormalUserEntity(request)
+                        )
                 );
         //when
-        final NormalUserInfo userInfo = normalUserService.getUserInfo(userId);
+        final NormalUserDetail userInfo = normalUserService.getUserDetail(userId);
         //then
         verify(userRepository, times(1)).findById(any());
         assertThat(userInfo)
@@ -130,6 +136,7 @@ class NormalUserServiceTest {
                 .hasFieldOrPropertyWithValue("email", request.getEmail())
                 .hasFieldOrPropertyWithValue("gender", request.getGender().getName())
                 .hasFieldOrPropertyWithValue("name", request.getName())
+                .hasFieldOrPropertyWithValue("nickname", request.getNickname())
                 .hasFieldOrPropertyWithValue("newsAgency", request.getNewsAgency())
                 .hasFieldOrPropertyWithValue("phoneNumber", request.getPhoneNumber())
                 .hasFieldOrPropertyWithValue("bankName", request.getBankName().getBankName())
@@ -154,7 +161,7 @@ class NormalUserServiceTest {
                 );
         //when
         final UserException userException = assertThrows(UserException.class,
-                () -> normalUserService.getUserInfo(userId)
+                () -> normalUserService.getUserDetail(userId)
         );
 
         //then
@@ -243,6 +250,7 @@ class NormalUserServiceTest {
                 .build();
         return NormalUser.builder()
                 .userId(userId)
+                .nickname(request.getNickname())
                 .adultCertification(Boolean.TRUE)
                 .email(request.getEmail())
                 .password(request.getPassword())

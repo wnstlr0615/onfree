@@ -1,7 +1,7 @@
 package com.onfree.controller;
 
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.NormalUserInfo;
+import com.onfree.core.dto.user.NormalUserDetail;
 import com.onfree.core.dto.user.CreateNormalUser;
 import com.onfree.core.dto.user.UpdateNormalUser;
 import com.onfree.core.service.NormalUserService;
@@ -32,16 +32,17 @@ public class NormalUserController {
     @PostMapping("")
     public CreateNormalUser.Response createNormalUser(
             @RequestBody @Valid  CreateNormalUser.Request request,
-            BindingResult errors){
+            BindingResult errors
+    ){
         validParameter(errors);
-        return normalUserService.createNormalUser(request);
+        return normalUserService.createdNormalUser(request);
     }
     @ApiOperation(value = "일반 유저 사용자 정보 조회", notes = "일반 유저 사용자 정보 조회")
     @GetMapping("/{userId}")
-    public NormalUserInfo getUserInfo(
+    public NormalUserDetail getUserInfo(
             @ApiParam(value = "사용자 userId ") @PathVariable(name = "userId") Long userId
     ){
-        return normalUserService.getUserInfo(userId);
+        return normalUserService.getUserDetail(userId);
     }
 
     @ApiOperation(value = "일반 유저 사용자 deleted 처리")

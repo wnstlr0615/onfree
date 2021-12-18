@@ -2,7 +2,7 @@ package com.onfree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.NormalUserInfo;
+import com.onfree.core.dto.user.NormalUserDetail;
 import com.onfree.core.dto.user.CreateNormalUser;
 import com.onfree.core.dto.user.UpdateNormalUser;
 import com.onfree.core.entity.user.BankName;
@@ -44,8 +44,8 @@ class NormalUserControllerTest {
     public void givenCreateUserReq_whenCreateNormalUser_thenCreateUserRes() throws Exception{
         //given
         CreateNormalUser.Request request = givenCreateNormalUserReq();
-        CreateNormalUser.Response response = givenCreateNormalUserRes();
-        when(normalUserService.createNormalUser(any()))
+        CreateNormalUser.Response response = givenCreateNormalUserRes(request);
+        when(normalUserService.createdNormalUser(any()))
                 .thenReturn(response);
 
         //when //then
@@ -74,7 +74,7 @@ class NormalUserControllerTest {
             .andExpect(jsonPath("$.gender").value(Gender.MAN.getName()))
             .andExpect(jsonPath("$.profileImage").value("http://onfree.io/images/123456789"))
         ;
-        verify(normalUserService, times(1)).createNormalUser(any());
+        verify(normalUserService, times(1)).createdNormalUser(any());
     }
     private CreateNormalUser.Request givenCreateNormalUserReq() {
         return CreateNormalUser.Request
@@ -96,22 +96,23 @@ class NormalUserControllerTest {
                 .profileImage("http://onfree.io/images/123456789")
                 .build();
     }
-    private CreateNormalUser.Response givenCreateNormalUserRes(){
+    private CreateNormalUser.Response givenCreateNormalUserRes(CreateNormalUser.Request request){
         return CreateNormalUser.Response
                 .builder()
-                .adultCertification(Boolean.TRUE)
-                .email("jun@naver.com")
-                .gender(Gender.MAN.getName())
-                .name("준식")
-                .newsAgency("SKT")
-                .phoneNumber("010-8888-9999")
-                .bankName(BankName.IBK_BANK.getBankName())
-                .accountNumber("010-8888-9999")
-                .advertisementAgree(true)
-                .personalInfoAgree(true)
-                .policyAgree(true)
-                .serviceAgree(true)
-                .profileImage("http://onfree.io/images/123456789")
+                .adultCertification(request.getAdultCertification())
+                .email(request.getEmail())
+                .gender(request.getGender().getName())
+                .name(request.getName())
+                .nickname(request.getNickname())
+                .newsAgency(request.getNewsAgency())
+                .phoneNumber(request.getPhoneNumber())
+                .bankName(request.getBankName().getBankName())
+                .accountNumber(request.getAccountNumber())
+                .advertisementAgree(request.getAdvertisementAgree())
+                .personalInfoAgree(request.getPersonalInfoAgree())
+                .policyAgree(request.getPolicyAgree())
+                .serviceAgree(request.getServiceAgree())
+                .profileImage(request.getProfileImage())
                 .build();
     }
     @Test
@@ -134,7 +135,7 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
-        verify(normalUserService, never()).createNormalUser(any());
+        verify(normalUserService, never()).createdNormalUser(any());
     }
 
     private CreateNormalUser.Request givenWrongCreateNormalUserReq() {
@@ -163,7 +164,7 @@ class NormalUserControllerTest {
         //given
         CreateNormalUser.Request request = givenCreateNormalUserReq();
         ErrorCode errorCode = UserErrorCode.USER_EMAIL_DUPLICATED;
-        when(normalUserService.createNormalUser(any()))
+        when(normalUserService.createdNormalUser(any()))
                 .thenThrow( new UserException(errorCode));
         //when //then
         mvc.perform(post("/api/users/normal")
@@ -179,7 +180,7 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
-        verify(normalUserService, times(1)).createNormalUser(any());
+        verify(normalUserService, times(1)).createdNormalUser(any());
     }
 
     @Test
@@ -187,7 +188,7 @@ class NormalUserControllerTest {
     public void givenUserId_whenGetUserInfo_thenReturnUserInfo() throws Exception {
         //given
         final Long userId = 1L;
-        when(normalUserService.getUserInfo(userId))
+        when(normalUserService.getUserDetail(userId))
                 .thenReturn(
                         getNormalUserInfo()
                 );
@@ -213,10 +214,10 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("$.gender").value(Gender.MAN.getName()))
                 .andExpect(jsonPath("$.profileImage").value("http://onfree.io/images/123456789"))
                 ;
-        verify(normalUserService, times(1)).getUserInfo(any());
+        verify(normalUserService, times(1)).getUserDetail(any());
     }
-    public NormalUserInfo getNormalUserInfo(){
-            return NormalUserInfo
+    public NormalUserDetail getNormalUserInfo(){
+            return NormalUserDetail
                     .fromEntity(
                             getNormalUserEntityFromCreateNormalUserRequest()
                     );
@@ -231,7 +232,7 @@ class NormalUserControllerTest {
         //given
         final Long userId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
-        when(normalUserService.getUserInfo(userId))
+        when(normalUserService.getUserDetail(userId))
                 .thenThrow(new UserException(errorCode));
         //when
 
@@ -244,7 +245,7 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
-        verify(normalUserService, times(1)).getUserInfo(any());
+        verify(normalUserService, times(1)).getUserDetail(any());
 
     }
     @Test
