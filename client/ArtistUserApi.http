@@ -5,7 +5,7 @@ Content-Type: application/json
 {
   "name": "준식",
   "nickname": "온프리!!",
-  "email": "jun@naver.com",
+  "email": "jun123@naver.com",
   "password": "!Abcderghijk112",
   "newsAgency": "SKT",
   "phoneNumber": "010-8888-9999",
@@ -45,6 +45,10 @@ Content-Type: application/json
 
 ### 회원 정보 조회
 GET {{host}}/api/users/artist/1
+Content-Type: application/json
+
+### 회원 제거
+DELETE {{host}}/api/users/artist/1
 Content-Type: application/json
 
 ### 회원정보 수정
