@@ -4,7 +4,7 @@ import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.NormalUserInfo;
 import com.onfree.core.dto.user.CreateNormalUser;
 import com.onfree.core.dto.user.UpdateNormalUser;
-import com.onfree.core.service.UserService;
+import com.onfree.core.service.NormalUserService;
 import com.onfree.error.code.UserErrorCode;
 import com.onfree.error.exception.UserException;
 import io.swagger.annotations.Api;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RequestMapping("/api/users/normal")
 public class NormalUserController {
-    private final UserService userService;
+    private final NormalUserService normalUserService;
 
     @ApiOperation(value = "일반 유저 회원 가입 요청" , notes = "일반 유저 회원 가입 요청")
     @PostMapping("")
@@ -34,14 +34,14 @@ public class NormalUserController {
             @RequestBody @Valid  CreateNormalUser.Request request,
             BindingResult errors){
         validParameter(errors);
-        return userService.createNormalUser(request);
+        return normalUserService.createNormalUser(request);
     }
     @ApiOperation(value = "일반 유저 사용자 정보 조회", notes = "일반 유저 사용자 정보 조회")
     @GetMapping("/{userId}")
     public NormalUserInfo getUserInfo(
             @ApiParam(value = "사용자 userId ") @PathVariable(name = "userId") Long userId
     ){
-        return userService.getUserInfo(userId);
+        return normalUserService.getUserInfo(userId);
     }
 
     @ApiOperation(value = "일반 유저 사용자 deleted 처리")
@@ -49,7 +49,7 @@ public class NormalUserController {
     public DeletedUserResponse deletedNormalUser(
             @ApiParam(value = "사용자 userId ") @PathVariable(name = "deletedUserId") Long userId
     ){
-        return userService.deletedNormalUser(userId);
+        return normalUserService.deletedNormalUser(userId);
     }
     @ApiOperation(value = "일반 유저 정보수정")
     @PutMapping("/{userId}")
@@ -59,7 +59,7 @@ public class NormalUserController {
             BindingResult errors
     ){
         validParameter(errors);
-        return userService.modifyedUser(userId, request);
+        return normalUserService.modifyedUser(userId, request);
 
     }
 

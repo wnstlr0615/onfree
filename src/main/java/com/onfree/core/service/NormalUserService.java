@@ -17,7 +17,7 @@ import static com.onfree.error.code.UserErrorCode.*;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class UserService {
+public class NormalUserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 

@@ -24,13 +24,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class NormalUserServiceTest {
     @Mock
     UserRepository userRepository;
     @Spy
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @InjectMocks
-    UserService userService;
+    NormalUserService normalUserService;
 
     @Test
     @DisplayName("[성공] 회원가입 요청 - 정상적인 요청 성공")
@@ -43,7 +44,7 @@ class UserServiceTest {
         when(userRepository.countByEmail(any()))
                 .thenReturn(0);
         //when
-        CreateNormalUser.Response response = userService.createNormalUser(
+        CreateNormalUser.Response response = normalUserService.createNormalUser(
                 givenCreateNormalUserReq()
         );
         //then
@@ -74,7 +75,7 @@ class UserServiceTest {
 
         //when
         UserException userException = assertThrows(UserException.class,
-                () -> userService.createNormalUser(
+                () -> normalUserService.createNormalUser(
                         givenCreateNormalUserReq()
                 ));
 
@@ -121,7 +122,7 @@ class UserServiceTest {
                         Optional.of(getNormalUserEntity(request))
                 );
         //when
-        final NormalUserInfo userInfo = userService.getUserInfo(userId);
+        final NormalUserInfo userInfo = normalUserService.getUserInfo(userId);
         //then
         verify(userRepository, times(1)).findById(any());
         assertThat(userInfo)
@@ -153,7 +154,7 @@ class UserServiceTest {
                 );
         //when
         final UserException userException = assertThrows(UserException.class,
-                () -> userService.getUserInfo(userId)
+                () -> normalUserService.getUserInfo(userId)
         );
 
         //then
@@ -174,7 +175,7 @@ class UserServiceTest {
                         ))
                 );
         //when
-        final DeletedUserResponse deletedUserResponse = userService.deletedNormalUser(deletedUserId);
+        final DeletedUserResponse deletedUserResponse = normalUserService.deletedNormalUser(deletedUserId);
         //then
         assertThat(deletedUserResponse)
                 .hasFieldOrPropertyWithValue("userId", deletedUserId)
@@ -199,7 +200,7 @@ class UserServiceTest {
                 );
         //when
         final UserException userException = assertThrows(UserException.class,
-                () -> userService.deletedNormalUser(deletedUserId));
+                () -> normalUserService.deletedNormalUser(deletedUserId));
         //then
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", errorCode)
@@ -225,7 +226,7 @@ class UserServiceTest {
                 );
         //when
         final UserException userException = assertThrows(UserException.class,
-                () -> userService.deletedNormalUser(deletedUserId));
+                () -> normalUserService.deletedNormalUser(deletedUserId));
         //then
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", errorCode)
@@ -268,7 +269,7 @@ class UserServiceTest {
                         Optional.of(getNormalUserEntity(userId))
                 );
         //when
-        final UpdateNormalUser.Response response = userService.modifyedUser(userId, request);
+        final UpdateNormalUser.Response response = normalUserService.modifyedUser(userId, request);
         //then
         assertThat(response)
             .hasFieldOrPropertyWithValue("nickname",request.getNickname())
@@ -339,7 +340,7 @@ class UserServiceTest {
                         Optional.empty()
                 );
         //when
-        final UserException userException = assertThrows(UserException.class, () -> userService.modifyedUser(wrongUserId, request));
+        final UserException userException = assertThrows(UserException.class, () -> normalUserService.modifyedUser(wrongUserId, request));
         //then
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", UserErrorCode.NOT_FOUND_USERID)

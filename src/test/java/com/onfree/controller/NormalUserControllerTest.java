@@ -8,7 +8,7 @@ import com.onfree.core.dto.user.UpdateNormalUser;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
 import com.onfree.core.entity.user.NormalUser;
-import com.onfree.core.service.UserService;
+import com.onfree.core.service.NormalUserService;
 import com.onfree.error.code.ErrorCode;
 import com.onfree.error.code.UserErrorCode;
 import com.onfree.error.exception.UserException;
@@ -37,7 +37,7 @@ class NormalUserControllerTest {
     private ObjectMapper mapper;
 
     @MockBean
-    private UserService userService;
+    private NormalUserService normalUserService;
 
     @Test
     @DisplayName("[성공][POST] 회원가입 요청")
@@ -45,7 +45,7 @@ class NormalUserControllerTest {
         //given
         CreateNormalUser.Request request = givenCreateNormalUserReq();
         CreateNormalUser.Response response = givenCreateNormalUserRes();
-        when(userService.createNormalUser(any()))
+        when(normalUserService.createNormalUser(any()))
                 .thenReturn(response);
 
         //when //then
@@ -60,6 +60,7 @@ class NormalUserControllerTest {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.name").value("준식"))
+            .andExpect(jsonPath("$.nickname").value("온프리짱짱"))
             .andExpect(jsonPath("$.email").value("jun@naver.com"))
             .andExpect(jsonPath("$.newsAgency").value("SKT"))
             .andExpect(jsonPath("$.phoneNumber").value("010-8888-9999"))
@@ -73,7 +74,7 @@ class NormalUserControllerTest {
             .andExpect(jsonPath("$.gender").value(Gender.MAN.getName()))
             .andExpect(jsonPath("$.profileImage").value("http://onfree.io/images/123456789"))
         ;
-        verify(userService, times(1)).createNormalUser(any());
+        verify(normalUserService, times(1)).createNormalUser(any());
     }
     private CreateNormalUser.Request givenCreateNormalUserReq() {
         return CreateNormalUser.Request
@@ -133,7 +134,7 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
-        verify(userService, never()).createNormalUser(any());
+        verify(normalUserService, never()).createNormalUser(any());
     }
 
     private CreateNormalUser.Request givenWrongCreateNormalUserReq() {
@@ -162,7 +163,7 @@ class NormalUserControllerTest {
         //given
         CreateNormalUser.Request request = givenCreateNormalUserReq();
         ErrorCode errorCode = UserErrorCode.USER_EMAIL_DUPLICATED;
-        when(userService.createNormalUser(any()))
+        when(normalUserService.createNormalUser(any()))
                 .thenThrow( new UserException(errorCode));
         //when //then
         mvc.perform(post("/api/users/normal")
@@ -178,7 +179,7 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
-        verify(userService, times(1)).createNormalUser(any());
+        verify(normalUserService, times(1)).createNormalUser(any());
     }
 
     @Test
@@ -186,7 +187,7 @@ class NormalUserControllerTest {
     public void givenUserId_whenGetUserInfo_thenReturnUserInfo() throws Exception {
         //given
         final Long userId = 1L;
-        when(userService.getUserInfo(userId))
+        when(normalUserService.getUserInfo(userId))
                 .thenReturn(
                         getNormalUserInfo()
                 );
@@ -212,7 +213,7 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("$.gender").value(Gender.MAN.getName()))
                 .andExpect(jsonPath("$.profileImage").value("http://onfree.io/images/123456789"))
                 ;
-        verify(userService, times(1)).getUserInfo(any());
+        verify(normalUserService, times(1)).getUserInfo(any());
     }
     public NormalUserInfo getNormalUserInfo(){
             return NormalUserInfo
@@ -230,7 +231,7 @@ class NormalUserControllerTest {
         //given
         final Long userId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
-        when(userService.getUserInfo(userId))
+        when(normalUserService.getUserInfo(userId))
                 .thenThrow(new UserException(errorCode));
         //when
 
@@ -243,7 +244,7 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
-        verify(userService, times(1)).getUserInfo(any());
+        verify(normalUserService, times(1)).getUserInfo(any());
 
     }
     @Test
@@ -252,7 +253,7 @@ class NormalUserControllerTest {
 
         //given
         final long deletedUserId = 1L;
-        when(userService.deletedNormalUser(deletedUserId))
+        when(normalUserService.deletedNormalUser(deletedUserId))
                 .thenReturn(getDeletedUserResponse(1L));
         //when && then
         mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
@@ -263,7 +264,7 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("$.userId").value(deletedUserId))
                 .andExpect(jsonPath("$.deleted").value(true))
         ;
-        verify(userService, times(1)).deletedNormalUser(any());
+        verify(normalUserService, times(1)).deletedNormalUser(any());
     }
 
     private DeletedUserResponse getDeletedUserResponse(long userId) {
@@ -279,7 +280,7 @@ class NormalUserControllerTest {
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
-        when(userService.deletedNormalUser(deletedUserId))
+        when(normalUserService.deletedNormalUser(deletedUserId))
                 .thenThrow(new UserException(errorCode));
         //when && then
         mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
@@ -290,7 +291,7 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
-        verify(userService, times(1)).deletedNormalUser(any());
+        verify(normalUserService, times(1)).deletedNormalUser(any());
     }
 
     @Test
@@ -299,7 +300,7 @@ class NormalUserControllerTest {
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
-        when(userService.deletedNormalUser(deletedUserId))
+        when(normalUserService.deletedNormalUser(deletedUserId))
                 .thenThrow(new UserException(errorCode));
         //when && then
         mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
@@ -310,14 +311,14 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
-        verify(userService, times(1)).deletedNormalUser(any());
+        verify(normalUserService, times(1)).deletedNormalUser(any());
     }
     @Test
     @DisplayName("[성공][PUT] 사용자 정보 수정")
     public void givenUpdateUserInfo_whenModifiedUser_thenReturnUpdateInfo() throws Exception{
         //given
         final long userId = 1L;
-        when(userService.modifyedUser(any(), any()))
+        when(normalUserService.modifyedUser(any(), any()))
                 .thenReturn(
                         getUpdateNormalUserRes()
                 );
@@ -340,7 +341,7 @@ class NormalUserControllerTest {
             .andExpect(jsonPath("$.adultCertification").value(true))
             .andExpect(jsonPath("$.profileImage").value("http://onfree.io/images/aaa123"))
         ;
-        verify(userService, times(1)).modifyedUser(eq(userId), any());
+        verify(normalUserService, times(1)).modifyedUser(eq(userId), any());
     }
 
     private UpdateNormalUser.Response getUpdateNormalUserRes() {
@@ -388,7 +389,7 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
            ;
-        verify(userService, never()).modifyedUser(eq(userId), any());
+        verify(normalUserService, never()).modifyedUser(eq(userId), any());
     }
 
     private UpdateNormalUser.Request givenWrongUpdateNormalUserReq() {
@@ -407,7 +408,7 @@ class NormalUserControllerTest {
         //given
         final long wrongUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
-        when(userService.modifyedUser(eq(wrongUserId), any()))
+        when(normalUserService.modifyedUser(eq(wrongUserId), any()))
                 .thenThrow(new UserException(errorCode));
         //when then
         mvc.perform(put("/api/users/normal/{userId}", wrongUserId)
@@ -423,7 +424,7 @@ class NormalUserControllerTest {
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
-        verify(userService, times(1)).modifyedUser(eq(wrongUserId), any());
+        verify(normalUserService, times(1)).modifyedUser(eq(wrongUserId), any());
     }
 
 }

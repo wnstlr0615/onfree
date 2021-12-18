@@ -18,7 +18,7 @@ public class CreateNormalUser {
         private final String name;
 
         @ApiModelProperty(value = "사용자 닉네임", example = "온프리대박기원")
-        @NotBlank(message = "이름은 공백일수 없습니다.")
+        @NotBlank(message = "닉네임은 공백일수 없습니다.")
         private final String nickname;
 
         @ApiModelProperty(value = "이메일주소(사용자 아이디)", example = "jun@naver.com")
@@ -115,7 +115,7 @@ public class CreateNormalUser {
         private final String name;
 
         @ApiModelProperty(value = "사용자 닉네임", example = "온프리대박기원")
-        @NotBlank(message = "이름은 공백일수 없습니다.")
+        @NotBlank(message = "닉네임은 공백일수 없습니다.")
         private final String nickname;
 
         @ApiModelProperty(value = "이메일주소(사용자 아이디)", example = "jun@naver.com")
@@ -161,6 +161,7 @@ public class CreateNormalUser {
                     .email(entity.getEmail())
                     .gender(entity.getGender().getName())
                     .name(entity.getName())
+                    .nickname(entity.getNickname())
                     .newsAgency(entity.getNewsAgency())
                     .phoneNumber(entity.getPhoneNumber())
                     .bankName(entity.getBankInfo().getBankName().getBankName())
