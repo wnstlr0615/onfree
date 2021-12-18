@@ -1,7 +1,6 @@
-package com.onfree.core.dto.user;
+package com.onfree.core.dto.user.normal;
 
 import com.onfree.core.entity.user.BankName;
-import com.onfree.core.entity.user.Gender;
 import com.onfree.core.entity.user.NormalUser;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

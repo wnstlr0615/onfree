@@ -1,7 +1,6 @@
 package com.onfree.core.entity.user;
 
-import com.onfree.core.dto.user.UpdateNormalUser;
-import lombok.AllArgsConstructor;
+import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,6 +30,10 @@ public class NormalUser extends User{
     }
 
     public void update(UpdateNormalUser.Request request) {
-        super.update(request);
+        BankInfo bankInfo= BankInfo.builder()
+                .bankName(request.getBankName())
+                .accountNumber(request.getAccountNumber())
+                .build();
+        super.update(bankInfo, request.getAdultCertification(), request.getNickname(), request.getNewsAgency(), request.getPhoneNumber(), request.getProfileImage());
     }
 }

@@ -1,9 +1,9 @@
 package com.onfree.core.service;
 
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.NormalUserInfo;
-import com.onfree.core.dto.user.CreateNormalUser;
-import com.onfree.core.dto.user.UpdateNormalUser;
+import com.onfree.core.dto.user.normal.NormalUserDetail;
+import com.onfree.core.dto.user.normal.CreateNormalUser;
+import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.entity.user.NormalUser;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.error.exception.UserException;
@@ -23,11 +23,11 @@ public class NormalUserService {
 
     /** 회원가입 요청 */
     @Transactional
-    public CreateNormalUser.Response createNormalUser(CreateNormalUser.Request request) {
+    public CreateNormalUser.Response createdNormalUser(CreateNormalUser.Request request) {
         duplicatedUserEmail(request.getEmail());
         return CreateNormalUser.Response
                 .fromEntity(
-                    saveUser(
+                    saveNormalUser(
                             bcryptPassword(request.toEntity())
                     )
         );
@@ -42,7 +42,7 @@ public class NormalUserService {
         return normalUser;
     }
 
-    private NormalUser saveUser(NormalUser normalUser) {
+    private NormalUser saveNormalUser(NormalUser normalUser) {
         return userRepository.save(normalUser);
     }
 
@@ -58,9 +58,9 @@ public class NormalUserService {
                 email
         );
     }
-    /** 사용자 정보 조ㅚ*/
-    public NormalUserInfo getUserInfo(Long userId) {
-        return NormalUserInfo.fromEntity(
+    /** 사용자 정보 조회*/
+    public NormalUserDetail getUserDetail(Long userId) {
+        return NormalUserDetail.fromEntity(
                 getNormalUser(userId)
         );
     }
@@ -72,6 +72,7 @@ public class NormalUserService {
                 );
     }
     /** 사용자 deleted 처리*/
+    @Transactional
     public DeletedUserResponse deletedNormalUser(Long userId) {
         return DeletedUserResponse.fromEntity(
                 setNormalUserDeleted(
@@ -91,6 +92,7 @@ public class NormalUserService {
     private boolean normalUserIsDeleted(NormalUser normalUser) {
         return normalUser.getDeleted();
     }
+
     /** 사용자 계정 수정*/
     @Transactional
     public UpdateNormalUser.Response modifyedUser(Long userId, UpdateNormalUser.Request request) {

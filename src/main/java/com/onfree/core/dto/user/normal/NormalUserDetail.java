@@ -1,4 +1,4 @@
-package com.onfree.core.dto.user;
+package com.onfree.core.dto.user.normal;
 
 import com.onfree.core.entity.user.NormalUser;
 import io.swagger.annotations.ApiModelProperty;
@@ -7,53 +7,57 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class NormalUserInfo {
+public class NormalUserDetail {
     @ApiModelProperty(value = "사용자 이름", example = "김모씨")
-    private String name;
+    private final String name;
+
+    @ApiModelProperty(value = "사용자 닉네임", example = "온프리프리")
+    private final String nickname;
 
     @ApiModelProperty(value = "이메일주소(사용자 아이디)", example = "jun@naver.com")
-    private String email;
+    private final String email;
 
     @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
-    private String newsAgency; //통신사
+    private final String newsAgency; //통신사
 
 
     @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
-    private String phoneNumber;
+    private final String phoneNumber;
 
     @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = "${BankName.joinString()}" )
-    private String bankName;
+    private final String bankName;
 
     @ApiModelProperty(value = "계좌번호", example = "123456-456789-12")
-    private String accountNumber;
+    private final String accountNumber;
 
     @ApiModelProperty(value = "서비스동의", example = "true")
-    private Boolean serviceAgree;
+    private final Boolean serviceAgree;
 
     @ApiModelProperty(value = "정책동의", example = "true")
-    private Boolean policyAgree;
+    private final Boolean policyAgree;
 
     @ApiModelProperty(value = "개인정보동의", example = "true")
-    private Boolean personalInfoAgree;
+    private final Boolean personalInfoAgree;
 
     @ApiModelProperty(value = "광고동의", example = "true")
-    private Boolean advertisementAgree;
+    private final Boolean advertisementAgree;
 
     @ApiModelProperty(value = "성인인증", example = "true")
-    private Boolean adultCertification;
+    private final Boolean adultCertification;
 
     @ApiModelProperty(value = "성별", example = "${Gender.joinString()}")
-    private String gender;
+    private final String gender;
 
     @ApiModelProperty(value = "프로필 URL", example = "http://onfree.io/images/546456498")
-    private String profileImage;
+    private final String profileImage;
 
-    public static NormalUserInfo fromEntity(NormalUser entity) {
-        return NormalUserInfo.builder()
+    public static NormalUserDetail fromEntity(NormalUser entity) {
+        return NormalUserDetail.builder()
                 .adultCertification(entity.getAdultCertification())
                 .email(entity.getEmail())
                 .gender(entity.getGender().getName())
                 .name(entity.getName())
+                .nickname(entity.getNickname())
                 .newsAgency(entity.getNewsAgency())
                 .phoneNumber(entity.getPhoneNumber())
                 .bankName(entity.getBankInfo().getBankName().getBankName())

@@ -1,11 +1,9 @@
 package com.onfree.core.entity.user;
 
-import com.onfree.core.dto.user.UpdateNormalUser;
 import com.onfree.core.model.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.lang.annotation.Inherited;
 
 @Entity
 @Table(name = "users")
@@ -66,15 +64,12 @@ public abstract class User extends BaseTimeEntity {
         this.deleted=true;
     }
 
-    protected void update(UpdateNormalUser.Request request) {
-        this.bankInfo= BankInfo.builder()
-                .bankName(request.getBankName())
-                .accountNumber(request.getAccountNumber())
-                .build();
-        this.adultCertification=request.getAdultCertification();
-        this.nickname=request.getNickname();
-        this.newsAgency=request.getNewsAgency();
-        this.phoneNumber=request.getPhoneNumber();
-        this.profileImage=request.getProfileImage();
+    protected void update(BankInfo bankInfo, boolean adultCertification, String nickname, String newsAgency, String phoneNumber, String profileImage) {
+        this.bankInfo= bankInfo;
+        this.adultCertification=adultCertification;
+        this.nickname= nickname;
+        this.newsAgency= newsAgency;
+        this.phoneNumber= phoneNumber;
+        this.profileImage= profileImage;
     }
 }
