@@ -4,6 +4,7 @@ import com.onfree.core.model.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -52,9 +53,31 @@ public abstract class User extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean deleted;
 
+    @Column()
+    private LocalDateTime deletedTime;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private Role role; // 권한
+
+
+
+    public User(Long userId, String name, String nickname, String email, String password, String newsAgency, String phoneNumber, BankInfo bankInfo, UserAgree userAgree, Boolean adultCertification, Gender gender, String profileImage, Boolean deleted, Role role) {
+        this.userId = userId;
+        this.name = name;
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+        this.newsAgency = newsAgency;
+        this.phoneNumber = phoneNumber;
+        this.bankInfo = bankInfo;
+        this.userAgree = userAgree;
+        this.adultCertification = adultCertification;
+        this.gender = gender;
+        this.profileImage = profileImage;
+        this.deleted = deleted;
+        this.role = role;
+    }
 
     public void encryptPassword(String encryptPassword){
         this.password=encryptPassword;
@@ -62,6 +85,7 @@ public abstract class User extends BaseTimeEntity {
 
     protected void setDeleted() {
         this.deleted=true;
+        this.deletedTime=LocalDateTime.now();
     }
 
     protected void update(BankInfo bankInfo, boolean adultCertification, String nickname, String newsAgency, String phoneNumber, String profileImage) {
