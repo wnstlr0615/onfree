@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class NormalUserController {
     private final NormalUserService normalUserService;
 
+    @PreAuthorize(value = "isAnonymous()")
     @ApiOperation(value = "일반 유저 회원 가입 요청" , notes = "일반 유저 회원 가입 요청")
     @PostMapping("")
     public CreateNormalUser.Response createNormalUser(
@@ -37,6 +39,7 @@ public class NormalUserController {
         validParameter(errors);
         return normalUserService.createdNormalUser(request);
     }
+    @PreAuthorize(value = "hasRole('NORMAL')")
     @ApiOperation(value = "일반 유저 사용자 정보 조회", notes = "일반 유저 사용자 정보 조회")
     @GetMapping("/{userId}")
     public NormalUserDetail getUserInfo(
@@ -45,6 +48,7 @@ public class NormalUserController {
         return normalUserService.getUserDetail(userId);
     }
 
+    @PreAuthorize(value = "hasRole('NORMAL')")
     @ApiOperation(value = "일반 유저 사용자 deleted 처리")
     @DeleteMapping("/{deletedUserId}")
     public DeletedUserResponse deletedNormalUser(
@@ -52,6 +56,8 @@ public class NormalUserController {
     ){
         return normalUserService.deletedNormalUser(userId);
     }
+
+    @PreAuthorize(value = "hasRole('NORMAL')")
     @ApiOperation(value = "일반 유저 정보수정")
     @PutMapping("/{userId}")
     public UpdateNormalUser.Response updateUserInfo(

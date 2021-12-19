@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class ArtistUserController {
     private final ArtistUserService artistUserService;
 
+    @PreAuthorize(value = "isAnonymous()")
     @ApiOperation(value = "작가 유저 회원 가입 요청" , notes = "작가 유저 회원 가입 요청")
     @PostMapping("")
     public CreateArtistUser.Response createNormalUser(
@@ -37,6 +39,8 @@ public class ArtistUserController {
         validParameter(errors);
         return artistUserService.createArtistUser(request);
     }
+
+    @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "작가 유저 사용자 정보 조회", notes = "작가 유저 사용자 정보 조회")
     @GetMapping("/{userId}")
     public ArtistUserDetail getUserInfo(
@@ -45,6 +49,7 @@ public class ArtistUserController {
         return artistUserService.getUserDetail(userId);
     }
 
+    @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "작가 유저 사용자 deleted 처리")
     @DeleteMapping("/{deletedUserId}")
     public DeletedUserResponse deletedNormalUser(
@@ -52,6 +57,8 @@ public class ArtistUserController {
     ){
         return artistUserService.deletedArtistUser(userId);
     }
+
+    @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "작가 유저 정보수정")
     @PutMapping("/{userId}")
     public UpdateArtistUser.Response updateUserInfo(

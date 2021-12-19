@@ -1,6 +1,10 @@
 package com.onfree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.onfree.anotation.WithArtistUser;
+import com.onfree.anotation.WithNormalUser;
+import com.onfree.config.CustomUserDetail;
+import com.onfree.config.CustomUserDetailService;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.normal.NormalUserDetail;
 import com.onfree.core.dto.user.normal.CreateNormalUser;
@@ -19,6 +23,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -39,7 +45,11 @@ class NormalUserControllerTest {
     @MockBean
     private NormalUserService normalUserService;
 
+    @MockBean
+    private CustomUserDetailService userDetailService;
+
     @Test
+    @WithAnonymousUser
     @DisplayName("[성공][POST] 회원가입 요청")
     public void givenCreateUserReq_whenCreateNormalUser_thenCreateUserRes() throws Exception{
         //given
@@ -75,6 +85,28 @@ class NormalUserControllerTest {
             .andExpect(jsonPath("$.profileImage").value("http://onfree.io/images/123456789"))
         ;
         verify(normalUserService, times(1)).createdNormalUser(any());
+    }
+
+    @Test
+    @WithMockUser(roles = {"ARTIST, NORMAL"})
+    @DisplayName("[실패][POST] 회원가입 요청 - ")
+    public void givenCreateUserReq_whenCreateNormalUserWithLoginUser_thenCreateUserRes() throws Exception{
+        //given
+        CreateNormalUser.Request request = givenCreateNormalUserReq();
+
+        //when //then
+        mvc.perform(post("/api/users/normal")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                        mapper.writeValueAsString(
+                                request
+                        )
+                )
+        )
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+        verify(normalUserService, never()).createdNormalUser(any());
     }
     private CreateNormalUser.Request givenCreateNormalUserReq() {
         return CreateNormalUser.Request
@@ -116,6 +148,7 @@ class NormalUserControllerTest {
                 .build();
     }
     @Test
+    @WithAnonymousUser
     @DisplayName("[실패][POST] 회원가입 요청 - 회원가입 request가 올바르지 않은 경우")
     public void givenWrongCreateUserReq_whenCreateNormalUser_thenParameterValidError() throws Exception{
         //given
@@ -159,6 +192,7 @@ class NormalUserControllerTest {
     }
 
     @Test
+    @WithAnonymousUser
     @DisplayName("[실패][POST] 회원가입 요청 - 이메일 중복으로 인한 회원가입 실패")
     public void givenDuplicatedEmail_whenCreateNormalUser_thenDuplicatedEmailError() throws Exception{
         //given
@@ -184,6 +218,7 @@ class NormalUserControllerTest {
     }
 
     @Test
+    @WithNormalUser
     @DisplayName("[성공][GET] 사용자 정보 조회 ")
     public void givenUserId_whenGetUserInfo_thenReturnUserInfo() throws Exception {
         //given
@@ -221,12 +256,36 @@ class NormalUserControllerTest {
                     .fromEntity(
                             getNormalUserEntityFromCreateNormalUserRequest()
                     );
-        }
+    }
 
     public NormalUser getNormalUserEntityFromCreateNormalUserRequest(){
             return givenCreateNormalUserReq().toEntity();
-        }
+    }
+
     @Test
+    @WithArtistUser
+    @DisplayName("[실패][GET] 사용자 정보 조회 - 작가유저가 접근한 경우")
+    public void givenUserId_whenGetUserInfoWithArtistUser_thenReturnUserInfo() throws Exception {
+        //given
+        final Long userId = 1L;
+        when(normalUserService.getUserDetail(userId))
+                .thenReturn(
+                        getNormalUserInfo()
+                );
+        //when
+
+        //then
+        mvc.perform(get("/api/users/normal/{userId}", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+        verify(normalUserService, never()).getUserDetail(any());
+    }
+
+    @Test
+    @WithNormalUser
     @DisplayName("[실패][GET] 사용자 정보 조회 - 없는 userId 검색 시 예외발생  ")
     public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserError() throws Exception {
         //given
@@ -249,6 +308,7 @@ class NormalUserControllerTest {
 
     }
     @Test
+    @WithNormalUser
     @DisplayName("[성공][DELETE] 사용자 계정 Flag 삭제")
     public void givenDeleteUserId_whenDeleteNormalUser_thenReturnDeletedUserResponse() throws Exception{
 
@@ -274,8 +334,26 @@ class NormalUserControllerTest {
                 .deleted(true)
                 .build();
     }
+    
+    @Test
+    @WithArtistUser
+    @DisplayName("[실패][DELETE] 사용자 계정 Flag 삭제 - 작가유저가 접근한 경우")
+    public void givenDeleteUserId_whenDeleteNormalUserWithArtistUser_thenReturnDeletedUserResponse() throws Exception{
+        //given
+        final long deletedUserId = 1L;
+        //when && then
+        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+        verify(normalUserService, never()).deletedNormalUser(any());
+    }
+
 
     @Test
+    @WithNormalUser
     @DisplayName("[실패][DELETE] 사용자 계정 Flag 삭제 - userId가 없는 경우")
     public void givenWrongDeleteUserId_whenDeleteNormalUser_thenNotFoundUserId() throws Exception{
         //given
@@ -296,6 +374,7 @@ class NormalUserControllerTest {
     }
 
     @Test
+    @WithNormalUser
     @DisplayName("[실패][DELETE] 사용자 계정 Flag 삭제 - 이미 사용자가 제거된 경우")
     public void givenAlreadyDeleteUserId_whenDeleteNormalUser_thenAlreadyUserDeleted() throws Exception{
         //given
@@ -315,6 +394,7 @@ class NormalUserControllerTest {
         verify(normalUserService, times(1)).deletedNormalUser(any());
     }
     @Test
+    @WithNormalUser
     @DisplayName("[성공][PUT] 사용자 정보 수정")
     public void givenUpdateUserInfo_whenModifiedUser_thenReturnUpdateInfo() throws Exception{
         //given
@@ -368,8 +448,29 @@ class NormalUserControllerTest {
                 .profileImage("http://onfree.io/images/aaa123")
                 .build();
     }
+    @Test
+    @WithArtistUser
+    @DisplayName("[실패][PUT] 사용자 정보 수정 - 작가회원이 접근한 경우")
+    public void givenUpdateUserInfo_whenModifiedUserWithArtistUser_thenReturnUpdateInfo() throws Exception{
+        //given
+        final long userId = 1L;
+        //when then
+        mvc.perform(put("/api/users/normal/{userId}", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                        mapper.writeValueAsString(
+                                givenUpdateNormalUserReq()
+                        )
+                )
+        )
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+        verify(normalUserService, never()).modifyedUser(eq(userId), any());
+    }
 
     @Test
+    @WithNormalUser
     @DisplayName("[실패][PUT] 사용자 정보 수정 - 잘못된 데이터 입력 ")
     public void givenWrongUpdateUserInfo_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
         //given
@@ -404,6 +505,7 @@ class NormalUserControllerTest {
                 .build();
     }
     @Test
+    @WithNormalUser
     @DisplayName("[실패][PUT] 사용자 정보 수정 - 없는 userId 사용 ")
     public void givenWrongUserId_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
         //given

@@ -1,6 +1,9 @@
 package com.onfree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.onfree.anotation.WithArtistUser;
+import com.onfree.anotation.WithNormalUser;
+import com.onfree.config.CustomUserDetailService;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.artist.ArtistUserDetail;
 import com.onfree.core.dto.user.artist.CreateArtistUser;
@@ -19,6 +22,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -39,8 +44,12 @@ class ArtistUserControllerTest {
     @MockBean
     private ArtistUserService artistUserService;
 
+    @MockBean
+    private CustomUserDetailService customUserDetailService;
+
     @Test
     @DisplayName("[성공][POST] 회원가입 요청")
+    @WithAnonymousUser
     public void givenCreateUserReq_whenCreateArtistUser_thenCreateUserRes() throws Exception{
         //given
         CreateArtistUser.Request request = givenCreateArtistUserReq();
@@ -99,27 +108,8 @@ class ArtistUserControllerTest {
                 .portfolioUrl("http://onfree.io/portfolioUrl/123456789")
                 .build();
     }
-    private CreateArtistUser.Response givenCreateArtistUserRes(CreateArtistUser.Request request){
-        return CreateArtistUser.Response
-                .builder()
-                .adultCertification(request.getAdultCertification())
-                .email(request.getEmail())
-                .gender(request.getGender().getName())
-                .name(request.getName())
-                .nickname(request.getNickname())
-                .newsAgency(request.getNewsAgency())
-                .phoneNumber(request.getPhoneNumber())
-                .bankName(request.getBankName().getBankName())
-                .accountNumber(request.getAccountNumber())
-                .advertisementAgree(request.getAdvertisementAgree())
-                .personalInfoAgree(request.getPersonalInfoAgree())
-                .policyAgree(request.getPolicyAgree())
-                .serviceAgree(request.getServiceAgree())
-                .profileImage(request.getProfileImage())
-                .portfolioUrl(request.getPortfolioUrl())
-                .build();
-    }
     @Test
+    @WithAnonymousUser
     @DisplayName("[실패][POST] 회원가입 요청 - 회원가입 request가 올바르지 않은 경우")
     public void givenWrongCreateUserReq_whenCreateArtistUser_thenParameterValidError() throws Exception{
         //given
@@ -140,6 +130,26 @@ class ArtistUserControllerTest {
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
         verify(artistUserService, never()).createArtistUser(any());
+    }
+    private CreateArtistUser.Response givenCreateArtistUserRes(CreateArtistUser.Request request){
+        return CreateArtistUser.Response
+                .builder()
+                .adultCertification(request.getAdultCertification())
+                .email(request.getEmail())
+                .gender(request.getGender().getName())
+                .name(request.getName())
+                .nickname(request.getNickname())
+                .newsAgency(request.getNewsAgency())
+                .phoneNumber(request.getPhoneNumber())
+                .bankName(request.getBankName().getBankName())
+                .accountNumber(request.getAccountNumber())
+                .advertisementAgree(request.getAdvertisementAgree())
+                .personalInfoAgree(request.getPersonalInfoAgree())
+                .policyAgree(request.getPolicyAgree())
+                .serviceAgree(request.getServiceAgree())
+                .profileImage(request.getProfileImage())
+                .portfolioUrl(request.getPortfolioUrl())
+                .build();
     }
 
     private CreateArtistUser.Request givenWrongCreateArtistUserReq() {
@@ -164,6 +174,7 @@ class ArtistUserControllerTest {
     }
 
     @Test
+    @WithAnonymousUser
     @DisplayName("[실패][POST] 회원가입 요청 - 이메일 중복으로 인한 회원가입 실패")
     public void givenDuplicatedEmail_whenCreateArtistUser_thenDuplicatedEmailError() throws Exception{
         //given
@@ -189,6 +200,7 @@ class ArtistUserControllerTest {
     }
 
     @Test
+    @WithArtistUser
     @DisplayName("[성공][GET] 사용자 정보 조회 ")
     public void givenUserId_whenGetUserInfo_thenReturnUserInfo() throws Exception {
         //given
@@ -224,17 +236,37 @@ class ArtistUserControllerTest {
         ;
         verify(artistUserService, times(1)).getUserDetail(any());
     }
+
+
     public ArtistUserDetail getArtistUserInfo(CreateArtistUser.Request request){
             return ArtistUserDetail
                     .fromEntity(
                             getArtistUserEntityFromCreateArtistUserRequest(request)
                     );
-        }
+    }
 
     public ArtistUser getArtistUserEntityFromCreateArtistUserRequest(CreateArtistUser.Request request){
             return request.toEntity();
-        }
+    }
+
     @Test
+    @WithNormalUser
+    @DisplayName("[실패][GET] 사용자 정보 조회 - 일반 유저로 접근 시도")
+    public void givenUserId_whenGetUserInfoWithNormUser_thenReturnUserInfo() throws Exception {
+        //given
+        final Long userId = 1L;
+        //when & then
+        mvc.perform(get("/api/users/artist/{userId}", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+        verify(artistUserService, never()).getUserDetail(any());
+    }
+
+    @Test
+    @WithArtistUser
     @DisplayName("[실패][GET] 사용자 정보 조회 - 없는 userId 검색 시 예외발생  ")
     public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserError() throws Exception {
         //given
@@ -257,6 +289,7 @@ class ArtistUserControllerTest {
 
     }
     @Test
+    @WithArtistUser
     @DisplayName("[성공][DELETE] 사용자 계정 Flag 삭제")
     public void givenDeleteUserId_whenDeleteArtistUser_thenReturnDeletedUserResponse() throws Exception{
 
@@ -284,6 +317,24 @@ class ArtistUserControllerTest {
     }
 
     @Test
+    @WithNormalUser
+    @DisplayName("[실패][DELETE] 사용자 계정 Flag 삭제 - 일반 사용자가 접근 하는 경우")
+    public void givenDeleteUserId_whenDeleteArtistUserWithNormUser_thenReturnDeletedUserResponse() throws Exception{
+
+        //given
+        final long deletedUserId = 1L;
+        //when && then
+        mvc.perform(delete("/api/users/artist/{deletedUserId}", deletedUserId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+        verify(artistUserService, never()).deletedArtistUser(any());
+    }
+
+    @Test
+    @WithArtistUser
     @DisplayName("[실패][DELETE] 사용자 계정 Flag 삭제 - userId가 없는 경우")
     public void givenWrongDeleteUserId_whenDeleteArtistUser_thenNotFoundUserId() throws Exception{
         //given
@@ -304,6 +355,7 @@ class ArtistUserControllerTest {
     }
 
     @Test
+    @WithArtistUser
     @DisplayName("[실패][DELETE] 사용자 계정 Flag 삭제 - 이미 사용자가 제거된 경우")
     public void givenAlreadyDeleteUserId_whenDeleteArtistUser_thenAlreadyUserDeleted() throws Exception{
         //given
@@ -323,6 +375,7 @@ class ArtistUserControllerTest {
         verify(artistUserService, times(1)).deletedArtistUser(any());
     }
     @Test
+    @WithArtistUser
     @DisplayName("[성공][PUT] 사용자 정보 수정")
     public void givenUpdateUserInfo_whenModifiedUser_thenReturnUpdateInfo() throws Exception{
         //given
@@ -377,8 +430,29 @@ class ArtistUserControllerTest {
                 .portfolioUrl("http://onfree.io/portfolioUrl/123456789")
                 .build();
     }
+    @Test
+    @WithNormalUser
+    @DisplayName("[실패][PUT] 사용자 정보 수정 - 일반 사용자가 접근 할 경우")
+    public void givenUpdateUserInfo_whenModifiedUserWithNormalUser_thenReturnUpdateInfo() throws Exception{
+        //given
+        final long userId = 1L;
+        //when then
+        mvc.perform(put("/api/users/artist/{userId}", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                        mapper.writeValueAsString(
+                                givenUpdateArtistUserReq()
+                        )
+                )
+        )
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+        verify(artistUserService, never()).modifiedUser(eq(userId), any());
+    }
 
     @Test
+    @WithArtistUser
     @DisplayName("[실패][PUT] 사용자 정보 수정 - 잘못된 데이터 입력 ")
     public void givenWrongUpdateUserInfo_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
         //given
@@ -414,6 +488,7 @@ class ArtistUserControllerTest {
                 .build();
     }
     @Test
+    @WithArtistUser
     @DisplayName("[실패][PUT] 사용자 정보 수정 - 없는 userId 사용 ")
     public void givenWrongUserId_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
         //given
