@@ -4,5 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum Role {
-    NORMAL, ARTIST
+    NORMAL, ARTIST;
+
+    public String getValue(){
+        return "ROLE_"+this.name();
+    }
 }
