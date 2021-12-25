@@ -1,4 +1,4 @@
-package com.onfree.config;
+package com.onfree.config.security;
 
 import com.onfree.core.entity.user.User;
 import com.onfree.core.repository.UserRepository;
@@ -18,7 +18,6 @@ public class CustomUserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         final User userEntity = getUserFindByUsername(username);
-        log.info("find user - username : {} , userNickname : {}", userEntity.getEmail(), userEntity.getNickname());
         return new CustomUserDetail(userEntity);
     }
 

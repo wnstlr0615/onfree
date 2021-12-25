@@ -1,4 +1,4 @@
-package com.onfree.config;
+package com.onfree.config.security;
 
 import com.onfree.core.entity.user.Role;
 import com.onfree.core.entity.user.User;
@@ -18,6 +18,7 @@ public class CustomUserDetail extends org.springframework.security.core.userdeta
 
     public CustomUserDetail(User user) {
         super(user.getEmail(), user.getPassword(), getAuthority(user.getRole()));
+        this.user=user;
     }
 
     private static Collection<? extends GrantedAuthority> getAuthority(Role role) {
