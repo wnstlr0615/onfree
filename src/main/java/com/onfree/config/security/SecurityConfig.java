@@ -68,7 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         new JwtCheckFilter(customUserDetailService, authenticationEntryPoint())
                         , BasicAuthenticationFilter.class)
                 .addFilterAt(
-                        new JwtLoginFilter(authenticationManagerBean(), jwtLoginAuthenticationFailHandler())
+                        new JwtLoginFilter(authenticationManagerBean(), authenticationFailHandler())
                         , UsernamePasswordAuthenticationFilter.class)
         ;
     }
@@ -89,7 +89,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    JwtLoginAuthenticationFailHandler jwtLoginAuthenticationFailHandler(){
+    JwtLoginAuthenticationFailHandler authenticationFailHandler(){
         return new JwtLoginAuthenticationFailHandler();
     }
 
