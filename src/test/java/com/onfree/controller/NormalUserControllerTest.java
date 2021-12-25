@@ -3,11 +3,10 @@ package com.onfree.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
-import com.onfree.config.CustomUserDetail;
-import com.onfree.config.CustomUserDetailService;
+import com.onfree.config.security.CustomUserDetailService;
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.normal.NormalUserDetail;
 import com.onfree.core.dto.user.normal.CreateNormalUser;
+import com.onfree.core.dto.user.normal.NormalUserDetail;
 import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
@@ -16,15 +15,19 @@ import com.onfree.core.service.NormalUserService;
 import com.onfree.error.code.ErrorCode;
 import com.onfree.error.code.UserErrorCode;
 import com.onfree.error.exception.UserException;
+import com.onfree.utils.Checker;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -34,8 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = NormalUserController.class)
-@AutoConfigureMockMvc
+@WebMvcTest(controllers = NormalUserController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@ActiveProfiles("test")
 class NormalUserControllerTest {
     @Autowired
     private MockMvc mvc;
@@ -48,10 +51,14 @@ class NormalUserControllerTest {
     @MockBean
     private CustomUserDetailService userDetailService;
 
+    @MockBean(name = "checker")
+    private Checker checker;
+
     @Test
     @WithAnonymousUser
     @DisplayName("[성공][POST] 회원가입 요청")
     public void givenCreateUserReq_whenCreateNormalUser_thenCreateUserRes() throws Exception{
+
         //given
         CreateNormalUser.Request request = givenCreateNormalUserReq();
         CreateNormalUser.Response response = givenCreateNormalUserRes(request);
@@ -88,12 +95,13 @@ class NormalUserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {"ARTIST, NORMAL"})
-    @DisplayName("[실패][POST] 회원가입 요청 - ")
+    @WithMockUser(roles = {"ARTIST", "NORMAL"})
+    @DisplayName("[실패][POST] 회원가입 요청 - 익명 사용자가 아닌 다른 사람이 접근 할 경우")
     public void givenCreateUserReq_whenCreateNormalUserWithLoginUser_thenCreateUserRes() throws Exception{
         //given
         CreateNormalUser.Request request = givenCreateNormalUserReq();
-
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         //when //then
         mvc.perform(post("/api/users/normal")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -154,6 +162,8 @@ class NormalUserControllerTest {
         //given
         CreateNormalUser.Request request = givenWrongCreateNormalUserReq();
         ErrorCode errorCode=UserErrorCode.NOT_VALID_REQUEST_PARAMETERS;
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         //when //then
         mvc.perform(post("/api/users/normal")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -197,7 +207,7 @@ class NormalUserControllerTest {
     public void givenDuplicatedEmail_whenCreateNormalUser_thenDuplicatedEmailError() throws Exception{
         //given
         CreateNormalUser.Request request = givenCreateNormalUserReq();
-        ErrorCode errorCode = UserErrorCode.USER_EMAIL_DUPLICATED;
+        UserErrorCode errorCode = UserErrorCode.USER_EMAIL_DUPLICATED;
         when(normalUserService.createdNormalUser(any()))
                 .thenThrow( new UserException(errorCode));
         //when //then
@@ -227,6 +237,8 @@ class NormalUserControllerTest {
                 .thenReturn(
                         getNormalUserInfo()
                 );
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         //when
 
         //then
@@ -287,6 +299,7 @@ class NormalUserControllerTest {
     @Test
     @WithNormalUser
     @DisplayName("[실패][GET] 사용자 정보 조회 - 없는 userId 검색 시 예외발생  ")
+    @Disabled("자기 userID가 아니거나 로그인하지 않으면 접근 할 수 없음")
     public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserError() throws Exception {
         //given
         final Long userId = 1L;
@@ -316,6 +329,8 @@ class NormalUserControllerTest {
         final long deletedUserId = 1L;
         when(normalUserService.deletedNormalUser(deletedUserId))
                 .thenReturn(getDeletedUserResponse(1L));
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         //when && then
         mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -355,6 +370,7 @@ class NormalUserControllerTest {
     @Test
     @WithNormalUser
     @DisplayName("[실패][DELETE] 사용자 계정 Flag 삭제 - userId가 없는 경우")
+    @Disabled("자기 userID가 아니거나 로그인하지 않으면 접근 할 수 없음")
     public void givenWrongDeleteUserId_whenDeleteNormalUser_thenNotFoundUserId() throws Exception{
         //given
         final long deletedUserId = 1L;
@@ -382,6 +398,9 @@ class NormalUserControllerTest {
         final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
         when(normalUserService.deletedNormalUser(deletedUserId))
                 .thenThrow(new UserException(errorCode));
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
+
         //when && then
         mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -403,6 +422,8 @@ class NormalUserControllerTest {
                 .thenReturn(
                         getUpdateNormalUserRes()
                 );
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         //when then
         mvc.perform(put("/api/users/normal/{userId}", userId)
             .contentType(MediaType.APPLICATION_JSON)
@@ -476,7 +497,8 @@ class NormalUserControllerTest {
         //given
         final long userId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_VALID_REQUEST_PARAMETERS;
-
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         //when then
         mvc.perform(put("/api/users/normal/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -513,6 +535,8 @@ class NormalUserControllerTest {
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
         when(normalUserService.modifyedUser(eq(wrongUserId), any()))
                 .thenThrow(new UserException(errorCode));
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         //when then
         mvc.perform(put("/api/users/normal/{userId}", wrongUserId)
                 .contentType(MediaType.APPLICATION_JSON)

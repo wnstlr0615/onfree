@@ -4,9 +4,9 @@ import com.onfree.core.dto.user.artist.ArtistUserDetail;
 import com.onfree.core.dto.user.artist.CreateArtistUser;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.artist.UpdateArtistUser;
-import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.service.ArtistUserService;
 import com.onfree.error.code.UserErrorCode;
+import com.onfree.error.exception.FieldErrorDto;
 import com.onfree.error.exception.UserException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,7 +22,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Api(tags = "일반유저 기본기능 제공 컨트롤러")
+@Api(tags = "작가유저 기본기능 제공 컨트롤러")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class ArtistUserController {
         return artistUserService.createArtistUser(request);
     }
 
-    @PreAuthorize("hasRole('ARTIST')")
+    @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
     @ApiOperation(value = "작가 유저 사용자 정보 조회", notes = "작가 유저 사용자 정보 조회")
     @GetMapping("/{userId}")
     public ArtistUserDetail getUserInfo(
@@ -49,7 +49,7 @@ public class ArtistUserController {
         return artistUserService.getUserDetail(userId);
     }
 
-    @PreAuthorize("hasRole('ARTIST')")
+    @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
     @ApiOperation(value = "작가 유저 사용자 deleted 처리")
     @DeleteMapping("/{deletedUserId}")
     public DeletedUserResponse deletedNormalUser(
@@ -58,7 +58,7 @@ public class ArtistUserController {
         return artistUserService.deletedArtistUser(userId);
     }
 
-    @PreAuthorize("hasRole('ARTIST')")
+    @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
     @ApiOperation(value = "작가 유저 정보수정")
     @PutMapping("/{userId}")
     public UpdateArtistUser.Response updateUserInfo(
@@ -74,7 +74,10 @@ public class ArtistUserController {
     private void validParameter(BindingResult errors) {
         if(errors.hasErrors()){
             printFiledLog(errors);
-            throw new UserException(UserErrorCode.NOT_VALID_REQUEST_PARAMETERS);
+            throw new UserException(
+                    UserErrorCode.NOT_VALID_REQUEST_PARAMETERS,
+                    getFieldErrorDtos(errors)
+            );
         }
     }
 
@@ -84,7 +87,16 @@ public class ArtistUserController {
                         log.error("field :{} ,rejectValue : {} , message : {}", fieldError.getField(), fieldError.getRejectedValue(), fieldError.getDefaultMessage()));
     }
 
-    private List<FieldError> getFieldErrors(BindingResult errors) {
-        return errors.getAllErrors().stream().map(objectError -> (FieldError) objectError).collect(Collectors.toList());
+    private List<FieldErrorDto> getFieldErrorDtos(BindingResult errors) {
+        return getFieldErrors(errors).stream()
+                .map(FieldErrorDto::fromFieldError)
+                .collect(Collectors.toList());
     }
+
+    private List<FieldError> getFieldErrors(BindingResult errors) {
+        return errors.getAllErrors().stream()
+                .map(error -> (FieldError) error).collect(Collectors.toList());
+    }
+
+
 }

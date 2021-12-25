@@ -271,7 +271,7 @@ class ArtistUserServiceTest {
                 .profileImage(request.getProfileImage())
                 .portfolioUrl(request.getPortfolioUrl())
                 .deleted(deleted)
-                .role(Role.NORMAL)
+                .role(Role.ARTIST)
                 .build();
     }
     @Test

@@ -3,7 +3,7 @@ package com.onfree.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
-import com.onfree.config.CustomUserDetailService;
+import com.onfree.config.security.CustomUserDetailService;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.artist.ArtistUserDetail;
 import com.onfree.core.dto.user.artist.CreateArtistUser;
@@ -15,16 +15,19 @@ import com.onfree.core.service.ArtistUserService;
 import com.onfree.error.code.ErrorCode;
 import com.onfree.error.code.UserErrorCode;
 import com.onfree.error.exception.UserException;
+import com.onfree.utils.Checker;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -34,10 +37,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ArtistUserController.class)
-@AutoConfigureMockMvc
 class ArtistUserControllerTest {
     @Autowired
     private MockMvc mvc;
+
     @Autowired
     private ObjectMapper mapper;
 
@@ -46,6 +49,10 @@ class ArtistUserControllerTest {
 
     @MockBean
     private CustomUserDetailService customUserDetailService;
+
+    @MockBean(name = "checker")
+    private Checker checker;
+
 
     @Test
     @DisplayName("[성공][POST] 회원가입 요청")
@@ -115,6 +122,7 @@ class ArtistUserControllerTest {
         //given
         CreateArtistUser.Request request = givenWrongCreateArtistUserReq();
         ErrorCode errorCode=UserErrorCode.NOT_VALID_REQUEST_PARAMETERS;
+
         //when //then
         mvc.perform(post("/api/users/artist")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -179,7 +187,7 @@ class ArtistUserControllerTest {
     public void givenDuplicatedEmail_whenCreateArtistUser_thenDuplicatedEmailError() throws Exception{
         //given
         CreateArtistUser.Request request = givenCreateArtistUserReq();
-        ErrorCode errorCode = UserErrorCode.USER_EMAIL_DUPLICATED;
+        UserErrorCode errorCode = UserErrorCode.USER_EMAIL_DUPLICATED;
         when(artistUserService.createArtistUser(any()))
                 .thenThrow( new UserException(errorCode));
         //when //then
@@ -189,8 +197,8 @@ class ArtistUserControllerTest {
                         mapper.writeValueAsString(
                                 request
                         )
-                )
-        )
+
+        ))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
@@ -206,6 +214,8 @@ class ArtistUserControllerTest {
         //given
         final Long userId = 1L;
         final CreateArtistUser.Request request = givenCreateArtistUserReq();
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         when(artistUserService.getUserDetail(userId))
                 .thenReturn(
                         getArtistUserInfo(request)
@@ -268,6 +278,7 @@ class ArtistUserControllerTest {
     @Test
     @WithArtistUser
     @DisplayName("[실패][GET] 사용자 정보 조회 - 없는 userId 검색 시 예외발생  ")
+    @Disabled("자기 userID가 아니거나 로그인하지 않으면 접근 할 수 없음")
     public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserError() throws Exception {
         //given
         final Long userId = 1L;
@@ -297,6 +308,8 @@ class ArtistUserControllerTest {
         final long deletedUserId = 1L;
         when(artistUserService.deletedArtistUser(deletedUserId))
                 .thenReturn(getDeletedUserResponse(1L));
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         //when && then
         mvc.perform(delete("/api/users/artist/{deletedUserId}", deletedUserId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -336,6 +349,7 @@ class ArtistUserControllerTest {
     @Test
     @WithArtistUser
     @DisplayName("[실패][DELETE] 사용자 계정 Flag 삭제 - userId가 없는 경우")
+    @Disabled("자기 userID가 아니거나 로그인하지 않으면 접근 할 수 없음")
     public void givenWrongDeleteUserId_whenDeleteArtistUser_thenNotFoundUserId() throws Exception{
         //given
         final long deletedUserId = 1L;
@@ -363,6 +377,8 @@ class ArtistUserControllerTest {
         final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
         when(artistUserService.deletedArtistUser(deletedUserId))
                 .thenThrow(new UserException(errorCode));
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         //when && then
         mvc.perform(delete("/api/users/artist/{deletedUserId}", deletedUserId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -384,6 +400,8 @@ class ArtistUserControllerTest {
                 .thenReturn(
                         getUpdateArtistUserRes()
                 );
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         //when then
         mvc.perform(put("/api/users/artist/{userId}", userId)
             .contentType(MediaType.APPLICATION_JSON)
@@ -437,17 +455,19 @@ class ArtistUserControllerTest {
         //given
         final long userId = 1L;
         //when then
-        mvc.perform(put("/api/users/artist/{userId}", userId)
+        final ResultActions resultActions = mvc.perform(put("/api/users/artist/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
                                 givenUpdateArtistUserReq()
                         )
                 )
-        )
+        );
+        resultActions
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;
+
         verify(artistUserService, never()).modifiedUser(eq(userId), any());
     }
 
@@ -458,7 +478,8 @@ class ArtistUserControllerTest {
         //given
         final long userId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_VALID_REQUEST_PARAMETERS;
-
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
         //when then
         mvc.perform(put("/api/users/artist/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -490,6 +511,7 @@ class ArtistUserControllerTest {
     @Test
     @WithArtistUser
     @DisplayName("[실패][PUT] 사용자 정보 수정 - 없는 userId 사용 ")
+    @Disabled("자기 userID가 아니거나 로그인하지 않으면 접근 할 수 없음")
     public void givenWrongUserId_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
         //given
         final long wrongUserId = 1L;
