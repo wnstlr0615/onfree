@@ -22,11 +22,21 @@ public class JWTUtil {
     private static final Algorithm algorithm=Algorithm.HMAC512("made onFree by joon");
     public static final String USER_ID = "uid";
     public static final String ONFREE_COM = "onfree.com";
-    public static final Timestamp EXPIRATION_TIME = Timestamp.valueOf(LocalDateTime.now().plusMinutes(60));
+    public static final Long TOKEN_EXPIRED_TIME = 60L;
 
     public static String createToken(@NonNull User user){
+        Timestamp expirationTime = Timestamp.valueOf(LocalDateTime.now().plusMinutes(TOKEN_EXPIRED_TIME));
         return JWT.create()
-                .withExpiresAt(EXPIRATION_TIME)
+                .withExpiresAt(expirationTime)
+                .withSubject(user.getEmail())
+                .withIssuer(ONFREE_COM)
+                .withClaim(USER_ID, user.getUserId())
+                .sign(algorithm);
+    }
+    public static String createToken(@NonNull User user, Long tokenExpiredSecond){
+        Timestamp expirationTime = Timestamp.valueOf(LocalDateTime.now().plusSeconds(tokenExpiredSecond));
+        return JWT.create()
+                .withExpiresAt(expirationTime)
                 .withSubject(user.getEmail())
                 .withIssuer(ONFREE_COM)
                 .withClaim(USER_ID, user.getUserId())
