@@ -5,6 +5,7 @@ import com.onfree.config.security.CustomUserDetail;
 import com.onfree.config.security.CustomUserDetailService;
 import com.onfree.core.model.VerifyResult;
 import com.onfree.utils.JWTUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,14 +20,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 @Slf4j
+@RequiredArgsConstructor
 public class JwtCheckFilter extends OncePerRequestFilter {
     public static final String BEARER = "Bearer";
     private final CustomUserDetailService userDetailService;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
-    public JwtCheckFilter( CustomUserDetailService customUserDetailsService, CustomAuthenticationEntryPoint authenticationEntryPoint) {
-        this.userDetailService = customUserDetailsService;
-        this.authenticationEntryPoint=authenticationEntryPoint;
-    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);

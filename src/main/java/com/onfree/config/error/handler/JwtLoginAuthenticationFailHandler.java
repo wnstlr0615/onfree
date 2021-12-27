@@ -24,8 +24,9 @@ public class JwtLoginAuthenticationFailHandler implements AuthenticationFailureH
     private final ObjectMapper mapper=new ObjectMapper();
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
-        if(exception instanceof final LoginException loginException){
-            log.error(" LoginException - requestRemoteHost : {} , errorCode : {} , errorMessage : {}", request.getRequestURI(), loginException.getErrorCode(), exception.getMessage());
+        if(exception instanceof  LoginException){
+            LoginException loginException=(LoginException)exception;
+            log.error(" LoginException - requestRemoteHost : {} , errorCode : {} , errorMessage : {}", request.getRequestURI(), loginException.getErrorCode(), loginException.getMessage());
             responseError(response, loginException.getErrorCode());
         }else if(exception instanceof UsernameNotFoundException){
             log.error(" requestRemoteHost : {} ,UsernameNotFoundException ", request.getRemoteHost());

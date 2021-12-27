@@ -28,8 +28,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
             log.error("requestRemoteHost : {},  requestUrl: {}, authenticationException - errorMessage : {}",request.getRemoteHost(), request.getRequestURI(), authException.getMessage());
-            if(authException instanceof LoginException exception){
-                responseError(response, exception.getErrorCode());
+            if(authException instanceof LoginException){
+                responseError(response, ((LoginException) authException).getErrorCode());
             }else {
                 responseError(response, GlobalErrorCode.UNAUTHORIZED_ERROR);
             }
