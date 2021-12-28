@@ -22,6 +22,6 @@ public class CustomUserDetail extends org.springframework.security.core.userdeta
     }
 
     private static Collection<? extends GrantedAuthority> getAuthority(Role role) {
-        return Set.of(new SimpleGrantedAuthority(role.name()));
+        return Set.of(new SimpleGrantedAuthority(role.getValue()));
     }
 }
