@@ -15,6 +15,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserException.class)
     public ResponseEntity userExceptionHandler(UserException e, HttpServletRequest request){
         log.error("remoteHost: {},  request Url : {}, errorCode : {}",request.getRemoteHost(), request.getRequestURL(), e.getErrorCode());
+        if(!e.getFieldErrors().isEmpty()){
+            return ResponseResult.fail(e.getErrorCode(), e.getFieldErrors());
+        }
         return ResponseResult.fail(e.getErrorCode());
     }
 }
