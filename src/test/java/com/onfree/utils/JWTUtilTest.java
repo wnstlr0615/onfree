@@ -4,39 +4,40 @@ import com.onfree.config.error.code.LoginErrorCode;
 import com.onfree.config.error.exception.LoginException;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.model.VerifyResult;
+import com.onfree.properties.JWTProperties;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import org.mockito.MockitoSession;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-import org.mockito.session.MockitoSessionBuilder;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+
 @ActiveProfiles("test")
 class JWTUtilTest {
-
+    public static final Duration HALF_HOUR = Duration.ofMinutes(30);
+    public static final Duration ONE_WEEK = Duration.ofDays(7);
+    JWTUtil jwtUtil;
+    JWTProperties jwtProperties;
+    @BeforeEach
+    public void setUp(){
+        jwtProperties=new JWTProperties(HALF_HOUR, ONE_WEEK,"abc");
+        jwtUtil=new JWTUtil(jwtProperties);
+    }
     @Test
-    @DisplayName("[성공] 토큰 생성 후 검증 통과")
+    @DisplayName("[성공] access 토큰 생성 후 검증 통과")
     public void givenSuccessToken_whenVerify_thenSuccessVerify() throws Exception{
         //given
         final NormalUser user = givenNormalUser("jun@naver.com");
-        final String token = JWTUtil.createToken(user);
+        final String token = jwtUtil.createAccessToken(user);
 
         //when
-        final VerifyResult verify = JWTUtil.verify(token);
+        final VerifyResult verify = jwtUtil.verify(token);
+
         //then
         assertThat(verify)
                 .hasFieldOrPropertyWithValue("result", true)
@@ -91,11 +92,12 @@ class JWTUtilTest {
 
         
         final NormalUser user = givenNormalUser("jun123@naver.com");
-        final String token = JWTUtil.createToken(user, -1L);
+        final String token = jwtUtil.createAccessToken(user, -1L);
 
         //when
         final LoginException loginException = assertThrows(LoginException.class,
-                () -> JWTUtil.verify(token));
+                () -> jwtUtil.verify(token));
+
         // then
         assertThat(loginException)
                 .hasFieldOrPropertyWithValue("errorCode", LoginErrorCode.TOKEN_IS_EXPIRED);
@@ -106,13 +108,44 @@ class JWTUtilTest {
     @Disabled("@NonNull로 null 방지 처리")
     public void givenNull_whenCreateToken_thenFailVerify() throws Exception{
         //given
-        final String token = JWTUtil.createToken(null);
+        final String token = jwtUtil.createAccessToken(null);
 
         //when
-        final VerifyResult verify = JWTUtil.verify(token);
+        final VerifyResult verify = jwtUtil.verify(token);
 
         //then
         assertThat(verify).isNull();
 
+    }
+
+    @Test
+    @DisplayName("[성공] refresh 토큰 생성 후 검증 통과")
+    public void givenSuccessRefreshToken_whenVerify_thenSuccessVerify() throws Exception{
+        //given
+        final NormalUser user = givenNormalUser("jun@naver.com");
+        final String token = jwtUtil.createRefreshToken(user);
+
+        //when
+        final VerifyResult verify = jwtUtil.verify(token);
+
+        //then
+        assertThat(verify.isResult()).isTrue();
+        assertThat(verify.getUsername()).isNull();
+    }
+
+    @Test
+    @DisplayName("[실패] refresh 토큰 생성 후 시간이 만료된 경우 ")
+    public void givenExpireRefreshToken_whenVerify_thenLoginException() throws Exception{
+        //given
+        final NormalUser user = givenNormalUser("jun123@naver.com");
+        final String token = jwtUtil.createRefreshToken(user, -1L);
+
+        //when
+        final LoginException loginException = assertThrows(LoginException.class,
+                () -> jwtUtil.verify(token));
+
+        // then
+        assertThat(loginException)
+                .hasFieldOrPropertyWithValue("errorCode", LoginErrorCode.TOKEN_IS_EXPIRED);
     }
 }
