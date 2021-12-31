@@ -1,0 +1,68 @@
+#노말유저 회원가입  정상 요청
+POST {{host}}/api/users/normal
+Content-Type: application/json
+
+{
+  "name": "준식",
+  "nickname": "온프리!!",
+  "email": "jun@naver.com",
+  "password": "!Abcderghijk112",
+  "newsAgency": "SKT",
+  "phoneNumber": "010-8888-9999",
+  "bankName": "IBK_BANK",
+  "accountNumber": "010-8888-9999",
+  "serviceAgree": true,
+  "policyAgree": true,
+  "personalInfoAgree": true,
+  "advertisementAgree": true,
+  "adultCertification": true,
+  "gender": "MAN",
+  "profileImage": "http://onfree.io/images/123456789"
+}
+
+### 노말유저 회원가입 데이터 누락
+POST {{host}}/api/users/normal
+Content-Type: application/json
+
+{
+  "name": "",
+  "email": "jun@naver.com",
+  "newsAgency": "SKT",
+  "phoneNumber": "",
+  "bankName": "IBK_BANK",
+  "accountNumber": "010-8888-9999",
+  "serviceAgree": true,
+  "policyAgree": true,
+  "personalInfoAgree": true,
+  "advertisementAgree": true,
+  "adultCertification": true,
+  "gender": "MAN",
+  "profileImage": "http://onfree.io/images/123456789"
+}
+
+### 회원 정보 조회
+GET {{host}}/api/users/normal/1
+Content-Type: application/json
+
+### 회원정보 수정
+PUT {{host}}/api/users/normal/1
+Content-Type: application/json
+
+{
+  "nickname": "온프리프리",
+  "newsAgency": "SKT1",
+  "phoneNumber": "010-0000-0000",
+  "bankName": "IBK_BANK",
+  "accountNumber": "010-0000-0000",
+  "adultCertification": true,
+  "profileImage": "http://onfree.io/images/aaa123"
+}
+
+###일반 유저 로그인
+POST {{host}}/login
+Content-Type: application/json
+
+{
+  "email" : "jun@naver.com",
+  "password" : "!Abcderghijk112"
+}
