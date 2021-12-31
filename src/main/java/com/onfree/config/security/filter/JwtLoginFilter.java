@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.config.error.code.LoginErrorCode;
 import com.onfree.config.error.exception.LoginException;
 import com.onfree.config.security.CustomUserDetail;
+import com.onfree.config.security.dto.JwtLoginResponse;
 import com.onfree.core.dto.LoginFormDto;
 import com.onfree.core.entity.user.User;
+import com.onfree.core.service.JWTRefreshTokenService;
 import com.onfree.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,16 +23,24 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Slf4j
 public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
+
+
     private final ObjectMapper mapper=new ObjectMapper();
-    public JwtLoginFilter(AuthenticationManager authenticationManager, AuthenticationFailureHandler authenticationFailureHandler) {
+    private final JWTRefreshTokenService jwtRefreshTokenService;
+    private final JWTUtil jwtUtil;
+
+    public JwtLoginFilter(AuthenticationManager authenticationManager, AuthenticationFailureHandler authenticationFailureHandler, JWTRefreshTokenService jwtRefreshTokenService, JWTUtil jwtUtil) {
         super("/login", authenticationManager);
         super.setAuthenticationFailureHandler(authenticationFailureHandler);
+        this.jwtRefreshTokenService=jwtRefreshTokenService;
+        this.jwtUtil=jwtUtil;
     }
 
     @Override
@@ -38,7 +48,8 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
         if (!request.getMethod().equals("POST")) {
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
         }
-        LoginFormDto loginFormDto = new LoginFormDto();
+        LoginFormDto loginFormDto;
+
         try {
              loginFormDto = mapper.readValue(request.getInputStream(), LoginFormDto.class);
         } catch (IOException e) {
@@ -55,9 +66,50 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException{
         final User user = ((CustomUserDetail) authResult.getPrincipal()).getUser();
-        response.setHeader(HttpHeaders.AUTHORIZATION, getJwtToken(user));
+        createToken(response, user);
+    }
+
+    private void createToken(HttpServletResponse response, User user) throws IOException {
+        final JwtLoginResponse jwtLoginResponse = getJWTLoginResponse(user);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("utf-8");
+        response.getWriter().write(
+                mapper.writeValueAsString(
+                        jwtLoginResponse
+                )
+        );
+        response.addCookie(
+                createTokenCookie(JWTUtil.ACCESS_TOKEN, jwtLoginResponse.getAccessToken(), jwtUtil.getAccessTokenExpiredTime())
+        );
+        response.addCookie(
+                createTokenCookie(JWTUtil.REFRESH_TOKEN, jwtLoginResponse.getRefreshToken(), jwtUtil.getRefreshTokenExpiredTime())
+        );
+        jwtRefreshTokenService.saveRefreshToken(jwtLoginResponse.getUsername(), jwtLoginResponse.getRefreshToken());
+    }
+
+
+
+    private Cookie createTokenCookie(String cookieName, String token, long maxAge) {
+        final Cookie tokenCookie = new Cookie(cookieName, token);
+        tokenCookie.setHttpOnly(true);
+        tokenCookie.setMaxAge((int) maxAge);
+        return tokenCookie;
+    }
+
+
+
+    private JwtLoginResponse getJWTLoginResponse(User user) {
+        final String accessToken = jwtUtil.createAccessToken(user);
+        final String refreshToken = jwtUtil.createRefreshToken(user);
+
+        return JwtLoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .username(user.getEmail())
+                .result(true)
+                .build();
     }
 
     @Override
@@ -71,8 +123,4 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
         return super.getFailureHandler();
     }
 
-    private String getJwtToken(User user) {
-        final String jwtToken = JWTUtil.createToken(user);
-        return "Bearer "+jwtToken;
-    }
 }

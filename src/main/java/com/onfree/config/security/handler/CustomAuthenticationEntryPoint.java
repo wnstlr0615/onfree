@@ -1,4 +1,4 @@
-package com.onfree.config.error.handler;
+package com.onfree.config.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.config.error.exception.LoginException;

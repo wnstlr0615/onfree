@@ -58,3 +58,11 @@ Content-Type: application/json
   "profileImage": "http://onfree.io/images/aaa123"
 }
 
+###일반 유저 로그인
+POST {{host}}/login
+Content-Type: application/json
+
+{
+  "email" : "jun@naver.com",
+  "password" : "!Abcderghijk112"
+}

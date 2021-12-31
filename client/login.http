@@ -1,7 +1,8 @@
+#일반 유저 로그인
 POST {{host}}/login
 Content-Type: application/json
 
 {
-  "email" : "joon@naver.com",
-  "password" : "1234"
+  "email" : "jun@naver.com",
+  "password" : "!Abcderghijk112"
 }

@@ -15,7 +15,12 @@ public class Checker {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         final User user = (User) authentication.getPrincipal();
         log.info("checker - userId = {}", user.getUserId());
-        return isEqualsAccessUserId(user, userId);
+        if(!isEqualsAccessUserId(user, userId)){
+            log.error("REQUEST_USER_Id is not matching USER_ID");
+            log.error("request_user_id : {}, user_id : {}", userId, user.getUserId());
+            return false;
+        }
+        return true;
     }
 
     private boolean isEqualsAccessUserId(User user, Long userId) {
