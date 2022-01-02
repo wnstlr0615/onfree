@@ -1,5 +1,6 @@
 package com.onfree.error.handler;
 
+import com.onfree.error.exception.CustomerCenterException;
 import com.onfree.error.exception.UserException;
 import com.onfree.error.exception.response.ResponseResult;
 import lombok.extern.slf4j.Slf4j;
@@ -13,11 +14,19 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(UserException.class)
-    public ResponseEntity userExceptionHandler(UserException e, HttpServletRequest request){
-        log.error("remoteHost: {},  request Url : {}, errorCode : {}",request.getRemoteHost(), request.getRequestURL(), e.getErrorCode());
+    public ResponseEntity<?>  userExceptionHandler(UserException e, HttpServletRequest request){
+        log.error("UserException  : {}", e.getErrorCode());
+        log.error("remoteHost: {},  request Url : {}",request.getRemoteHost(), request.getRequestURL());
         if(!e.getFieldErrors().isEmpty()){
             return ResponseResult.fail(e.getErrorCode(), e.getFieldErrors());
         }
+        return ResponseResult.fail(e.getErrorCode());
+    }
+
+    @ExceptionHandler(CustomerCenterException.class)
+    public ResponseEntity<?> customerCenterExceptionHandler(CustomerCenterException e, HttpServletRequest request){
+        log.error("CustomerCenterException  : {}", e.getErrorCode());
+        log.error("remoteHost: {},  request Url : {}",request.getRemoteHost(), request.getRequestURL());
         return ResponseResult.fail(e.getErrorCode());
     }
 }

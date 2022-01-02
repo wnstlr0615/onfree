@@ -53,9 +53,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        String[] whiteList=new String[]{
+                "/login", "/error", "/logout"
+        };
+        String[] GETWhiteList = new String[]{
+                "/api/notices", "/api/notices/**",
+                "/api/questions", "/api/questions/**"
+        };
         http.authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/api/users/artist", "/api/users/normal").permitAll()
-                .antMatchers("/login", "/error", "/logout").permitAll()
+                .antMatchers(whiteList).permitAll()
+                .antMatchers(HttpMethod.GET,GETWhiteList).permitAll()
+                .antMatchers(HttpMethod.POST, "/api/notices/**", "/api/questions/**").hasRole("ADMIN")
                 .antMatchers("/api/users/artist/**").hasRole("ARTIST")
                 .antMatchers("/api/users/normal/**").hasRole("NORMAL")
                 .anyRequest().authenticated();
