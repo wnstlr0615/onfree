@@ -95,12 +95,10 @@ class JWTUtilTest {
         final String token = jwtUtil.createAccessToken(user, -1L);
 
         //when
-        final LoginException loginException = assertThrows(LoginException.class,
-                () -> jwtUtil.verify(token));
+        final VerifyResult verify = jwtUtil.verify(token);
 
         // then
-        assertThat(loginException)
-                .hasFieldOrPropertyWithValue("errorCode", LoginErrorCode.TOKEN_IS_EXPIRED);
+        assertThat(verify.isResult()).isFalse();
     }
 
     @Test
@@ -141,11 +139,9 @@ class JWTUtilTest {
         final String token = jwtUtil.createRefreshToken(user, -1L);
 
         //when
-        final LoginException loginException = assertThrows(LoginException.class,
-                () -> jwtUtil.verify(token));
+        final VerifyResult verify = jwtUtil.verify(token);
 
-        // then
-        assertThat(loginException)
-                .hasFieldOrPropertyWithValue("errorCode", LoginErrorCode.TOKEN_IS_EXPIRED);
+        //then
+        assertThat(verify.isResult()).isFalse();
     }
 }

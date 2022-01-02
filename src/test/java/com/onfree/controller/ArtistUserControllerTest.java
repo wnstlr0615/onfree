@@ -12,14 +12,17 @@ import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
 import com.onfree.core.service.ArtistUserService;
+import com.onfree.core.service.JWTRefreshTokenService;
 import com.onfree.error.code.ErrorCode;
 import com.onfree.error.code.UserErrorCode;
 import com.onfree.error.exception.UserException;
 import com.onfree.utils.Checker;
+import com.onfree.utils.JWTUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -37,20 +40,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = ArtistUserController.class)
+@WebMvcTest(controllers = ArtistUserController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
 class ArtistUserControllerTest {
     @Autowired
-    private MockMvc mvc;
+    MockMvc mvc;
 
     @Autowired
-    private ObjectMapper mapper;
+    ObjectMapper mapper;
 
     @MockBean
-    private ArtistUserService artistUserService;
+    ArtistUserService artistUserService;
 
     @MockBean
-    private CustomUserDetailService customUserDetailService;
+    CustomUserDetailService customUserDetailService;
+
+    @MockBean
+    JWTRefreshTokenService jwtRefreshTokenService;
+
+    @MockBean
+    JWTUtil jwtUtil;
 
     @MockBean(name = "checker")
     private Checker checker;

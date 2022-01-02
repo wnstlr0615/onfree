@@ -11,11 +11,13 @@ import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
 import com.onfree.core.entity.user.NormalUser;
+import com.onfree.core.service.JWTRefreshTokenService;
 import com.onfree.core.service.NormalUserService;
 import com.onfree.error.code.ErrorCode;
 import com.onfree.error.code.UserErrorCode;
 import com.onfree.error.exception.UserException;
 import com.onfree.utils.Checker;
+import com.onfree.utils.JWTUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,6 +55,12 @@ class NormalUserControllerTest {
 
     @MockBean(name = "checker")
     private Checker checker;
+
+    @MockBean
+    JWTRefreshTokenService jwtRefreshTokenService;
+
+    @MockBean
+    JWTUtil jwtUtil;
 
     @Test
     @WithAnonymousUser
