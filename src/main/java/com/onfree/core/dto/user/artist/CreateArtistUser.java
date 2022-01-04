@@ -8,10 +8,10 @@ import lombok.Getter;
 
 import javax.validation.constraints.*;
 
-@ApiModel(value = "CreateUserDto")
 public class CreateArtistUser {
     @Getter
     @Builder
+    @ApiModel(value = "CreateUserDto_Request")
     public static class Request {
         @ApiModelProperty(value = "사용자 이름", example = "김모씨")
         @NotBlank(message = "이름은 공백일수 없습니다.")
@@ -115,6 +115,7 @@ public class CreateArtistUser {
 
     @Getter
     @Builder
+    @ApiModel(value = "CreateUserDto_Response")
     public static class Response{
         @ApiModelProperty(value = "사용자 이름", example = "김모씨")
         private final String name;
