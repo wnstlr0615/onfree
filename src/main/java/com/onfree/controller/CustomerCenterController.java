@@ -7,15 +7,14 @@ import com.onfree.core.dto.question.QuestionSimpleDto;
 import com.onfree.core.service.CustomerCenterService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @Api(tags = "고객센터 컨트롤러")
@@ -27,25 +26,53 @@ public class CustomerCenterController {
 
     @GetMapping("/notices")
     @ApiOperation(value = "공지사항 전체 조회", notes = "공지사항을 조회하는 API")
-    public Page<NoticeSimpleDto> getNoticeSimpleDtoList(@PageableDefault Pageable pageable){
-        return customerCenterService.getNoticeSimpleDtoList(pageable);
+    public Page<NoticeSimpleDto> getNoticeSimpleDtoList(
+            @ApiParam(value = "페이지 번호", defaultValue = "0", example = "0")
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @ApiParam(value = "보여질 페이지 사이즈", defaultValue = "10", example = "10")
+            @RequestParam(defaultValue = "10") int size,
+            @ApiParam(value = "정렬 방법", defaultValue = "{}", example = "{noticeId}")
+            @RequestParam(required = false) String[] sort
+            ){
+        if(sort == null){
+            sort = new String[]{};
+        }
+        return customerCenterService.getNoticeSimpleDtoList(
+                PageRequest.of(page, size, Sort.by(sort))
+        );
     }
 
     @GetMapping("/notices/{noticeId}")
     @ApiOperation(value = "공지사항 상세 조회", notes = "공지사항을 상세조회하는 API")
-    public NoticeDetailDto getNoticeDetailDto(@PathVariable("noticeId") Long noticeId){
+    public NoticeDetailDto getNoticeDetailDto(
+            @ApiParam(value = "공지글 ID", defaultValue = "1L", example = "1") @PathVariable("noticeId") Long noticeId
+    ){
         return customerCenterService.getNoticeDetailDto(noticeId);
     }
 
     @GetMapping("/questions")
     @ApiOperation(value = "자주 하는 질문 전체 조회", notes = "자주하는 질문을 조회하는 API")
-    public Page<QuestionSimpleDto> getQuestionDtoList(@PageableDefault Pageable pageable){
-        return customerCenterService.getQuestionSimpleDtoList(pageable);
+    public Page<QuestionSimpleDto> getQuestionDtoList(
+            @ApiParam(value = "페이지 번호", defaultValue = "0", example = "0", required = true)
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @ApiParam(value = "보여질 페이지 사이즈", defaultValue = "10", example = "10", required = true )
+            @RequestParam(defaultValue = "10") int size,
+            @ApiParam(value = "정렬 방법", defaultValue = "{}", example = "{noticeId}", required = true)
+            @RequestParam(required = false) String[] sort
+    ){
+        if(sort == null){
+            sort = new String[]{};
+        }
+        return customerCenterService.getQuestionSimpleDtoList(
+                PageRequest.of(page, size, Sort.by(sort))
+        );
     }
 
     @GetMapping("/questions/{questionId}")
     @ApiOperation(value = "자주하는 질문 상세 조회", notes = "자주하는 질문을 상세조회하는 API")
-    public QuestionDetailDto getQuestionDetailDto(@PathVariable("questionId") Long questionId){
+    public QuestionDetailDto getQuestionDetailDto(
+            @ApiParam(value = "자주하는 질문 글 ID", defaultValue = "1L", example = "1") @PathVariable("questionId") Long questionId
+    ){
         return customerCenterService.getQuestionDetailDto(questionId);
     }
 
