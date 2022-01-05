@@ -32,13 +32,22 @@ public class QuestionDetailDto {
     private final String createdBy;
 
 public static QuestionDetailDto fromEntity(@NonNull Question question){
+        LocalDate createDate = LocalDate.of(1900, 1, 1);
+        String createdBy = "null";
+        if(question.getCreatedDate() != null){
+            createDate = question.getCreatedDate().toLocalDate();
+        }
+        if(question.getCreatedBy() != null){
+            createdBy = question.getCreatedBy();
+        }
+
         return QuestionDetailDto.builder()
                 .questionId(question.getQuestionId())
                 .title(question.getTitle())
                 .content(question.getContent())
                 .view(question.getView())
-                .createdDate(question.getCreatedDate().toLocalDate())
-                .createdBy(question.getCreatedBy())
+                .createdDate(createDate)
+                .createdBy(createdBy)
                 .build();
     }
 }

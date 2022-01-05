@@ -29,13 +29,22 @@ public class QuestionSimpleDto {
     private final String createdBy;
 
     public static QuestionSimpleDto fromEntity(@NonNull final Question question){
+        LocalDate createDate = LocalDate.of(1900, 1, 1);
+        String createdBy = "null";
+        if(question.getCreatedDate() != null){
+            createDate = question.getCreatedDate().toLocalDate();
+        }
+        if(question.getCreatedBy() != null){
+            createdBy = question.getCreatedBy();
+        }
+
         return QuestionSimpleDto.builder()
                 .questionId(question.getQuestionId())
                 .title(question.getTitle())
                 .top(question.isTop())
                 .view(question.getView())
-                .createdDate(question.getCreatedDate().toLocalDate())
-                .createdBy(question.getCreatedBy())
+                .createdDate(createDate)
+                .createdBy(createdBy)
                 .build();
     }
 }

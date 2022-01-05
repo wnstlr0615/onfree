@@ -31,13 +31,21 @@ public class NoticeSimpleDto {
     private final String createdBy;
 
     public static NoticeSimpleDto fromEntity(@NonNull final Notice notice){
+        LocalDate createDate = LocalDate.of(1900, 1, 1);
+        String createdBy = "null";
+        if(notice.getCreatedDate() != null){
+            createDate = notice.getCreatedDate().toLocalDate();
+        }
+        if(notice.getCreatedBy() != null){
+            createdBy = notice.getCreatedBy();
+        }
         return NoticeSimpleDto.builder()
                 .noticeId(notice.getNoticeId())
                 .title(notice.getTitle())
                 .top(notice.isTop())
                 .view(notice.getView())
-                .createdDate(notice.getCreatedDate().toLocalDate())
-                .createdBy(notice.getCreatedBy())
+                .createdDate(createDate)
+                .createdBy(createdBy)
                 .build();
     }
 }
