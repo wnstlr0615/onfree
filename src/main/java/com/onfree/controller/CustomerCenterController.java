@@ -30,15 +30,11 @@ public class CustomerCenterController {
             @ApiParam(value = "페이지 번호", defaultValue = "0", example = "0")
             @RequestParam(value = "page", defaultValue = "0") int page,
             @ApiParam(value = "보여질 페이지 사이즈", defaultValue = "10", example = "10")
-            @RequestParam(defaultValue = "10") int size,
-            @ApiParam(value = "정렬 방법", defaultValue = "{}", example = "{noticeId}")
-            @RequestParam(required = false) String[] sort
+            @RequestParam(defaultValue = "10") int size
             ){
-        if(sort == null){
-            sort = new String[]{};
-        }
+
         return customerCenterService.getNoticeSimpleDtoList(
-                PageRequest.of(page, size, Sort.by(sort))
+                PageRequest.of(page, size)
         );
     }
 

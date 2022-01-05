@@ -30,7 +30,7 @@ public class CustomerCenterService {
     }
 
     private Page<Notice> getNoticeList(Pageable pageable) {
-        final Page<Notice> noticeList = noticeRepository.findAll(pageable);
+        final Page<Notice> noticeList = noticeRepository.findAllByDisabledIsFalseOrderByTopDescNoticeIdAsc(pageable);
         if(noticeList.getTotalElements() <= 0){
             throw new CustomerCenterException(CustomerCenterErrorCode.NOTICES_IS_EMPTY);
         }
@@ -46,7 +46,7 @@ public class CustomerCenterService {
     }
 
     private Notice getNotice(Long noticeId) {
-        final Notice notice = noticeRepository.findById(noticeId)
+        final Notice notice = noticeRepository.findByNoticeIdAndDisabledFalse(noticeId)
                 .orElseThrow(() -> new CustomerCenterException(CustomerCenterErrorCode.NOT_FOUND_NOTICE));
             notice.updateView();
         return notice;
@@ -59,7 +59,7 @@ public class CustomerCenterService {
     }
 
     private Page<Question> getQuestionList(Pageable pageable) {
-        final Page<Question> questionList = questionRepository.findAll(pageable);
+        final Page<Question> questionList = questionRepository.findAllByDisabledIsFalseOrderByTopDescQuestionIdAsc(pageable);
         if(questionList.getTotalElements() <= 0){
             throw new CustomerCenterException(CustomerCenterErrorCode.QUESTION_IS_EMPTY);
         }
@@ -76,7 +76,7 @@ public class CustomerCenterService {
     }
 
     private Question getQuestion(Long questionId) {
-        final Question question = questionRepository.findById(questionId)
+        final Question question = questionRepository.findByQuestionIdAndDisabledFalse(questionId)
                 .orElseThrow(() -> new CustomerCenterException(CustomerCenterErrorCode.NOT_FOUND_QUESTION));
         question.updateView();
         return question;
