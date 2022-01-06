@@ -48,6 +48,7 @@ public class JWTUtil {
         Timestamp expirationTime = Timestamp.valueOf(LocalDateTime.now().plusSeconds(tokenExpiredDay));
         return JWT.create()
                 .withExpiresAt(expirationTime)
+                .withSubject(user.getEmail())
                 .sign(Algorithm.HMAC512(jwtProperties.getSecretKey()));
     }
 
