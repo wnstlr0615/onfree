@@ -3,6 +3,7 @@ package com.onfree.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
+import com.onfree.common.WebMvcBaseTest;
 import com.onfree.config.security.CustomUserDetailService;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.artist.ArtistUserDetail;
@@ -14,6 +15,7 @@ import com.onfree.core.entity.user.Gender;
 import com.onfree.core.service.ArtistUserService;
 import com.onfree.core.service.JWTRefreshTokenService;
 import com.onfree.error.code.ErrorCode;
+import com.onfree.error.code.GlobalErrorCode;
 import com.onfree.error.code.UserErrorCode;
 import com.onfree.error.exception.UserException;
 import com.onfree.utils.Checker;
@@ -42,28 +44,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = ArtistUserController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-class ArtistUserControllerTest {
-    @Autowired
-    MockMvc mvc;
-
-    @Autowired
-    ObjectMapper mapper;
-
+class ArtistUserControllerTest extends WebMvcBaseTest {
     @MockBean
     ArtistUserService artistUserService;
 
-    @MockBean
-    CustomUserDetailService customUserDetailService;
-
-    @MockBean
-    JWTRefreshTokenService jwtRefreshTokenService;
-
-    @MockBean
-    JWTUtil jwtUtil;
-
     @MockBean(name = "checker")
     private Checker checker;
-
 
     @Test
     @DisplayName("[성공][POST] 회원가입 요청")
@@ -85,7 +71,7 @@ class ArtistUserControllerTest {
                 )
         )
             .andDo(print())
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.name").value(request.getName()))
             .andExpect(jsonPath("$.nickname").value(request.getNickname()))
             .andExpect(jsonPath("$.email").value(request.getEmail()))
@@ -129,10 +115,11 @@ class ArtistUserControllerTest {
     @Test
     @WithAnonymousUser
     @DisplayName("[실패][POST] 회원가입 요청 - 회원가입 request가 올바르지 않은 경우")
+    @Disabled("ValidateAOP 사용으로 단위테스트에는 테스트가 적용 되지 않음")
     public void givenWrongCreateUserReq_whenCreateArtistUser_thenParameterValidError() throws Exception{
         //given
         CreateArtistUser.Request request = givenWrongCreateArtistUserReq();
-        ErrorCode errorCode=UserErrorCode.NOT_VALID_REQUEST_PARAMETERS;
+        ErrorCode errorCode=GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
 
         //when //then
         mvc.perform(post("/api/users/artist")
@@ -485,10 +472,11 @@ class ArtistUserControllerTest {
     @Test
     @WithArtistUser
     @DisplayName("[실패][PUT] 사용자 정보 수정 - 잘못된 데이터 입력 ")
+    @Disabled("ValidateAOP 사용으로 단위테스트에는 테스트가 적용 되지 않음 ")
     public void givenWrongUpdateUserInfo_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
         //given
         final long userId = 1L;
-        final UserErrorCode errorCode = UserErrorCode.NOT_VALID_REQUEST_PARAMETERS;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
         when(checker.isSelf(anyLong()))
                 .thenReturn(true);
         //when then

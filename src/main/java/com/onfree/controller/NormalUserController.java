@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 public class NormalUserController {
     private final NormalUserService normalUserService;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("isAnonymous()")
     @ApiOperation(value = "일반 유저 회원 가입 요청" , notes = "일반 유저 회원 가입 요청")
     @PostMapping("")
@@ -37,7 +39,6 @@ public class NormalUserController {
             @RequestBody @Valid  CreateNormalUser.Request request,
             BindingResult errors
     ){
-        validParameter(errors);
         return normalUserService.createdNormalUser(request);
     }
     @PreAuthorize(value = "hasRole('NORMAL') and @checker.isSelf(#userId)")
@@ -66,35 +67,6 @@ public class NormalUserController {
             @RequestBody @Valid UpdateNormalUser.Request request,
             BindingResult errors
     ){
-        validParameter(errors);
         return normalUserService.modifyedUser(userId, request);
-
-    }
-
-    private void validParameter(BindingResult errors) {
-        if(errors.hasErrors()){
-            printFiledLog(errors);
-            throw new UserException(
-                    UserErrorCode.NOT_VALID_REQUEST_PARAMETERS,
-                    getFieldErrorDtos(errors)
-            );
-        }
-    }
-
-    private void printFiledLog(BindingResult errors) {
-        getFieldErrors(errors)
-                .forEach(fieldError ->
-                        log.error("field :{} ,rejectValue : {} , message : {}", fieldError.getField(), fieldError.getRejectedValue(), fieldError.getDefaultMessage()));
-    }
-
-    private List<FieldErrorDto> getFieldErrorDtos(BindingResult errors) {
-        return getFieldErrors(errors).stream()
-                .map(FieldErrorDto::fromFieldError)
-                .collect(Collectors.toList());
-    }
-
-    private List<FieldError> getFieldErrors(BindingResult errors) {
-        return errors.getAllErrors().stream()
-                .map(error -> (FieldError) error).collect(Collectors.toList());
     }
 }
