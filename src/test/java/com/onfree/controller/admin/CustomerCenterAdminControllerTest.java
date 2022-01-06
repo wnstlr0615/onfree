@@ -38,14 +38,14 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
         //given
         when(customerCenterService.createNotice(any(CreateNoticeDto.Request.class)))
                 .thenReturn(
-                        getCreateNoticeDtoResponse()
+                        givenCreateNoticeDtoResponse()
                 );
         //when //then
         mvc.perform(post("/admin/api/notices")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
-                                getCreateNoticeDtoRequest()
+                                givenCreateNoticeDtoRequest()
                         )
                 )
         )
@@ -59,7 +59,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
             ;
     }
 
-    private CreateNoticeDto.Request getCreateNoticeDtoRequest() {
+    private CreateNoticeDto.Request givenCreateNoticeDtoRequest() {
         return CreateNoticeDto.Request.builder()
                 .title("제목")
                 .content("내용")
@@ -67,7 +67,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .build();
     }
 
-    private CreateNoticeDto.Response getCreateNoticeDtoResponse() {
+    private CreateNoticeDto.Response givenCreateNoticeDtoResponse() {
         return CreateNoticeDto.Response.builder()
                 .noticeId(1L)
                 .title("제목")
@@ -85,7 +85,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
         final long noticeId = 1L;
 
         when(customerCenterService.updateNotice(eq(noticeId),  any(UpdateNoticeDto.Request.class)))
-                .thenReturn(getUpdateNoticeDtoResponse());
+                .thenReturn(givenUpdateNoticeDtoResponse());
         //when
 
         //then
@@ -93,7 +93,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsBytes(
-                                getUpdateNoticeDtoRequest()
+                                givenUpdateNoticeDtoRequest()
                         )
                 )
         )
@@ -107,7 +107,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
         ;
     }
 
-    private UpdateNoticeDto.Request getUpdateNoticeDtoRequest() {
+    private UpdateNoticeDto.Request givenUpdateNoticeDtoRequest() {
         return UpdateNoticeDto.Request.builder()
                 .title("제목")
                 .content("내용")
@@ -116,7 +116,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .build();
     }
 
-    private UpdateNoticeDto.Response getUpdateNoticeDtoResponse() {
+    private UpdateNoticeDto.Response givenUpdateNoticeDtoResponse() {
         return UpdateNoticeDto.Response.builder()
                 .noticeId(1L)
                 .title("제목")
@@ -141,7 +141,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsBytes(
-                                getUpdateNoticeDtoRequest()
+                                givenUpdateNoticeDtoRequest()
                         )
                 )
         )
@@ -159,7 +159,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
         //given
         when(customerCenterService.createQuestion(any()))
                 .thenReturn(
-                        getCreateQuestionDtoResponse()
+                        givenCreateQuestionDtoResponse()
                 );
         //when
         //then
@@ -167,7 +167,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
-                                getCreateQuestionDtoRequest()
+                                givenCreateQuestionDtoRequest()
                         )
                 )
         )
@@ -182,7 +182,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
 
     }
 
-    private CreateQuestionDto.Request getCreateQuestionDtoRequest() {
+    private CreateQuestionDto.Request givenCreateQuestionDtoRequest() {
         return CreateQuestionDto.Request.builder()
                 .title("제목")
                 .content("내용")
@@ -190,7 +190,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .build();
     }
 
-    private CreateQuestionDto.Response getCreateQuestionDtoResponse() {
+    private CreateQuestionDto.Response givenCreateQuestionDtoResponse() {
         return CreateQuestionDto.Response.builder()
                 .questionId(1L)
                 .title("제목")
@@ -208,7 +208,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
         final long questionId = 1L;
         when(customerCenterService.updateQuestion(eq(questionId), any(UpdateQuestionDto.Request.class)))
                 .thenReturn(
-                        getUpdateQuestionDtoResponse()
+                        givenUpdateQuestionDtoResponse()
                 );
         //when
 
@@ -217,7 +217,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
-                                getUpdateQuestionDtoRequest()
+                                givenUpdateQuestionDtoRequest()
                         )
                 )
         )
@@ -231,7 +231,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
         ;
     }
 
-    private UpdateQuestionDto.Request getUpdateQuestionDtoRequest() {
+    private UpdateQuestionDto.Request givenUpdateQuestionDtoRequest() {
         return UpdateQuestionDto.Request.builder()
                 .title("제목")
                 .content("내용")
@@ -240,7 +240,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .build();
     }
 
-    private UpdateQuestionDto.Response getUpdateQuestionDtoResponse() {
+    private UpdateQuestionDto.Response givenUpdateQuestionDtoResponse() {
         return UpdateQuestionDto.Response.builder()
                 .questionId(1L)
                 .title("제목")
@@ -266,7 +266,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
-                                getUpdateQuestionDtoResponse()
+                                givenUpdateQuestionDtoResponse()
                         )
                 )
         )
