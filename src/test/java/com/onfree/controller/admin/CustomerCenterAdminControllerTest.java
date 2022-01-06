@@ -9,7 +9,6 @@ import com.onfree.core.dto.question.UpdateQuestionDto;
 import com.onfree.core.service.CustomerCenterService;
 import com.onfree.error.code.CustomerCenterErrorCode;
 import com.onfree.error.exception.CustomerCenterException;
-import com.onfree.error.exception.GlobalException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -218,7 +217,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
-                                getUpdateQuestionDtoResponse()
+                                getUpdateQuestionDtoRequest()
                         )
                 )
         )
