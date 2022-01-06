@@ -1,9 +1,13 @@
 package com.onfree.core.service;
 
+import com.onfree.core.dto.notice.CreateNoticeDto;
 import com.onfree.core.dto.notice.NoticeDetailDto;
 import com.onfree.core.dto.notice.NoticeSimpleDto;
+import com.onfree.core.dto.notice.UpdateNoticeDto;
+import com.onfree.core.dto.question.CreateQuestionDto;
 import com.onfree.core.dto.question.QuestionDetailDto;
 import com.onfree.core.dto.question.QuestionSimpleDto;
+import com.onfree.core.dto.question.UpdateQuestionDto;
 import com.onfree.core.entity.Notice;
 import com.onfree.core.entity.Question;
 import com.onfree.core.repository.NoticeRepository;
@@ -41,15 +45,19 @@ public class CustomerCenterService {
     @Transactional
     public NoticeDetailDto getNoticeDetailDto(Long noticeId) {
         return NoticeDetailDto.fromEntity(
-                getNotice(noticeId)
+                getNoticeAndUpdateView(noticeId)
         );
     }
 
-    private Notice getNotice(Long noticeId) {
-        final Notice notice = noticeRepository.findByNoticeIdAndDisabledFalse(noticeId)
-                .orElseThrow(() -> new CustomerCenterException(CustomerCenterErrorCode.NOT_FOUND_NOTICE));
+    private Notice getNoticeAndUpdateView(Long noticeId) {
+        final Notice notice = getNotice(noticeId);
             notice.updateView();
         return notice;
+    }
+
+    private Notice getNotice(Long noticeId) {
+        return noticeRepository.findByNoticeIdAndDisabledFalse(noticeId)
+                .orElseThrow(() -> new CustomerCenterException(CustomerCenterErrorCode.NOT_FOUND_NOTICE));
     }
 
     /** 자주하는 질문 목록 조회*/
@@ -71,14 +79,64 @@ public class CustomerCenterService {
     public QuestionDetailDto getQuestionDetailDto(Long questionId) {
         return QuestionDetailDto
                 .fromEntity(
-                        getQuestion(questionId)
+                        getQuestionAndUpdateView(questionId)
                 );
     }
 
-    private Question getQuestion(Long questionId) {
-        final Question question = questionRepository.findByQuestionIdAndDisabledFalse(questionId)
-                .orElseThrow(() -> new CustomerCenterException(CustomerCenterErrorCode.NOT_FOUND_QUESTION));
+    private Question getQuestionAndUpdateView(Long questionId) {
+        final Question question = getQuestion(questionId);
         question.updateView();
         return question;
+    }
+
+    private Question getQuestion(Long questionId) {
+        return questionRepository.findByQuestionIdAndDisabledFalse(questionId)
+                .orElseThrow(() -> new CustomerCenterException(CustomerCenterErrorCode.NOT_FOUND_QUESTION));
+    }
+
+    /** 공지 추가 (Only ADMIN)*/
+    @Transactional
+    public CreateNoticeDto.Response createNotice(CreateNoticeDto.Request request) {
+        return CreateNoticeDto.Response
+                .fromEntity(
+                        saveNotice(request.toEntity())
+                );
+    }
+
+    private Notice saveNotice(Notice notice) {
+        return noticeRepository.save(
+                notice
+        );
+    }
+    /** 공지 수정 (Only ADMIN)*/
+    @Transactional
+    public UpdateNoticeDto.Response updateNotice(Long noticeId, UpdateNoticeDto.Request request) {
+        final Notice notice = getNotice(noticeId);
+        notice.updateByUpdateNoticeDto(request);
+        return UpdateNoticeDto.Response
+                .fromEntity(notice);
+    }
+    /** 자주하는 질문 추가*/
+    @Transactional
+    public CreateQuestionDto.Response createQuestion(CreateQuestionDto.Request request) {
+        return CreateQuestionDto.Response
+                .fromEntity(
+                        saveQuestion(request.toEntity())
+                );
+    }
+
+    private Question saveQuestion(Question question) {
+        return questionRepository.save(
+                question
+        );
+    }
+
+    /** 자주하는 질문 수정*/
+    @Transactional
+    public UpdateQuestionDto.Response updateQuestion(Long questionId, UpdateQuestionDto.Request request) {
+        final Question question = getQuestion(questionId);
+        question.updateByUpdateQuestionDto(request);
+        return UpdateQuestionDto.Response
+                .fromEntity(question);
     }
 }

@@ -1,5 +1,7 @@
 package com.onfree.core.entity;
 
+import com.onfree.core.dto.notice.UpdateNoticeDto;
+import com.onfree.core.dto.question.UpdateQuestionDto;
 import com.onfree.core.model.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,5 +36,12 @@ public class Question extends BaseEntity{
 
     public void updateView() {
         view = view + 1;
+    }
+
+    public void updateByUpdateQuestionDto(UpdateQuestionDto.Request request) {
+        title = request.getTitle() != null ? request.getTitle() : title;
+        content = request.getContent() != null ? request.getContent() : content;
+        top = request.getTop() != null ? request.getTop() : top;
+        disabled = request.getDisabled() != null ? request.getDisabled() : disabled;
     }
 }

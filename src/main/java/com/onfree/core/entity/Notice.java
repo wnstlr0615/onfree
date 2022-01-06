@@ -1,5 +1,6 @@
 package com.onfree.core.entity;
 
+import com.onfree.core.dto.notice.UpdateNoticeDto;
 import com.onfree.core.model.BaseEntity;
 import lombok.*;
 
@@ -32,5 +33,12 @@ public class Notice extends BaseEntity {
 
     public void updateView() {
         view=view + 1;
+    }
+
+    public void updateByUpdateNoticeDto(UpdateNoticeDto.Request request) {
+        title = request.getTitle() != null ? request.getTitle() : title;
+        content = request.getContent() != null ? request.getContent() : content;
+        top = request.getTop() != null ? request.getTop() : top;
+        disabled = request.getDisabled() != null ? request.getDisabled() : disabled;
     }
 }
