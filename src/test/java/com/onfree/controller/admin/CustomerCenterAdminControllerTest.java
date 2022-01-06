@@ -18,7 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -32,7 +32,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
     CustomerCenterService customerCenterService;
 
     @Test
-    @DisplayName("[POST][성공] 공지 글 생성")
+    @DisplayName("[성공][POST] 공지 글 생성")
     @WithAdminUser
     public void givenCreateNoticeDtoReq_whenCreateNotice_thenCreateNoticeDtoRes() throws Exception{
         //given
@@ -57,6 +57,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.top").value(true))
                 .andExpect(jsonPath("$.disabled").value(false))
             ;
+        verify(customerCenterService).createNotice(any());
     }
 
     private CreateNoticeDto.Request givenCreateNoticeDtoRequest() {
@@ -78,7 +79,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
     }
 
     @Test
-    @DisplayName("[PUT][성공] 공지 글 수정")
+    @DisplayName("[성공][PUT] 공지 글 수정")
     @WithAdminUser
     public void givenUpdateNoticeDtoReq_whenUpdateNotice_thenUpdateNoticeDtoRes() throws Exception{
         //given
@@ -105,6 +106,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.top").value(true))
                 .andExpect(jsonPath("$.disabled").value(false))
         ;
+        verify(customerCenterService).updateNotice(eq(noticeId), any());
     }
 
     private UpdateNoticeDto.Request givenUpdateNoticeDtoRequest() {
@@ -126,7 +128,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .build();
     }
     @Test
-    @DisplayName("[PUT][실패] 공지 글 수정 - 존재 하지 않는 공지 ID")
+    @DisplayName("[실패][PUT] 공지 글 수정 - 존재 하지 않는 공지 ID")
     @WithAdminUser
     public void givenUpdateNoticeDtoReq_whenUpdateNoticeButNotFoundNoticeId_thenNotFoundNoticeError() throws Exception{
         //given
@@ -150,10 +152,12 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
+        verify(customerCenterService).updateNotice(eq(noticeId), any());
+
     }
 
     @Test
-    @DisplayName("[POST][성공] 자주하는 질문 생성")
+    @DisplayName("[성공][POST] 자주하는 질문 생성")
     @WithAdminUser
     public void givenCreateQuestionDtoReq_whenCreateQuestion_thenCreateQuestionDtoRes() throws Exception{
         //given
@@ -179,7 +183,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.top").value(true))
                 .andExpect(jsonPath("$.disabled").value(false))
         ;
-
+        verify(customerCenterService).createQuestion(any());
     }
 
     private CreateQuestionDto.Request givenCreateQuestionDtoRequest() {
@@ -201,7 +205,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
     }
 
     @Test
-    @DisplayName("[PUT][성공] 자주하는 질문 수정")
+    @DisplayName("[성공][PUT] 자주하는 질문 수정")
     @WithAdminUser
     public void givenUpdateQuestionDtoReq_whenUpdateQuestion_thenUpdateQuestionDtoRes() throws Exception{
         //given
@@ -229,6 +233,8 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.top").value(true))
                 .andExpect(jsonPath("$.disabled").value(false))
         ;
+        verify(customerCenterService).updateQuestion(eq(questionId), any());
+
     }
 
     private UpdateQuestionDto.Request givenUpdateQuestionDtoRequest() {
@@ -251,7 +257,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
     }
 
     @Test
-    @DisplayName("[PUT][실패] 자주하는 질문 수정 - 존재하지 않는 질문 ID")
+    @DisplayName("[실패][PUT] 자주하는 질문 수정 - 존재하지 않는 질문 ID")
     @WithAdminUser
     public void givenUpdateQuestionDtoReq_whenUpdateQuestionButNotFoundQuestionId_thenNotFoundQuestionError() throws Exception{
         //given
@@ -275,6 +281,7 @@ class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
+        verify(customerCenterService).updateQuestion(eq(questionId), any());
     }
 
 }
