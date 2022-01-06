@@ -112,6 +112,27 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
                 .portfolioUrl("http://onfree.io/portfolioUrl/123456789")
                 .build();
     }
+    private CreateArtistUser.Response givenCreateArtistUserRes(CreateArtistUser.Request request){
+        return CreateArtistUser.Response
+                .builder()
+                .adultCertification(request.getAdultCertification())
+                .email(request.getEmail())
+                .gender(request.getGender().getName())
+                .name(request.getName())
+                .nickname(request.getNickname())
+                .newsAgency(request.getNewsAgency())
+                .phoneNumber(request.getPhoneNumber())
+                .bankName(request.getBankName().getBankName())
+                .accountNumber(request.getAccountNumber())
+                .advertisementAgree(request.getAdvertisementAgree())
+                .personalInfoAgree(request.getPersonalInfoAgree())
+                .policyAgree(request.getPolicyAgree())
+                .serviceAgree(request.getServiceAgree())
+                .profileImage(request.getProfileImage())
+                .portfolioUrl(request.getPortfolioUrl())
+                .build();
+    }
+
     @Test
     @WithAnonymousUser
     @DisplayName("[실패][POST] 회원가입 요청 - 회원가입 request가 올바르지 않은 경우")
@@ -136,26 +157,6 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
         verify(artistUserService, never()).createArtistUser(any());
-    }
-    private CreateArtistUser.Response givenCreateArtistUserRes(CreateArtistUser.Request request){
-        return CreateArtistUser.Response
-                .builder()
-                .adultCertification(request.getAdultCertification())
-                .email(request.getEmail())
-                .gender(request.getGender().getName())
-                .name(request.getName())
-                .nickname(request.getNickname())
-                .newsAgency(request.getNewsAgency())
-                .phoneNumber(request.getPhoneNumber())
-                .bankName(request.getBankName().getBankName())
-                .accountNumber(request.getAccountNumber())
-                .advertisementAgree(request.getAdvertisementAgree())
-                .personalInfoAgree(request.getPersonalInfoAgree())
-                .policyAgree(request.getPolicyAgree())
-                .serviceAgree(request.getServiceAgree())
-                .profileImage(request.getProfileImage())
-                .portfolioUrl(request.getPortfolioUrl())
-                .build();
     }
 
     private CreateArtistUser.Request givenWrongCreateArtistUserReq() {
