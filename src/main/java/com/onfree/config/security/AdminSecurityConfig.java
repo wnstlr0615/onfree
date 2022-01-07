@@ -16,7 +16,7 @@ public class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         // 임시 계정 생성
-        auth.inMemoryAuthentication().withUser("joon123").password("{noop}1234").roles("ADMIN");
+        auth.inMemoryAuthentication().withUser("onfree").password("{noop}onfree").roles("ADMIN");
     }
 
     @Override
