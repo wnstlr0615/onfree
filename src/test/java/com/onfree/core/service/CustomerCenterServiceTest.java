@@ -1,9 +1,13 @@
 package com.onfree.core.service;
 
+import com.onfree.core.dto.notice.CreateNoticeDto;
 import com.onfree.core.dto.notice.NoticeDetailDto;
 import com.onfree.core.dto.notice.NoticeSimpleDto;
+import com.onfree.core.dto.notice.UpdateNoticeDto;
+import com.onfree.core.dto.question.CreateQuestionDto;
 import com.onfree.core.dto.question.QuestionDetailDto;
 import com.onfree.core.dto.question.QuestionSimpleDto;
+import com.onfree.core.dto.question.UpdateQuestionDto;
 import com.onfree.core.entity.Notice;
 import com.onfree.core.entity.Question;
 import com.onfree.core.repository.NoticeRepository;
@@ -30,7 +34,8 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -300,4 +305,216 @@ class CustomerCenterServiceTest {
                 () -> assertThat(customerCenterException.getErrorMessage()).isEqualTo(errorCode.getDescription())
         );
     }
+
+    @Test
+    @DisplayName("[성공] 공지 추가 하기")
+    public void givenCreateNoticeDtoRequest_whenCreateNotice_thenCreateNoticeDtoResponse() throws Exception{
+        //given
+            when(noticeRepository.save(
+                    any(Notice.class))
+            ).thenReturn(
+                    givenNoticeEntity()
+            );
+        //when
+        CreateNoticeDto.Response response = customerCenterService.createNotice(
+                givenCreateNoticeDtoRequest()
+        );
+        //then
+        assertThat(response)
+                .hasFieldOrPropertyWithValue("noticeId", 1L)
+                .hasFieldOrPropertyWithValue("title", "온프리에 오신 것을 환영합니다.")
+                .hasFieldOrPropertyWithValue("content", "안녕하세요 온프리입니다....")
+                .hasFieldOrPropertyWithValue("top", true)
+                .hasFieldOrPropertyWithValue("disabled", false)
+        ;
+
+        verify(noticeRepository).save(any());
+    }
+
+    private CreateNoticeDto.Request givenCreateNoticeDtoRequest() {
+        return CreateNoticeDto.Request.builder()
+                .title("제목")
+                .content("내용")
+                .top(true)
+                .build();
+    }
+
+    private Notice givenNoticeEntity() {
+        return Notice.builder()
+                .noticeId(1L)
+                .title("온프리에 오신 것을 환영합니다.")
+                .top(true)
+                .disabled(false)
+                .content("안녕하세요 온프리입니다....")
+                .view(0)
+                .build();
+    }
+
+    @Test
+    @DisplayName("[성공] 공지 수정 하기")
+    public void givenUpdateNoticeDtoRequest_whenUpdateNotice_thenUpdateNoticeDtoResponse() throws Exception{
+        //given
+        long noticeId = 1L;
+
+        when(noticeRepository.findByNoticeIdAndDisabledFalse(anyLong()))
+                .thenReturn(
+                    Optional.of(
+                            givenNoticeEntity()
+                    )
+            );
+            //when
+        UpdateNoticeDto.Response response = customerCenterService.updateNotice(
+                noticeId, givenUpdateNoticeDtoRequest()
+        );
+        //then
+        assertThat(response)
+                .hasFieldOrPropertyWithValue("noticeId", noticeId)
+                .hasFieldOrPropertyWithValue("title", "(수정)온프리에 오신 것을 환영합니다.")
+                .hasFieldOrPropertyWithValue("content", "(수정)안녕하세요 온프리입니다....")
+                .hasFieldOrPropertyWithValue("top", true)
+                .hasFieldOrPropertyWithValue("disabled", true)
+        ;
+        verify(noticeRepository).findByNoticeIdAndDisabledFalse(eq(noticeId));
+    }
+
+    private UpdateNoticeDto.Request givenUpdateNoticeDtoRequest() {
+        return UpdateNoticeDto.Request.builder()
+                .title("(수정)온프리에 오신 것을 환영합니다.")
+                .content("(수정)안녕하세요 온프리입니다....")
+                .top(true)
+                .disabled(true)
+                .build();
+    }
+
+    @Test
+    @DisplayName("[실패] 공지 수정 하기 -  해당 공지 ID가 존재하지 않아 NOT_FOUND_NOTICE 에러 발생")
+    public void givenUpdateNoticeDtoRequest_whenUpdateNoticeButNotFoundNotice_thenNotFoundNoticeError() throws Exception{
+        //given
+        long noticeId = 1L;
+        CustomerCenterErrorCode errorCode = CustomerCenterErrorCode.NOT_FOUND_NOTICE;
+
+        when(noticeRepository.findByNoticeIdAndDisabledFalse(anyLong()))
+                .thenReturn(
+                        Optional.empty()
+                );
+        //when
+        CustomerCenterException customerCenterException = assertThrows(CustomerCenterException.class,
+                () -> customerCenterService.updateNotice(
+                        noticeId, givenUpdateNoticeDtoRequest()
+                )
+        );
+        //then
+        assertThat(customerCenterException)
+                .hasFieldOrPropertyWithValue("errorCode", errorCode)
+                .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription())
+        ;
+        verify(noticeRepository).findByNoticeIdAndDisabledFalse(eq(noticeId));
+    }
+
+    @Test
+    @DisplayName("[성공] 질문 추가 하기")
+    public void givenCreateQuestionDtoRequest_whenCreateQuestion_thenCreateQuestionDtoResponse() throws Exception{
+        //given
+        when(questionRepository.save(
+                any(Question.class))
+        ).thenReturn(
+                givenQuestionEntity()
+        );
+        //when
+        CreateQuestionDto.Response response = customerCenterService.createQuestion(
+                givenCreateQuestionDtoRequest()
+        );
+        //then
+        assertThat(response)
+                .hasFieldOrPropertyWithValue("questionId", 1L)
+                .hasFieldOrPropertyWithValue("title", "온프리에 오신 것을 환영합니다.")
+                .hasFieldOrPropertyWithValue("content", "안녕하세요 온프리입니다....")
+                .hasFieldOrPropertyWithValue("top", true)
+                .hasFieldOrPropertyWithValue("disabled", false)
+        ;
+
+        verify(questionRepository).save(any());
+    }
+
+    private CreateQuestionDto.Request givenCreateQuestionDtoRequest() {
+        return CreateQuestionDto.Request.builder()
+                .title("제목")
+                .content("내용")
+                .top(true)
+                .build();
+    }
+
+    private Question givenQuestionEntity() {
+        return Question.builder()
+                .questionId(1L)
+                .title("온프리에 오신 것을 환영합니다.")
+                .top(true)
+                .disabled(false)
+                .content("안녕하세요 온프리입니다....")
+                .view(0)
+                .build();
+    }
+
+    @Test
+    @DisplayName("[성공] 질문 수정 하기")
+    public void givenUpdateQuestionDtoRequest_whenUpdateQuestion_thenUpdateQuestionDtoResponse() throws Exception{
+        //given
+        long questionId = 1L;
+
+        when(questionRepository.findByQuestionIdAndDisabledFalse(anyLong()))
+                .thenReturn(
+                        Optional.of(
+                                givenQuestionEntity()
+                        )
+                );
+        //when
+        UpdateQuestionDto.Response response = customerCenterService.updateQuestion(
+                questionId, givenUpdateQuestionDtoRequest()
+        );
+        //then
+        assertThat(response)
+                .hasFieldOrPropertyWithValue("questionId", questionId)
+                .hasFieldOrPropertyWithValue("title", "(수정)온프리에 오신 것을 환영합니다.")
+                .hasFieldOrPropertyWithValue("content", "(수정)안녕하세요 온프리입니다....")
+                .hasFieldOrPropertyWithValue("top", true)
+                .hasFieldOrPropertyWithValue("disabled", true)
+        ;
+        verify(questionRepository).findByQuestionIdAndDisabledFalse(eq(questionId));
+    }
+
+    private UpdateQuestionDto.Request givenUpdateQuestionDtoRequest() {
+        return UpdateQuestionDto.Request.builder()
+                .title("(수정)온프리에 오신 것을 환영합니다.")
+                .content("(수정)안녕하세요 온프리입니다....")
+                .top(true)
+                .disabled(true)
+                .build();
+    }
+
+    @Test
+    @DisplayName("[실패] 질문 수정 하기 -  해당 질문 ID가 존재하지 않아 NOT_FOUND_QUESTION 에러 발생")
+    public void givenUpdateQuestionDtoReqQuestionUpdateQuestionButNotFoundQuestion_thenNotFoundQuestionError() throws Exception{
+        //given
+        long questionId = 1L;
+        CustomerCenterErrorCode errorCode = CustomerCenterErrorCode.NOT_FOUND_QUESTION;
+
+        when(questionRepository.findByQuestionIdAndDisabledFalse(anyLong()))
+                .thenReturn(
+                        Optional.empty()
+                );
+        //when
+        CustomerCenterException customerCenterException = assertThrows(CustomerCenterException.class,
+                () -> customerCenterService.updateQuestion(
+                        questionId, givenUpdateQuestionDtoRequest()
+                )
+        );
+        //then
+        assertThat(customerCenterException)
+                .hasFieldOrPropertyWithValue("errorCode", errorCode)
+                .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription())
+        ;
+        verify(questionRepository).findByQuestionIdAndDisabledFalse(eq(questionId));
+    }
+
+
 }
