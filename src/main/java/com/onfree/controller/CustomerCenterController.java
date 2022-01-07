@@ -8,19 +8,17 @@ import com.onfree.core.service.CustomerCenterService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 
-@Api(tags = "고객센터 컨트롤러")
+@Api(tags = "고객센터 컨트롤러", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api" ,consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api" )
 public class CustomerCenterController {
     private final CustomerCenterService customerCenterService;
 
@@ -49,18 +47,14 @@ public class CustomerCenterController {
     @GetMapping("/questions")
     @ApiOperation(value = "자주 하는 질문 전체 조회", notes = "자주하는 질문을 조회하는 API")
     public Page<QuestionSimpleDto> getQuestionDtoList(
-            @ApiParam(value = "페이지 번호", defaultValue = "0", example = "0", required = true)
+            @ApiParam(value = "페이지 번호", defaultValue = "0", example = "0")
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @ApiParam(value = "보여질 페이지 사이즈", defaultValue = "10", example = "10", required = true )
-            @RequestParam(defaultValue = "10") int size,
-            @ApiParam(value = "정렬 방법", defaultValue = "{}", example = "{noticeId}", required = true)
-            @RequestParam(required = false) String[] sort
+            @ApiParam(value = "보여질 페이지 사이즈", defaultValue = "10", example = "10")
+            @RequestParam(defaultValue = "10") int size
     ){
-        if(sort == null){
-            sort = new String[]{};
-        }
+
         return customerCenterService.getQuestionSimpleDtoList(
-                PageRequest.of(page, size, Sort.by(sort))
+                PageRequest.of(page, size)
         );
     }
 

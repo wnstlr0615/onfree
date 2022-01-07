@@ -1,38 +1,33 @@
 package com.onfree.controller;
 
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.normal.NormalUserDetail;
 import com.onfree.core.dto.user.normal.CreateNormalUser;
+import com.onfree.core.dto.user.normal.NormalUserDetail;
 import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.service.NormalUserService;
-import com.onfree.error.code.UserErrorCode;
-import com.onfree.error.exception.FieldErrorDto;
-import com.onfree.error.exception.UserException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
 
-@Api(tags = "일반유저 기본기능 제공 컨트롤러")
+@Api(tags = "일반유저 기본기능 제공 컨트롤러",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users/normal")
+@RequestMapping(value = "/api/users/normal", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class NormalUserController {
     private final NormalUserService normalUserService;
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("isAnonymous()")
+    @PreAuthorize("!isAuthenticated()")
     @ApiOperation(value = "일반 유저 회원 가입 요청" , notes = "일반 유저 회원 가입 요청")
     @PostMapping("")
     public CreateNormalUser.Response createNormalUser(
