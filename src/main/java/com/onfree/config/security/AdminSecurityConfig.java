@@ -16,13 +16,16 @@ public class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         // 임시 계정 생성
-        auth.inMemoryAuthentication().withUser("joon").password("{noop}1234").roles("ADMIN");
+        auth.inMemoryAuthentication().withUser("joon123").password("{noop}1234").roles("ADMIN");
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.antMatcher("/admin/**")
-            .authorizeRequests().anyRequest().hasRole("ADMIN");
+            .authorizeRequests()
+                .antMatchers("/admin/api/notices", "/admin/api/notices/*").hasRole("ADMIN")
+                .antMatchers("/admin/api/questions", "/admin/api/questions/*").hasRole("ADMIN")
+                .anyRequest().hasRole("ADMIN");
         http
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
