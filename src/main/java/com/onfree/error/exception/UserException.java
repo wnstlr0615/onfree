@@ -12,7 +12,6 @@ import java.util.List;
 public class UserException extends RuntimeException {
     ErrorCode errorCode;
     String errorMessage;
-    List<FieldErrorDto> fieldErrors=new ArrayList<>();
 
     public UserException(UserErrorCode errorCode, String errorMessage) {
         super(errorCode.getDescription());
@@ -24,11 +23,5 @@ public class UserException extends RuntimeException {
         super(errorCode.getDescription());
         this.errorCode = errorCode;
         this.errorMessage = errorCode.getDescription();
-    }
-    public UserException(UserErrorCode errorCode, List<FieldErrorDto> fieldErrors) {
-        super(errorCode.getDescription());
-        this.errorCode = errorCode;
-        this.errorMessage = errorCode.getDescription();
-        this.fieldErrors=fieldErrors;
     }
 }

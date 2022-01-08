@@ -36,7 +36,7 @@ public class CreateArtistUser {
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
-        @Pattern(regexp = "^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", message="핸드폰번호 패턴이 올바르지 않습니다.")
+        @Pattern(regexp = "^01(0|1|[6-9])-(\\d{3}|\\d{4})-\\d{4}$", message="핸드폰번호 패턴이 올바르지 않습니다.")
         private final String phoneNumber;
 
         @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = " ${BankName.joinString()}" )
@@ -46,6 +46,7 @@ public class CreateArtistUser {
         @ApiModelProperty(value = "계좌번호", example = "123456-456789-12")
         @NotBlank(message = "계좌번호는 공백일 수 없습니다.")
         private final String accountNumber;
+        //TODO 계좌번호 패턴 검사
 
         @AssertTrue(message = "서비스 동의를 하지 않으면 회원가입이 불가합니다.")
         @ApiModelProperty(value = "서비스동의", example = "true")

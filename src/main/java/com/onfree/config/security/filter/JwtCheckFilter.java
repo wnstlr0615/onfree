@@ -163,7 +163,8 @@ public class JwtCheckFilter extends OncePerRequestFilter {
     }
 
     private String getRefreshCookieValue(HttpServletRequest request) {
-        final Cookie refreshCookie = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals(JWTUtil.REFRESH_TOKEN)).findFirst()
+        final Cookie[] cookies = request.getCookies() != null ? request.getCookies() : new Cookie[]{};
+        final Cookie refreshCookie = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(JWTUtil.REFRESH_TOKEN)).findFirst()
                 .orElseThrow(() -> new LoginException(LoginErrorCode.NOT_FOUND_REFRESH_TOKEN));
         if(!StringUtils.hasText(refreshCookie.getValue())){
             throw new LoginException(LoginErrorCode.NOT_FOUND_REFRESH_TOKEN);

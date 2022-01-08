@@ -1,7 +1,8 @@
 package com.onfree.utils;
 
 import com.onfree.core.entity.user.User;
-import lombok.experimental.UtilityClass;
+import com.onfree.error.code.GlobalErrorCode;
+import com.onfree.error.exception.GlobalException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +19,7 @@ public class Checker {
         if(!isEqualsAccessUserId(user, userId)){
             log.error("REQUEST_USER_Id is not matching USER_ID");
             log.error("request_user_id : {}, user_id : {}", userId, user.getUserId());
-            return false;
+            throw new GlobalException(GlobalErrorCode.ACCESS_DENIED);
         }
         return true;
     }
