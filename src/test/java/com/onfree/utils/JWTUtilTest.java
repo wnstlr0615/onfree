@@ -128,7 +128,7 @@ class JWTUtilTest {
 
         //then
         assertThat(verify.isResult()).isTrue();
-        assertThat(verify.getUsername()).isNull();
+        assertThat(verify.getUsername()).isEqualTo(user.getEmail());
     }
 
     @Test

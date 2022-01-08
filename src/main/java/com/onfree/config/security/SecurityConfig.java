@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -26,10 +28,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity()
+@EnableWebSecurity(debug = true)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 @Slf4j
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final CustomUserDetailService customUserDetailService;
     private final JWTRefreshTokenService jwtRefreshTokenService;
@@ -53,9 +56,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        String[] whiteList=new String[]{
+                "/login", "/error", "/logout"
+        };
+        String[] GETWhiteList = new String[]{
+                "/api/notices", "/api/notices/**",
+                "/api/questions", "/api/questions/**"
+        };
         http.authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/api/users/artist", "/api/users/normal").permitAll()
-                .antMatchers("/login", "/error", "/logout").permitAll()
+                .antMatchers(whiteList).permitAll()
+                .antMatchers(HttpMethod.GET,GETWhiteList).permitAll()
+                .antMatchers(HttpMethod.POST, "/api/notices/**", "/api/questions/**").hasRole("ADMIN")
                 .antMatchers("/api/users/artist/**").hasRole("ARTIST")
                 .antMatchers("/api/users/normal/**").hasRole("NORMAL")
                 .anyRequest().authenticated();
