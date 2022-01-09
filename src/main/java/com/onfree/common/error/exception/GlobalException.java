@@ -1,8 +1,8 @@
-package com.onfree.error.exception;
+package com.onfree.common.error.exception;
 
-import com.onfree.error.code.ErrorCode;
-import com.onfree.error.code.GlobalErrorCode;
-import com.onfree.error.code.UserErrorCode;
+import com.onfree.common.error.code.ErrorCode;
+import com.onfree.common.error.code.GlobalErrorCode;
+import com.onfree.common.error.response.FieldErrorDto;
 import lombok.Getter;
 
 import java.util.ArrayList;

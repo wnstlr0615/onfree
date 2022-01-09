@@ -1,6 +1,5 @@
-package com.onfree.common.dto;
+package com.onfree.common.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 

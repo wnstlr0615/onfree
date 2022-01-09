@@ -1,4 +1,4 @@
-package com.onfree.core.model;
+package com.onfree.common.model;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,6 +1,6 @@
-package com.onfree.config.error.code;
+package com.onfree.common.error.code;
 
-import com.onfree.error.code.ErrorCode;
+import com.onfree.common.error.code.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

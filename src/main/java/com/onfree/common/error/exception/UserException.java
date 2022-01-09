@@ -1,12 +1,8 @@
-package com.onfree.error.exception;
+package com.onfree.common.error.exception;
 
-import com.onfree.error.code.ErrorCode;
-import com.onfree.error.code.UserErrorCode;
+import com.onfree.common.error.code.ErrorCode;
+import com.onfree.common.error.code.UserErrorCode;
 import lombok.Getter;
-import org.springframework.validation.FieldError;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 public class UserException extends RuntimeException {

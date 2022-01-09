@@ -1,4 +1,4 @@
-package com.onfree.aop;
+package com.onfree.common.aop;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.anotation.WithAdminUser;
@@ -15,8 +15,8 @@ import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.core.service.JWTRefreshTokenService;
-import com.onfree.error.code.ErrorCode;
-import com.onfree.error.code.GlobalErrorCode;
+import com.onfree.common.error.code.ErrorCode;
+import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.utils.JWTUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;

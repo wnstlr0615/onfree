@@ -1,8 +1,7 @@
-package com.onfree.error.exception.response;
+package com.onfree.common.error.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.onfree.error.code.ErrorCode;
-import com.onfree.error.exception.FieldErrorDto;
+import com.onfree.common.error.code.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -1,8 +1,8 @@
 package com.onfree.config.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onfree.config.error.code.LoginErrorCode;
-import com.onfree.config.error.exception.LoginException;
+import com.onfree.common.error.code.LoginErrorCode;
+import com.onfree.common.error.exception.LoginException;
 import com.onfree.config.security.CustomUserDetail;
 import com.onfree.config.security.dto.JwtLoginResponse;
 import com.onfree.core.dto.LoginFormDto;

@@ -1,23 +1,16 @@
-package com.onfree.aop;
+package com.onfree.common.aop;
 
-import com.onfree.error.code.GlobalErrorCode;
-import com.onfree.error.code.UserErrorCode;
-import com.onfree.error.exception.FieldErrorDto;
-import com.onfree.error.exception.GlobalException;
-import com.onfree.error.exception.UserException;
+import com.onfree.common.error.code.GlobalErrorCode;
+import com.onfree.common.error.response.FieldErrorDto;
+import com.onfree.common.error.exception.GlobalException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.FieldError;
 
-import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 

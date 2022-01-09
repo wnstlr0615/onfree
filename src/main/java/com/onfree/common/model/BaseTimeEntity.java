@@ -1,4 +1,4 @@
-package com.onfree.core.model;
+package com.onfree.common.model;
 
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;

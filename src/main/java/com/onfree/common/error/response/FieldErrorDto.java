@@ -1,4 +1,4 @@
-package com.onfree.error.exception;
+package com.onfree.common.error.response;
 
 import lombok.Builder;
 import lombok.Getter;

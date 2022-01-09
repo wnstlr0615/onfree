@@ -1,20 +1,15 @@
 package com.onfree.config.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onfree.config.error.exception.LoginException;
-import com.onfree.error.code.ErrorCode;
-import com.onfree.error.code.GlobalErrorCode;
-import com.onfree.config.error.code.LoginErrorCode;
-import com.onfree.error.exception.response.SimpleErrorResponse;
-import lombok.RequiredArgsConstructor;
+import com.onfree.common.error.exception.LoginException;
+import com.onfree.common.error.code.ErrorCode;
+import com.onfree.common.error.code.GlobalErrorCode;
+import com.onfree.common.error.response.SimpleErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

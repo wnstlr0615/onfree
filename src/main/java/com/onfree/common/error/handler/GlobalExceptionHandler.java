@@ -1,9 +1,9 @@
-package com.onfree.error.handler;
+package com.onfree.common.error.handler;
 
-import com.onfree.error.exception.CustomerCenterException;
-import com.onfree.error.exception.GlobalException;
-import com.onfree.error.exception.UserException;
-import com.onfree.error.exception.response.ResponseResult;
+import com.onfree.common.error.exception.CustomerCenterException;
+import com.onfree.common.error.exception.GlobalException;
+import com.onfree.common.error.exception.UserException;
+import com.onfree.common.error.response.ResponseResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

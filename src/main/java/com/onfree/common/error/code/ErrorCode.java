@@ -1,6 +1,4 @@
-package com.onfree.error.code;
-
-import lombok.Getter;
+package com.onfree.common.error.code;
 
 
 public interface ErrorCode {

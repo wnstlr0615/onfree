@@ -6,8 +6,8 @@ import com.onfree.core.dto.notice.NoticeSimpleDto;
 import com.onfree.core.dto.question.QuestionDetailDto;
 import com.onfree.core.dto.question.QuestionSimpleDto;
 import com.onfree.core.service.CustomerCenterService;
-import com.onfree.error.code.CustomerCenterErrorCode;
-import com.onfree.error.exception.CustomerCenterException;
+import com.onfree.common.error.code.CustomerCenterErrorCode;
+import com.onfree.common.error.exception.CustomerCenterException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -165,7 +165,7 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         )
                 .andDo(print())
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
@@ -298,7 +298,7 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         )
                 .andDo(print())
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;

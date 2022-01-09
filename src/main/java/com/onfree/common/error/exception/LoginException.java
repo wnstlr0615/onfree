@@ -1,7 +1,7 @@
-package com.onfree.config.error.exception;
+package com.onfree.common.error.exception;
 
-import com.onfree.config.error.code.LoginErrorCode;
-import com.onfree.error.code.ErrorCode;
+import com.onfree.common.error.code.LoginErrorCode;
+import com.onfree.common.error.code.ErrorCode;
 import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;
 

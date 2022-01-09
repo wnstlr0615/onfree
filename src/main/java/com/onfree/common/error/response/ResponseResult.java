@@ -1,7 +1,6 @@
-package com.onfree.error.exception.response;
+package com.onfree.common.error.response;
 
-import com.onfree.error.code.ErrorCode;
-import com.onfree.error.exception.FieldErrorDto;
+import com.onfree.common.error.code.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 

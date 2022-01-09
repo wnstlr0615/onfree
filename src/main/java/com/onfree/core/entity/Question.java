@@ -1,8 +1,7 @@
 package com.onfree.core.entity;
 
-import com.onfree.core.dto.notice.UpdateNoticeDto;
 import com.onfree.core.dto.question.UpdateQuestionDto;
-import com.onfree.core.model.BaseEntity;
+import com.onfree.common.model.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

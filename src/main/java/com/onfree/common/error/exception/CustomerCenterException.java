@@ -1,7 +1,7 @@
-package com.onfree.error.exception;
+package com.onfree.common.error.exception;
 
-import com.onfree.error.code.CustomerCenterErrorCode;
-import com.onfree.error.code.ErrorCode;
+import com.onfree.common.error.code.CustomerCenterErrorCode;
+import com.onfree.common.error.code.ErrorCode;
 import lombok.Getter;
 
 @Getter
