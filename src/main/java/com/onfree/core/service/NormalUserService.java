@@ -24,6 +24,7 @@ public class NormalUserService {
     /** 회원가입 요청 */
     @Transactional
     public CreateNormalUser.Response createdNormalUser(CreateNormalUser.Request request) {
+        //TODO Redis 를 통한 인증 검사 후 회원가입
         duplicatedUserEmail(request.getEmail());
         return CreateNormalUser.Response
                 .fromEntity(
