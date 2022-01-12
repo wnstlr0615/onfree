@@ -1,8 +1,6 @@
 package com.onfree.common.error.handler;
 
-import com.onfree.common.error.exception.CustomerCenterException;
-import com.onfree.common.error.exception.GlobalException;
-import com.onfree.common.error.exception.UserException;
+import com.onfree.common.error.exception.*;
 import com.onfree.common.error.response.ResponseResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +33,19 @@ public class GlobalExceptionHandler {
         if(!e.getFieldErrors().isEmpty()){
             return ResponseResult.fail(e.getErrorCode(), e.getFieldErrors());
         }
+        return ResponseResult.fail(e.getErrorCode());
+    }
+
+    @ExceptionHandler(MailSenderException.class)
+    public ResponseEntity<?> mailSenderExceptionHandler(MailSenderException e, HttpServletRequest request){
+        log.error("MailSenderException  : {}", e.getErrorCode());
+        log.error("remoteHost: {},  request Url : {}",request.getRemoteHost(), request.getRequestURL());
+        return ResponseResult.fail(e.getErrorCode());
+    }
+    @ExceptionHandler(SignUpException.class)
+    public ResponseEntity<?> mailSenderExceptionHandler(SignUpException e, HttpServletRequest request){
+        log.error("SignUpException  : {}", e.getErrorCode());
+        log.error("remoteHost: {},  request Url : {}",request.getRemoteHost(), request.getRequestURL());
         return ResponseResult.fail(e.getErrorCode());
     }
 }
