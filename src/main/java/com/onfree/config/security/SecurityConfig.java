@@ -57,7 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         String[] whiteList=new String[]{
-                "/login", "/error", "/logout"
+                "/login", "/error", "/logout", "/api/signup/**"
         };
         String[] GETWhiteList = new String[]{
                 "/api/notices", "/api/notices/**",

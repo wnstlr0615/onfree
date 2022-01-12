@@ -35,7 +35,7 @@ public class SignUpService {
 
     /** 이메일 인증 */
     @Async(value = "getAsyncExecutor")
-    public void emailVerification(String email) {
+    public void asyncEmailVerify(String email) {
         validDuplicatedEmail(email);
         MailTemplate checkEmailTemplate = getMailTemplate("CHECK_EMAIL");
         UUID uuid = UUID.randomUUID();
@@ -60,20 +60,21 @@ public class SignUpService {
     }
 
     /** 이메일 인증 확인*/
-    public SimpleResponse checkEmailVerification(String uuid){
-        ValueOperations<String, String> value = redisTemplate.opsForValue();
-        checkVerificationEmailFromRedis(uuid, value);
+    public SimpleResponse checkEmailVerify(String uuid){
+        checkVerificationEmailFromRedis(uuid);
         return SimpleResponse.success("이메일 인증이 완료되었습니다.");
     }
 
-    private void checkVerificationEmailFromRedis(String uuid, ValueOperations<String, String> value) {
+    private void checkVerificationEmailFromRedis(String uuid) {
+        ValueOperations<String, String> value = redisTemplate.opsForValue();
+
         String email = getEmailFromRedis(uuid, value);
         value.set(SIGNUP_VERIFICATION +email, "true", Duration.ofMinutes(10));
     }
 
     private String getEmailFromRedis(String uuid, ValueOperations<String, String> value) {
         return Optional.ofNullable(value.get("signUp:uuid:" + uuid))
-                .orElseThrow(() -> new SignUpException(SignUpErrorCode.EXPIRED_EMAIL_VERIFICATION));
+                .orElseThrow(() -> new SignUpException(SignUpErrorCode.EXPIRED_EMAIL_OR_WRONG_UUID));
     }
 
     /** 닉네임 인증*/
