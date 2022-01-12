@@ -51,11 +51,33 @@ class SignupControllerTest extends WebMvcBaseTest {
             ;
         verify(signUpService).asyncEmailVerify(eq(givenEmail));
     }
+    @Test
+    @WithAnonymousUser
+    @DisplayName("[실패][GET] 이메일 비동기 인증 시도 - 공백 입력")
+    public void givenBlankEmail_whenAsyncEmailVerification_thenEmailIsBlank() throws Exception{
+        //given
+        final String givenEmail = "";
+        ErrorCode errorCode = SignUpErrorCode.EMAIL_IS_BLANK;
+        doNothing().when(signUpService).asyncEmailVerify(
+                eq(givenEmail)
+        );
+
+        //when //then
+        mvc.perform(get("/api/signup/verify/email")
+                .queryParam("email", givenEmail)
+        )
+                .andDo(print())
+                .andExpect(status().is(errorCode.getStatus()))
+                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
+                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+        ;
+        verify(signUpService, never()).asyncEmailVerify(eq(givenEmail));
+    }
 
     @Test
     @WithAnonymousUser
     @DisplayName("[실패][GET] 이메일 비동기 인증 시도 - 잘못 된 이메일 입력")
-    public void givenWrongEmail_whenAsyncEmailVerification_thenAsync() throws Exception{
+    public void givenWrongEmail_whenAsyncEmailVerification_thenEmailIsWrongError() throws Exception{
         //given
         final String givenEmail = "joon@naver.c";
         ErrorCode errorCode = SignUpErrorCode.EMAIL_IS_WRONG;
@@ -102,11 +124,28 @@ class SignupControllerTest extends WebMvcBaseTest {
     }
 
     @Test
+    @DisplayName("[실패][GET]이메일 인증 확인 - uuid가 공백일 경우")
+    public void givenBlankUUID_whenCheckEmailVerifyBut_thenUuidIsBlankError() throws Exception{
+        //given
+        final String givenUUID = " ";
+        final SignUpErrorCode errorCode = SignUpErrorCode.UUID_IS_BLANK;
+
+        //when //then
+        mvc.perform(get("/api/signup/{uuid}", givenUUID))
+                .andDo(print())
+                .andExpect(status().is(errorCode.getStatus()))
+                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
+                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+        ;
+
+        verify(signUpService, never()).checkEmailVerify(eq(givenUUID));
+    }
+
+    @Test
     @DisplayName("[실패][GET]이메일 인증 확인 - Redis 에서 uuid KEY를 찾지 못한 경우")
-    public void givenUUID_whenCheckEmailVerifyBut_thenSimpleResponse() throws Exception{
+    public void givenUUID_whenCheckEmailVerifyBut_thenExpiredEmailOrWrongUuidError() throws Exception{
         //given
         final String givenUUID = UUID.randomUUID().toString();
-        final String message = "이메일 인증이 완료되었습니다.";
         final SignUpErrorCode errorCode = SignUpErrorCode.EXPIRED_EMAIL_OR_WRONG_UUID;
         when(signUpService.checkEmailVerify(
                 eq(givenUUID)
@@ -208,6 +247,25 @@ class SignupControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.message").value(message))
         ;
         verify(signUpService).checkUsedPersonalURL(eq(personalUrl));
+    }
+
+    @Test
+    @DisplayName("[실패][GET] 포트폴리오 개인 URL 중복 확인 - 입력 된 URL이 공백일 경우")
+    public void givenBlankPersonalURL_whenCheckPersonalURL_thenPersonalUrlIsBlankError() throws Exception{
+        //given
+        final String personalUrl = "";
+        final SignUpErrorCode errorCode = SignUpErrorCode.PERSONAL_URL_IS_BLANK;
+        //when
+        //then
+        mvc.perform(get("/api/signup/verify/personal_url")
+                .param("personalUrl", personalUrl)
+        )
+                .andDo(print())
+                .andExpect(status().is(errorCode.getStatus()))
+                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
+                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+        ;
+        verify(signUpService, never()).checkUsedPersonalURL(eq(personalUrl));
     }
 
     @Test
