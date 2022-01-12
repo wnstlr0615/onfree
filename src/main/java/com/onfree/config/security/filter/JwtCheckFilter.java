@@ -1,12 +1,12 @@
 package com.onfree.config.security.filter;
 
-import com.onfree.config.error.code.LoginErrorCode;
-import com.onfree.config.error.exception.LoginException;
+import com.onfree.common.error.code.LoginErrorCode;
+import com.onfree.common.error.exception.LoginException;
 import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
 import com.onfree.config.security.CustomUserDetail;
 import com.onfree.config.security.CustomUserDetailService;
 import com.onfree.core.entity.user.User;
-import com.onfree.core.model.VerifyResult;
+import com.onfree.common.model.VerifyResult;
 import com.onfree.core.service.JWTRefreshTokenService;
 import com.onfree.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;

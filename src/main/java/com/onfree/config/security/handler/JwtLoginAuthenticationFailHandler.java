@@ -1,11 +1,11 @@
 package com.onfree.config.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onfree.config.error.code.LoginErrorCode;
-import com.onfree.config.error.exception.LoginException;
-import com.onfree.error.code.ErrorCode;
-import com.onfree.error.code.GlobalErrorCode;
-import com.onfree.error.exception.response.SimpleErrorResponse;
+import com.onfree.common.error.code.LoginErrorCode;
+import com.onfree.common.error.exception.LoginException;
+import com.onfree.common.error.code.ErrorCode;
+import com.onfree.common.error.code.GlobalErrorCode;
+import com.onfree.common.error.response.SimpleErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

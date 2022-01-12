@@ -1,6 +1,6 @@
 package com.onfree.config;
 
-import com.onfree.properties.JWTProperties;
+import com.onfree.common.properties.JWTProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 

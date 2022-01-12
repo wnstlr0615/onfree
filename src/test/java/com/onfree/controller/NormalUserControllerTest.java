@@ -1,10 +1,8 @@
 package com.onfree.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.WebMvcBaseTest;
-import com.onfree.config.security.CustomUserDetailService;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.normal.CreateNormalUser;
 import com.onfree.core.dto.user.normal.NormalUserDetail;
@@ -12,27 +10,22 @@ import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
 import com.onfree.core.entity.user.NormalUser;
-import com.onfree.core.service.JWTRefreshTokenService;
 import com.onfree.core.service.NormalUserService;
-import com.onfree.error.code.ErrorCode;
-import com.onfree.error.code.GlobalErrorCode;
-import com.onfree.error.code.UserErrorCode;
-import com.onfree.error.exception.UserException;
+import com.onfree.common.error.code.ErrorCode;
+import com.onfree.common.error.code.GlobalErrorCode;
+import com.onfree.common.error.code.UserErrorCode;
+import com.onfree.common.error.exception.UserException;
 import com.onfree.utils.Checker;
-import com.onfree.utils.JWTUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -545,7 +538,7 @@ class NormalUserControllerTest extends WebMvcBaseTest {
                 )
         )
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;

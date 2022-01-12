@@ -6,13 +6,13 @@ import com.onfree.core.dto.user.normal.CreateNormalUser;
 import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.entity.user.NormalUser;
 import com.onfree.core.repository.UserRepository;
-import com.onfree.error.exception.UserException;
+import com.onfree.common.error.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.onfree.error.code.UserErrorCode.*;
+import static com.onfree.common.error.code.UserErrorCode.*;
 
 @Service
 @Transactional(readOnly = true)

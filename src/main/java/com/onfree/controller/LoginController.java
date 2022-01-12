@@ -1,6 +1,6 @@
 package com.onfree.controller;
 
-import com.onfree.common.dto.SimpleResponse;
+import com.onfree.common.model.SimpleResponse;
 import com.onfree.config.security.dto.JwtLoginResponse;
 import com.onfree.core.dto.LoginFormDto;
 import com.onfree.core.entity.user.User;
@@ -8,7 +8,6 @@ import com.onfree.core.service.JWTRefreshTokenService;
 import com.onfree.utils.JWTUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;

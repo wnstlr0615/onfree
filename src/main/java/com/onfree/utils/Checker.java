@@ -1,8 +1,8 @@
 package com.onfree.utils;
 
 import com.onfree.core.entity.user.User;
-import com.onfree.error.code.GlobalErrorCode;
-import com.onfree.error.exception.GlobalException;
+import com.onfree.common.error.code.GlobalErrorCode;
+import com.onfree.common.error.exception.GlobalException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

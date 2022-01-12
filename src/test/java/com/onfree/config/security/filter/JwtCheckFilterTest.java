@@ -7,7 +7,7 @@ import com.onfree.core.entity.user.NormalUser;
 import com.onfree.core.entity.user.Role;
 import com.onfree.core.entity.user.User;
 import com.onfree.core.service.JWTRefreshTokenService;
-import com.onfree.properties.JWTProperties;
+import com.onfree.common.properties.JWTProperties;
 import com.onfree.utils.JWTUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
