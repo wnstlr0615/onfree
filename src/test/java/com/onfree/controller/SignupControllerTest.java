@@ -5,6 +5,7 @@ import com.onfree.common.error.code.ErrorCode;
 import com.onfree.common.error.code.SignUpErrorCode;
 import com.onfree.common.error.exception.SignUpException;
 import com.onfree.common.model.SimpleResponse;
+import com.onfree.core.service.AwsS3Service;
 import com.onfree.core.service.SignUpService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,17 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = SignupController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 class SignupControllerTest extends WebMvcBaseTest {
@@ -31,6 +34,66 @@ class SignupControllerTest extends WebMvcBaseTest {
 
     @MockBean
     SignUpService signUpService;
+    @MockBean
+    AwsS3Service awsS3Service;
+
+    @Test
+    @DisplayName("[성공][POST] 프로필 사진 업로드")
+    public void givenImageMultipartFile_whenProfileImageUpload_thenFileAccessUrl() throws Exception{
+        //given
+        final String fileUrl = "https://s3.ap-northeast-2.amazonaws.com/onfree-store/users/profileImage/8c2ac333-9b9b-4c01-867b-c245b1fa65fd.PNG";
+        final MockMultipartFile file = new MockMultipartFile("file", "aaaa.png","image/png", "test".getBytes(StandardCharsets.UTF_8));
+        when(awsS3Service.s3ProfileImageFileUpload(any()))
+                .thenReturn(fileUrl);
+        //when
+        //then
+        mvc.perform(multipart("/api/signup/profileImage")
+                .file(file)
+        )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().string(fileUrl))
+        ;
+        verify(awsS3Service).s3ProfileImageFileUpload(any());
+    }
+
+    @Test
+    @DisplayName("[실패][POST] 프로필 사진 업로드 - 파일이 비었을 경우")
+    public void givenImageEmptyMultipartFile_whenProfileImageUpload_thenFileIsEmptyError() throws Exception{
+        //given
+        final MockMultipartFile file = new MockMultipartFile("file", "aaaa.png","image/png", (byte[]) null);
+        final SignUpErrorCode errorCode = SignUpErrorCode.FILE_IS_EMPTY;
+
+        //when //then
+        mvc.perform(multipart("/api/signup/profileImage")
+                .file(file)
+        )
+                .andDo(print())
+                .andExpect(status().is(errorCode.getStatus()))
+                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
+                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+        ;
+        verify(awsS3Service, never()).s3ProfileImageFileUpload(any());
+    }
+
+    @Test
+    @DisplayName("[실패][POST] 프로필 사진 업로드 - 파일 확장자를 지원 하지 않는 경우")
+    public void givenNotAllowMultipartFile_whenProfileImageUpload_thenFileIsEmptyError() throws Exception{
+        //given
+        final MockMultipartFile file = new MockMultipartFile("file", "aaaa.csv","image/png", "test".getBytes(StandardCharsets.UTF_8));
+        final SignUpErrorCode errorCode = SignUpErrorCode.NOT_ALLOW_FILE_TYPE;
+        //when//then
+        mvc.perform(multipart("/api/signup/profileImage")
+                .file(file)
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
+                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+        ;
+        verify(awsS3Service, never()).s3ProfileImageFileUpload(any());
+
+    }
 
     @Test
     @WithAnonymousUser
