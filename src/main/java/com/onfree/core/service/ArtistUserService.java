@@ -24,6 +24,7 @@ public class ArtistUserService {
     /** 회원가입 요청 */
     @Transactional
     public CreateArtistUser.Response createArtistUser(CreateArtistUser.Request request) {
+        //TODO Redis 를 통한 인증 검사 후 회원가입
         duplicatedUserEmail(request.getEmail());
         return CreateArtistUser.Response
                 .fromEntity(
