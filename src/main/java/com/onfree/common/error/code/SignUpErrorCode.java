@@ -6,6 +6,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum SignUpErrorCode implements ErrorCode{
+    FILE_IS_EMPTY("해당 파일은 비어있습니다.", 400),
+    NOT_ALLOW_FILE_TYPE("해당 파일은 지원 하지 않습니다. .jpg나 .png 파일을 이용해 주세요.", 200),
     EMAIL_IS_WRONG("이메일 형식이 올바르지 않습니다.", 400),
     EMAIL_IS_DUPLICATED("해당 이메일은 사용중입니다.", 200),
     NICKNAME_IS_DUPLICATED("해당 닉네임은 사용중입니다.", 200),
