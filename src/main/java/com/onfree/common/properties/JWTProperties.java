@@ -12,7 +12,6 @@ import java.time.Duration;
 @ConstructorBinding
 @RequiredArgsConstructor
 @ConfigurationProperties(prefix = "jwt")
-@Setter
 @Getter
 @ToString
 public class JWTProperties {
