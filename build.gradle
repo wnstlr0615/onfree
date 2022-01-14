@@ -27,6 +27,8 @@ dependencies {
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // amazon s3
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.137'
     //develop 용 db
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     //JWT Token
