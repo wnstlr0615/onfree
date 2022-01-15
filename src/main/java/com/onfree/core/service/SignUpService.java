@@ -21,13 +21,15 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.onfree.common.constant.RedisConstant.SIGNUP_UUID;
+import static com.onfree.common.constant.RedisConstant.SIGNUP_VERIFICATION;
+
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
 @Slf4j
 public class SignUpService {
-    public static final String SIGNUP_UUID = "signup:uuid:";
-    public static final String SIGNUP_VERIFICATION = "signup:verification:";
+
     private final MailTemplateRepository mailTemplateRepository;
     private final UserRepository userRepository;
     private final MailComponent mailComponent;
@@ -37,15 +39,20 @@ public class SignUpService {
     @Async(value = "getAsyncExecutor")
     public void asyncEmailVerify(String email) {
         validDuplicatedEmail(email);
+        String uuid = getRandomUuid();
+        saveSignUpUuidRedis(email, uuid);
         MailTemplate checkEmailTemplate = getMailTemplate("CHECK_EMAIL");
-        UUID uuid = UUID.randomUUID();
-        redisTemplate.opsForValue().set(SIGNUP_UUID + uuid, email, Duration.ofSeconds(300));
         String content = getContent(checkEmailTemplate.getContent(), uuid);
         mailComponent.sendMail(email, checkEmailTemplate.getTitle(), content);
     }
 
-    private String getContent( String content, UUID uuid) {
-        return content.replace("<URL>", "http://localhost:8080/test/api/signup/" + uuid);
+    private void saveSignUpUuidRedis(String email, String uuid) {
+        redisTemplate.opsForValue().set(SIGNUP_UUID + uuid, email, Duration.ofSeconds(300));
+    }
+
+    private String getContent( String content, String uuid) {
+        //TODO 링크 MailTemplate에 같이 적용하기
+        return content.replace("<URL>", "http://localhost:8080/api/signup/" + uuid);
     }
 
     private void validDuplicatedEmail(String email) {
@@ -58,6 +65,10 @@ public class SignUpService {
         return mailTemplateRepository.findByMailTemplateName(templateName)
                 .orElseThrow(() -> new MailSenderException(MailErrorCode.WRONG_MAIL_ATTRIBUTE));
     }
+    private String getRandomUuid() {
+        return UUID.randomUUID().toString();
+    }
+
 
     /** 이메일 인증 확인*/
     public SimpleResponse checkEmailVerify(String uuid){

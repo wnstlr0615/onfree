@@ -17,11 +17,16 @@ public class MailTemplateService {
 
     @PostConstruct
     public void init(){
+        saveMailTemplate("CHECK_EMAIL", "[이메일 인증] 온프리 이메일 인증 확인", "<a href='<URL>'>이메일 인증하기</a>");
+        saveMailTemplate("PASSWORD_RESET", "[이메일 인증] 온프리 비밀번호 설정", "<a href='<URL>'>비밀번호 변경하기</a>");
+    }
+
+    private void saveMailTemplate(String templateName, String title, String content) {
         mailTemplateRepository.save(
                 MailTemplate.builder()
-                        .mailTemplateName("CHECK_EMAIL")
-                        .title("[이메일 인증] 온프리 이메일 인증 확인")
-                        .content("<a href='<URL>'>이메일 인증하기</a>")
+                        .mailTemplateName(templateName)
+                        .title(title)
+                        .content(content)
                         .build()
         );
     }
