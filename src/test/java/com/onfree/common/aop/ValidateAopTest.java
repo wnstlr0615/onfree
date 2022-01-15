@@ -153,7 +153,7 @@ class ValidateAopTest {
     public void givenCreateUserReq_whenCreateNormalUserWithLoginUser_thenCreateUserRes() throws Exception{
         //given
         CreateNormalUser.Request request = givenWrongCreateNormalUserReq();
-        final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
         mvc.perform(post("/api/users/normal")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -196,7 +196,7 @@ class ValidateAopTest {
     public void givenWrongUpdateUserInfo_whenModifiedNormalUser_thenNotValidRequestParametersError() throws Exception{
         //given
         final long userId = 1L;
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when then
         mvc.perform(put("/api/users/normal/{userId}", userId)
@@ -233,7 +233,7 @@ class ValidateAopTest {
     public void givenWrongCreateUserReq_whenCreateArtistUser_thenParameterValidError() throws Exception{
         //given
         CreateArtistUser.Request request = givenWrongCreateArtistUserReq();
-        ErrorCode errorCode=GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        ErrorCode errorCode=GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when //then
         mvc.perform(post("/api/users/artist")
@@ -279,7 +279,7 @@ class ValidateAopTest {
     public void givenWrongUpdateUserInfo_whenModifiedArtistUser_thenNotValidRequestParametersError() throws Exception{
         //given
         final long userId = 2L;
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when then
         mvc.perform(put("/api/users/artist/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -316,7 +316,7 @@ class ValidateAopTest {
     public void givenWrongCreateNoticeDtoReq_whenCreateNotice_thenCreateNoticeDtoRes() throws Exception{
         //given
 
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
         mvc.perform(post("/admin/api/notices")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -347,7 +347,7 @@ class ValidateAopTest {
     public void givenUpdateNoticeDtoReq_whenUpdateNotice_thenUpdateNoticeDtoRes() throws Exception{
         //given
         final long noticeId = 1L;
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
         mvc.perform(put("/admin/api/notices/{noticeId}", noticeId)
@@ -379,7 +379,7 @@ class ValidateAopTest {
     @WithAdminUser
     public void givenWrongCreateQuestionDtoReq_whenCreateQuestion_thenCreateQuestionDtoRes() throws Exception{
         //given
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
         mvc.perform(post("/admin/api/questions")
@@ -411,7 +411,7 @@ class ValidateAopTest {
     public void givenUpdateQuestionDtoReq_whenUpdateQuestion_thenUpdateQuestionDtoRes() throws Exception{
         //given
         final long questionId = 1L;
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
         mvc.perform(put("/admin/api/questions/{questionId}", questionId)

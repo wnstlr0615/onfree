@@ -151,7 +151,7 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     public void givenWrongCreateUserReq_whenCreateNormalUser_thenParameterValidError() throws Exception{
         //given
         CreateNormalUser.Request request = givenWrongCreateNormalUserReq();
-        ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         when(checker.isSelf(anyLong()))
                 .thenReturn(true);
         //when //then
@@ -487,7 +487,7 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     public void givenWrongUpdateUserInfo_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
         //given
         final long userId = 1L;
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         when(checker.isSelf(anyLong()))
                 .thenReturn(true);
         //when then
