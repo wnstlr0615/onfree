@@ -1,5 +1,6 @@
 package com.onfree.common.aop;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.anotation.WithAdminUser;
 import com.onfree.anotation.WithArtistUser;
@@ -40,7 +41,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest()
+@SpringBootTest(properties =
+        "spring.config.location=" +
+        "classpath:application.yml" +
+        ",classpath:aws.yml")
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(print = MockMvcPrint.LOG_DEBUG)
 @ExtendWith(MockitoExtension.class)
@@ -58,6 +62,9 @@ class ValidateAopTest {
 
     @Autowired
     JWTRefreshTokenService jwtRefreshTokenService;
+
+    @Autowired
+    AmazonS3Client amazonS3Client;
 
     @Autowired
     JWTUtil jwtUtil;

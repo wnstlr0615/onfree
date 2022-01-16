@@ -4,6 +4,7 @@ import com.onfree.core.entity.JWTRefreshToken;
 import com.onfree.core.repository.JWTRefreshTokenRepository;
 import com.onfree.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +15,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class JWTRefreshTokenService {
     private final JWTRefreshTokenRepository jwtRefreshTokenRepository;
-
+    private final StringRedisTemplate redisTemplate;
     @Transactional
     public void saveRefreshToken(String username, String refreshToken){
         jwtRefreshTokenRepository.save(

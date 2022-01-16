@@ -35,7 +35,10 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest
+@SpringBootTest(properties = "" +
+        "spring.config.location:" +
+        "classpath:application.yml" +
+        ",classpath:aws.yml")
 class JwtCheckFilterTest {
     @MockBean
     JWTProperties jwtProperties;
@@ -50,6 +53,7 @@ class JwtCheckFilterTest {
     MockHttpServletRequest request;
     MockHttpServletResponse response;
     MockFilterChain mockFilterChain;
+
 
     @BeforeEach
     public void initMock() {
