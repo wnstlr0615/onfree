@@ -23,8 +23,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Component
 public class JWTUtil {
-    public static final String REFRESH_TOKEN = "refreshToken";
-    public static final String ACCESS_TOKEN = "accessToken";
+
 
     private final JWTProperties jwtProperties;
 

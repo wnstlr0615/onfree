@@ -24,6 +24,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import static com.onfree.common.constant.SecurityConstant.ACCESS_TOKEN;
+import static com.onfree.common.constant.SecurityConstant.REFRESH_TOKEN;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping( consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,9 +53,9 @@ public class LoginController {
     }
 
     private void deleteTokenCookie(HttpServletResponse response) {
-        Cookie accessCookie = new Cookie(JWTUtil.ACCESS_TOKEN, "");
+        Cookie accessCookie = new Cookie(ACCESS_TOKEN, "");
         accessCookie.setMaxAge(0);
-        Cookie refreshCookie = new Cookie(JWTUtil.REFRESH_TOKEN, "");
+        Cookie refreshCookie = new Cookie(REFRESH_TOKEN, "");
         refreshCookie.setMaxAge(0);
         response.addCookie(accessCookie);
         response.addCookie(refreshCookie);

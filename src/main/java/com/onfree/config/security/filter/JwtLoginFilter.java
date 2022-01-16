@@ -28,6 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.onfree.common.constant.SecurityConstant.ACCESS_TOKEN;
+import static com.onfree.common.constant.SecurityConstant.REFRESH_TOKEN;
+
 @Slf4j
 public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
 
@@ -81,10 +84,10 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
                 )
         );
         response.addCookie(
-                createTokenCookie(JWTUtil.ACCESS_TOKEN, jwtLoginResponse.getAccessToken(), jwtUtil.getAccessTokenExpiredTime())
+                createTokenCookie(ACCESS_TOKEN, jwtLoginResponse.getAccessToken(), jwtUtil.getAccessTokenExpiredTime())
         );
         response.addCookie(
-                createTokenCookie(JWTUtil.REFRESH_TOKEN, jwtLoginResponse.getRefreshToken(), jwtUtil.getRefreshTokenExpiredTime())
+                createTokenCookie(REFRESH_TOKEN, jwtLoginResponse.getRefreshToken(), jwtUtil.getRefreshTokenExpiredTime())
         );
         jwtRefreshTokenService.saveRefreshToken(jwtLoginResponse.getUsername(), jwtLoginResponse.getRefreshToken());
     }

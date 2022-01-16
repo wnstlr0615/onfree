@@ -12,9 +12,9 @@ import com.onfree.core.entity.user.User;
 import com.onfree.core.repository.MailTemplateRepository;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.utils.MailComponent;
+import com.onfree.utils.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 import java.time.Duration;
 import java.util.UUID;
 
+import static com.onfree.common.constant.MailConstant.PASSWORD_RESET_TEMPLATE;
 import static com.onfree.common.constant.RedisConstant.PASSWORD_RESET;
 
 @Slf4j
@@ -30,10 +31,10 @@ import static com.onfree.common.constant.RedisConstant.PASSWORD_RESET;
 @RequiredArgsConstructor
 public class LoginService {
     private final UserRepository userRepository;
-    private final StringRedisTemplate redisTemplate;
     private final MailTemplateRepository mailTemplateRepository;
     private final MailComponent mailComponent;
     private final PasswordEncoder passwordEncoder;
+    private final RedisUtil redisUtil;
 
     /** 패스워드 인증용 메일 전송 */
     public void passwordReset(String email) {
@@ -51,21 +52,22 @@ public class LoginService {
     }
 
     private void sendPasswordResetMail(String email, String uuid) {
-        final String templateName = "PASSWORD_RESET";
-        MailTemplate mailTemplate = getMailTemplate(templateName);
+        MailTemplate mailTemplate = getMailTemplate(PASSWORD_RESET_TEMPLATE);
         final String content = getContent(mailTemplate, uuid);
         mailComponent.sendMail(email, mailTemplate.getTitle(), content);
-        log.info(" send mail success - email : {} , template : {}",email, templateName);
-    }
-
-    private void savePasswordResetRedis(String email, String uuid) {
-        redisTemplate.opsForValue().set("password:reset:"+ uuid, email, Duration.ofSeconds(300));
-        log.info("save PasswordReset  - uuid :  {}, email : {}", uuid, email);
+        log.info(" send mail success - email : {} , template : {}",email, PASSWORD_RESET_TEMPLATE);
     }
 
     private String getContent(MailTemplate mailTemplate, String uuid) {
         //TODO 링크 MailTemplate에 같이 적용하기
         return mailTemplate.getContent().replace("<URL>", "http://localhost:8080/api/password/reset/"+uuid);
+    }
+
+    private void savePasswordResetRedis(String email, String uuid) {
+        final String key = PASSWORD_RESET + uuid;
+        final Duration timeout = Duration.ofSeconds(300);
+        redisUtil.addData(key, email, timeout);
+        log.info("save PasswordReset  - uuid :  {}, email : {}", uuid, email);
     }
 
     private MailTemplate getMailTemplate(String templateName) {
@@ -94,7 +96,8 @@ public class LoginService {
 
     private String getEmailByPasswordResetUUID(String uuid) {
         final String key = PASSWORD_RESET + uuid;
-        final String email = redisTemplate.opsForValue().get(key);
+        final String email = redisUtil.getData(key);
+
         if(!StringUtils.hasText(email)){
             log.error("Passsword Reset UUID Expired - key : {}", key);
             throw new LoginException(LoginErrorCode.EXPIRED_PASSWORD_RESET_UUID);

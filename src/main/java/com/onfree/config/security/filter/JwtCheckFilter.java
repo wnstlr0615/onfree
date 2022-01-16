@@ -25,10 +25,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static com.onfree.common.constant.SecurityConstant.*;
+
 @Slf4j
 @RequiredArgsConstructor
 public class JwtCheckFilter extends OncePerRequestFilter {
-    public static final String BEARER = "Bearer";
     private final CustomUserDetailService userDetailService;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final JWTRefreshTokenService jwtRefreshTokenService;
@@ -95,7 +96,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
 
     private Cookie createAccessTokenCookie(User user) {
         return createTokenCookie(
-                JWTUtil.ACCESS_TOKEN,
+                ACCESS_TOKEN,
                 createAccessToken(user),
                 jwtUtil.getAccessTokenExpiredTime()
         );
@@ -132,10 +133,10 @@ public class JwtCheckFilter extends OncePerRequestFilter {
 
     private void tokenCookieReset(HttpServletResponse response) {
         response.addCookie(
-                createTokenCookie(JWTUtil.ACCESS_TOKEN, "",0)
+                createTokenCookie(ACCESS_TOKEN, "",0)
         );
         response.addCookie(
-                createTokenCookie(JWTUtil.REFRESH_TOKEN, "",0)
+                createTokenCookie(REFRESH_TOKEN, "",0)
         );
     }
     private void addNewRefreshTokenCookie(HttpServletResponse response, Cookie refreshTokenCookie) {
@@ -146,7 +147,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
 
     private Cookie createRefreshTokenCookie(String newFreshToken) {
         return createTokenCookie(
-                JWTUtil.REFRESH_TOKEN,
+                REFRESH_TOKEN,
                 newFreshToken,
                 jwtUtil.getAccessTokenExpiredTime()
         );
@@ -164,7 +165,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
 
     private String getRefreshCookieValue(HttpServletRequest request) {
         final Cookie[] cookies = request.getCookies() != null ? request.getCookies() : new Cookie[]{};
-        final Cookie refreshCookie = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(JWTUtil.REFRESH_TOKEN)).findFirst()
+        final Cookie refreshCookie = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(REFRESH_TOKEN)).findFirst()
                 .orElseThrow(() -> new LoginException(LoginErrorCode.NOT_FOUND_REFRESH_TOKEN));
         if(!StringUtils.hasText(refreshCookie.getValue())){
             throw new LoginException(LoginErrorCode.NOT_FOUND_REFRESH_TOKEN);

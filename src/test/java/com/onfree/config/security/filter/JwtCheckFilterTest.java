@@ -27,6 +27,7 @@ import org.springframework.test.context.ActiveProfiles;
 import javax.servlet.http.Cookie;
 import java.time.Duration;
 
+import static com.onfree.common.constant.SecurityConstant.*;
 import static com.onfree.utils.JWTUtil.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -174,7 +175,7 @@ class JwtCheckFilterTest {
                 createTokenCookie(ACCESS_TOKEN, accessToken, jwtUtil.getAccessTokenExpiredTime()),
                 createTokenCookie(REFRESH_TOKEN, refreshToken, jwtUtil.getRefreshTokenExpiredTime())
         );
-        request.addHeader(HttpHeaders.AUTHORIZATION, JwtCheckFilter.BEARER + " " + accessToken);
+        request.addHeader(HttpHeaders.AUTHORIZATION, BEARER + " " + accessToken);
     }
 
     @Test
@@ -192,7 +193,7 @@ class JwtCheckFilterTest {
         request.setCookies(
                 createTokenCookie(REFRESH_TOKEN, null, jwtUtil.getRefreshTokenExpiredTime())
         );
-        request.addHeader(HttpHeaders.AUTHORIZATION, JwtCheckFilter.BEARER + " " + accessToken);
+        request.addHeader(HttpHeaders.AUTHORIZATION, BEARER + " " + accessToken);
 
         //when & then
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
@@ -211,11 +212,16 @@ class JwtCheckFilterTest {
     public void givenExpiredACTokenRFToken_whenCheckFilter_thenACTokenReissueAndSuccess() throws Exception {
         //given
         final User normalUser = createNormalUser();
-        when(jwtRefreshTokenService.isEmptyRefreshToken(anyString())).thenReturn(false);
-        when(jwtProperties.getAccessTokenExpiredTime()).thenReturn(Duration.ofSeconds(-1));
-        when(jwtProperties.getRefreshTokenExpiredTime()).thenReturn(Duration.ofDays(7));
-        when(jwtProperties.getSecretKey()).thenReturn("aaaaa");
-        when(userDetailsService.loadUserByUsername(anyString())).thenReturn(new CustomUserDetail(normalUser));
+        when(jwtRefreshTokenService.isEmptyRefreshToken(anyString()))
+                .thenReturn(false);
+        when(jwtProperties.getAccessTokenExpiredTime())
+                .thenReturn(Duration.ofSeconds(-1));
+        when(jwtProperties.getRefreshTokenExpiredTime())
+                .thenReturn(Duration.ofDays(7));
+        when(jwtProperties.getSecretKey())
+                .thenReturn("aaaaa");
+        when(userDetailsService.loadUserByUsername(anyString()))
+                .thenReturn(new CustomUserDetail(normalUser));
 
         final String accessToken = jwtUtil.createAccessToken(normalUser);
         final String refreshToken = jwtUtil.createRefreshToken(normalUser);
@@ -269,12 +275,11 @@ class JwtCheckFilterTest {
         when(userDetailsService.loadUserByUsername(anyString())).thenReturn(new CustomUserDetail(normalUser));
 
         final String accessToken = jwtUtil.createAccessToken(normalUser);
-        final String refreshToken = jwtUtil.createRefreshToken(normalUser);
 
         request.setCookies(
                 createTokenCookie(ACCESS_TOKEN, accessToken, jwtUtil.getAccessTokenExpiredTime())
         );
-        request.addHeader(HttpHeaders.AUTHORIZATION, JwtCheckFilter.BEARER + " " + accessToken);
+        request.addHeader(HttpHeaders.AUTHORIZATION, BEARER + " " + accessToken);
 
         //when & then
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
