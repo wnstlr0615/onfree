@@ -4,11 +4,9 @@ import com.onfree.common.WebMvcBaseTest;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.code.LoginErrorCode;
 import com.onfree.common.error.code.UserErrorCode;
-import com.onfree.common.error.exception.GlobalException;
 import com.onfree.common.error.exception.LoginException;
 import com.onfree.common.error.exception.UserException;
 import com.onfree.core.dto.user.UpdatePasswordDto;
-import com.onfree.core.service.JWTRefreshTokenService;
 import com.onfree.core.service.LoginService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +15,6 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -29,8 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = LoginController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 class LoginControllerTest extends WebMvcBaseTest {
-    @MockBean(name = "jwtTokenService")
-    JWTRefreshTokenService jwtRefreshTokenService;
 
     @MockBean
     LoginService loginService;

@@ -7,10 +7,11 @@ import com.onfree.config.security.CustomUserDetail;
 import com.onfree.config.security.CustomUserDetailService;
 import com.onfree.core.entity.user.User;
 import com.onfree.common.model.VerifyResult;
-import com.onfree.core.service.JWTRefreshTokenService;
+import com.onfree.core.service.LoginService;
 import com.onfree.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,8 +33,8 @@ import static com.onfree.common.constant.SecurityConstant.*;
 public class JwtCheckFilter extends OncePerRequestFilter {
     private final CustomUserDetailService userDetailService;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
-    private final JWTRefreshTokenService jwtRefreshTokenService;
     private final JWTUtil jwtUtil;
+    private final LoginService loginService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -52,14 +53,17 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             if (verify.isResult()) { //accessToken 이 유효한 경우
                 try {
                     oldRefreshToken = getRefreshCookieValue(request);
-                    if(jwtRefreshTokenService.isEmptyRefreshToken(oldRefreshToken)){
+                    if(loginService.isEmptyRefreshToken(username, oldRefreshToken)){
+                        log.info("refresh token empty - username : {} ", username);
                         clearToken(response, username);
                         filterChain.doFilter(request,response);
                         return;
                     }
                     if(tokenIsExpired(oldRefreshToken)){  // refreshToken 이 만료된 경우
+                        log.info("accessToken success but refreshToken expired");
                         refreshTokenReissue(response, username, user);
                      }
+                    log.info("accessToken success login success - username : {}", username);
                     loginSuccess(customUserDetail);
                 } catch (LoginException exception) { //refreshToken 이 없는 경우
                     refreshTokenReissue(response, username, user);
@@ -67,14 +71,18 @@ public class JwtCheckFilter extends OncePerRequestFilter {
                 }
             }else{//accessToken 이 유효하지 않은 경우
                 try {
+                    log.info("accessToken expired - usernaem : {}", username);
                     oldRefreshToken = getRefreshCookieValue(request);
-                    if(jwtRefreshTokenService.isEmptyRefreshToken(oldRefreshToken) || tokenIsExpired(oldRefreshToken)){ //DB에 토큰이 없거나 토큰이 유효성이 지난 경우
+                    if(loginService.isEmptyRefreshToken(username, oldRefreshToken) || tokenIsExpired(oldRefreshToken)){ //DB에 토큰이 없거나 토큰이 유효성이 지난 경우
+                        log.info("accessToken expired && refreshToken empty  - username : {}", username);
                         clearToken(response, username);
                         filterChain.doFilter(request,response);
                         return;
                     }
-                    refreshTokenReissue(response, username, user);
+                    log.info("accessToken and RefreshToken reissue - {}", username);
+                    tokenCookieReset(response);
                     accessTokenReissue(response, user);
+                    refreshTokenReissue(response, username, user);
                     loginSuccess(customUserDetail);
                 } catch (LoginException e) {
                     clearToken(response, username);
@@ -111,7 +119,8 @@ public class JwtCheckFilter extends OncePerRequestFilter {
         addNewRefreshTokenCookie(response,
                 createRefreshTokenCookie(refreshToken)
         );
-        jwtRefreshTokenService.updateOrSaveRefreshToken(username, refreshToken);
+        log.info("refreshToken reissue - username : {}", username);
+        loginService.saveRefreshToken(username, refreshToken);
     }
 
     private void loginSuccess(CustomUserDetail customUserDetail) {
@@ -124,11 +133,11 @@ public class JwtCheckFilter extends OncePerRequestFilter {
 
     private void clearToken(HttpServletResponse response, String username) {
         tokenCookieReset(response);
-        deleteTokenFromDB(username);
+        deleteTokenFromRedis(username);
     }
 
-    private void deleteTokenFromDB(String username) {
-            jwtRefreshTokenService.deleteTokenByUsername(username);
+    private void deleteTokenFromRedis(String username) {
+            loginService.deleteRefreshTokenByUsername(username);
     }
 
     private void tokenCookieReset(HttpServletResponse response) {

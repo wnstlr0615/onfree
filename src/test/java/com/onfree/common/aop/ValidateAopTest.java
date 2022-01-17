@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.anotation.WithAdminUser;
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
+import com.onfree.common.error.code.ErrorCode;
+import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.core.dto.notice.CreateNoticeDto;
 import com.onfree.core.dto.notice.UpdateNoticeDto;
 import com.onfree.core.dto.question.CreateQuestionDto;
@@ -15,9 +17,7 @@ import com.onfree.core.dto.user.normal.CreateNormalUser;
 import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
-import com.onfree.core.service.JWTRefreshTokenService;
-import com.onfree.common.error.code.ErrorCode;
-import com.onfree.common.error.code.GlobalErrorCode;
+import com.onfree.core.service.LoginService;
 import com.onfree.utils.JWTUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -61,7 +61,7 @@ class ValidateAopTest {
     UserRepository userRepository;
 
     @Autowired
-    JWTRefreshTokenService jwtRefreshTokenService;
+    LoginService loginService;
 
     @Autowired
     AmazonS3Client amazonS3Client;
@@ -81,14 +81,14 @@ class ValidateAopTest {
     private void saveNormalUser(NormalUser user) {
         userRepository.save(user);
         normalUserAccessToken = jwtUtil.createAccessToken(user);
-        jwtRefreshTokenService.saveRefreshToken(user.getEmail(), jwtUtil.createRefreshToken(user));
+        loginService.saveRefreshToken(user.getEmail(), jwtUtil.createRefreshToken(user));
 
     }
 
     private void saveArtistUser(ArtistUser user) {
         userRepository.save(user);
         artistUserAccessToken = jwtUtil.createAccessToken(user);
-        jwtRefreshTokenService.saveRefreshToken(user.getEmail(), jwtUtil.createRefreshToken(user));
+        loginService.saveRefreshToken(user.getEmail(), jwtUtil.createRefreshToken(user));
 
     }
 

@@ -7,7 +7,7 @@ import com.onfree.config.security.CustomUserDetail;
 import com.onfree.config.security.dto.JwtLoginResponse;
 import com.onfree.core.dto.LoginFormDto;
 import com.onfree.core.entity.user.User;
-import com.onfree.core.service.JWTRefreshTokenService;
+import com.onfree.core.service.LoginService;
 import com.onfree.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -33,17 +33,16 @@ import static com.onfree.common.constant.SecurityConstant.REFRESH_TOKEN;
 
 @Slf4j
 public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
+    private ObjectMapper mapper;
+    private LoginService loginService;
+    private JWTUtil jwtUtil;
 
-
-    private final ObjectMapper mapper=new ObjectMapper();
-    private final JWTRefreshTokenService jwtRefreshTokenService;
-    private final JWTUtil jwtUtil;
-
-    public JwtLoginFilter(AuthenticationManager authenticationManager, AuthenticationFailureHandler authenticationFailureHandler, JWTRefreshTokenService jwtRefreshTokenService, JWTUtil jwtUtil) {
+    public JwtLoginFilter(AuthenticationManager authenticationManager, AuthenticationFailureHandler authenticationFailureHandler, ObjectMapper mapper, LoginService loginService, JWTUtil jwtUtil) {
         super("/login", authenticationManager);
         super.setAuthenticationFailureHandler(authenticationFailureHandler);
-        this.jwtRefreshTokenService=jwtRefreshTokenService;
-        this.jwtUtil=jwtUtil;
+        this.mapper = mapper;
+        this.loginService = loginService;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -89,7 +88,7 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
         response.addCookie(
                 createTokenCookie(REFRESH_TOKEN, jwtLoginResponse.getRefreshToken(), jwtUtil.getRefreshTokenExpiredTime())
         );
-        jwtRefreshTokenService.saveRefreshToken(jwtLoginResponse.getUsername(), jwtLoginResponse.getRefreshToken());
+        loginService.saveRefreshToken(jwtLoginResponse.getUsername(), jwtLoginResponse.getRefreshToken());
     }
 
 

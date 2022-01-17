@@ -1,5 +1,6 @@
 package com.onfree.core.service;
 
+import com.onfree.common.constant.RedisConstant;
 import com.onfree.common.error.code.LoginErrorCode;
 import com.onfree.common.error.code.MailErrorCode;
 import com.onfree.common.error.code.UserErrorCode;
@@ -113,5 +114,21 @@ public class LoginService {
     private void userPasswordReset(User user, String newPassword) {
         final String bcryptPassword = passwordEncoder.encode(newPassword);
         user.resetPassword(bcryptPassword);
+    }
+
+    public void saveRefreshToken(String username, String refreshToken) {
+        final String key = RedisConstant.USER_REFRESH_TOKEN + username;
+        final Duration timeout = Duration.ofDays(7);
+        redisUtil.addData(key, refreshToken, timeout);
+    }
+
+    public boolean isEmptyRefreshToken(String username, String oldRefreshToken) {
+        final String refreshToken = redisUtil.getData(RedisConstant.USER_REFRESH_TOKEN + username);
+        return !StringUtils.hasText(refreshToken) || !oldRefreshToken.equals(refreshToken);
+    }
+
+    public void deleteRefreshTokenByUsername(String username) {
+        final String key = RedisConstant.USER_REFRESH_TOKEN + username;
+        redisUtil.deleteData(key);
     }
 }

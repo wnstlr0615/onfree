@@ -22,4 +22,7 @@ public class RedisUtil {
     public String getData(String key){
         return redisTemplate.opsForValue().get(key);
     }
+    public void deleteData(String key){
+        redisTemplate.opsForValue().getOperations().delete(key);
+    }
 }

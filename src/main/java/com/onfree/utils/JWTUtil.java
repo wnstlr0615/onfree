@@ -28,7 +28,7 @@ public class JWTUtil {
     private final JWTProperties jwtProperties;
 
     public  String createAccessToken(@NonNull User user){
-        return createAccessToken(user, 60 * jwtProperties.getAccessTokenExpiredTime().getSeconds());
+        return createAccessToken(user, jwtProperties.getAccessTokenExpiredTime().getSeconds());
     }
 
     public  String createAccessToken(@NonNull User user, Long tokenExpiredSecond){
@@ -43,8 +43,8 @@ public class JWTUtil {
         return createRefreshToken(user, jwtProperties.getRefreshTokenExpiredTime().getSeconds());
     }
 
-    public  String createRefreshToken(@NonNull User user, Long tokenExpiredDay){
-        Timestamp expirationTime = Timestamp.valueOf(LocalDateTime.now().plusSeconds(tokenExpiredDay));
+    public  String createRefreshToken(@NonNull User user, Long tokenExpiredSecond){
+        Timestamp expirationTime = Timestamp.valueOf(LocalDateTime.now().plusSeconds(tokenExpiredSecond));
         return JWT.create()
                 .withExpiresAt(expirationTime)
                 .withSubject(user.getEmail())

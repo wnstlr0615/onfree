@@ -2,7 +2,6 @@ package com.onfree.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.config.security.CustomUserDetailService;
-import com.onfree.core.service.JWTRefreshTokenService;
 import com.onfree.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -21,9 +20,6 @@ public abstract class WebMvcBaseTest {
 
     @MockBean
     protected CustomUserDetailService customUserDetailService;
-
-    @MockBean
-    protected JWTRefreshTokenService jwtRefreshTokenService;
 
     @MockBean
     protected JWTUtil jwtUtil;

@@ -7,9 +7,7 @@ import com.onfree.config.security.dto.JwtLoginResponse;
 import com.onfree.core.dto.LoginFormDto;
 import com.onfree.core.dto.user.UpdatePasswordDto;
 import com.onfree.core.entity.user.User;
-import com.onfree.core.service.JWTRefreshTokenService;
 import com.onfree.core.service.LoginService;
-import com.onfree.utils.JWTUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +30,6 @@ import static com.onfree.common.constant.SecurityConstant.REFRESH_TOKEN;
 @RequestMapping( consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(tags = "로그인 컨트롤러", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class LoginController {
-    private final JWTRefreshTokenService jwtRefreshTokenService;
     private final LoginService loginService;
 
     @ApiOperation(value = "로그인", notes = "로그인 요청")
@@ -47,7 +44,7 @@ public class LoginController {
     public SimpleResponse logout(HttpServletResponse response){
         final User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         deleteTokenCookie(response);
-        jwtRefreshTokenService.deleteTokenByUsername(user.getEmail());
+        loginService.deleteRefreshTokenByUsername(user.getEmail());
         SecurityContextHolder.clearContext();
         return SimpleResponse.success("로그아웃 성공");
     }
