@@ -23,8 +23,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Component
 public class JWTUtil {
-
-
     private final JWTProperties jwtProperties;
 
     public  String createAccessToken(@NonNull User user){
@@ -76,10 +74,10 @@ public class JWTUtil {
         }
     }
 
-    public Long getAccessTokenExpiredTime(){
+    public long getAccessTokenExpiredTime(){
         return jwtProperties.getAccessTokenExpiredTime().getSeconds();
     }
-    public Long getRefreshTokenExpiredTime(){
+    public long getRefreshTokenExpiredTime(){
         return jwtProperties.getRefreshTokenExpiredTime().getSeconds();
     }
 }

@@ -79,8 +79,6 @@ public class LoginService {
         return UUID.randomUUID().toString();
     }
 
-
-
     /** 패스워드 메일 인증 후 패스워드 업데이트*/
     @Transactional
     public void updatePassword(UpdatePasswordDto updatePasswordDto) {
@@ -91,9 +89,6 @@ public class LoginService {
                 updatePasswordDto.getNewPassword()
         );
     }
-
-
-
 
     private String getEmailByPasswordResetUUID(String uuid) {
         final String key = PASSWORD_RESET + uuid;

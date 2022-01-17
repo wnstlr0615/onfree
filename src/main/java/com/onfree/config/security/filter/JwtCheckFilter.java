@@ -2,16 +2,16 @@ package com.onfree.config.security.filter;
 
 import com.onfree.common.error.code.LoginErrorCode;
 import com.onfree.common.error.exception.LoginException;
-import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
+import com.onfree.common.model.VerifyResult;
 import com.onfree.config.security.CustomUserDetail;
 import com.onfree.config.security.CustomUserDetailService;
+import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
 import com.onfree.core.entity.user.User;
-import com.onfree.common.model.VerifyResult;
 import com.onfree.core.service.LoginService;
+import com.onfree.utils.CookieUtil;
 import com.onfree.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,7 +24,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 
 import static com.onfree.common.constant.SecurityConstant.*;
 
@@ -35,6 +34,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final JWTUtil jwtUtil;
     private final LoginService loginService;
+    private final CookieUtil cookieUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -52,8 +52,8 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             final User user = customUserDetail.getUser();
             if (verify.isResult()) { //accessToken 이 유효한 경우
                 try {
-                    oldRefreshToken = getRefreshCookieValue(request);
-                    if(loginService.isEmptyRefreshToken(username, oldRefreshToken)){
+                    oldRefreshToken = getCookieValue(request, REFRESH_TOKEN);
+                    if(isEmptyRefreshToken(username, oldRefreshToken)){// refreshToken 이 없는 경우 (로그아웃 )
                         log.info("refresh token empty - username : {} ", username);
                         clearToken(response, username);
                         filterChain.doFilter(request,response);
@@ -72,8 +72,8 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             }else{//accessToken 이 유효하지 않은 경우
                 try {
                     log.info("accessToken expired - usernaem : {}", username);
-                    oldRefreshToken = getRefreshCookieValue(request);
-                    if(loginService.isEmptyRefreshToken(username, oldRefreshToken) || tokenIsExpired(oldRefreshToken)){ //DB에 토큰이 없거나 토큰이 유효성이 지난 경우
+                    oldRefreshToken = getCookieValue(request, REFRESH_TOKEN);
+                    if(isEmptyRefreshToken(username, oldRefreshToken) || tokenIsExpired(oldRefreshToken)){ //DB에 토큰이 없거나 토큰이 유효성이 지난 경우
                         log.info("accessToken expired && refreshToken empty  - username : {}", username);
                         clearToken(response, username);
                         filterChain.doFilter(request,response);
@@ -90,23 +90,21 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             }
         }catch (LoginException e) {
             SecurityContextHolder.clearContext();
-            authenticationEntryPoint.commence(request,response,e);
+            authenticationEntryPoint.commence(request, response, e);
             return;
         }
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
+    }
+
+    private boolean isEmptyRefreshToken(String username, String oldRefreshToken) {
+        return loginService.isEmptyRefreshToken(username, oldRefreshToken);
     }
 
     private void accessTokenReissue(HttpServletResponse response, User user) {
         response.addCookie(
-                createAccessTokenCookie(user)
-        );
-    }
-
-    private Cookie createAccessTokenCookie(User user) {
-        return createTokenCookie(
-                ACCESS_TOKEN,
-                createAccessToken(user),
-                jwtUtil.getAccessTokenExpiredTime()
+                createAccessTokenCookie(
+                        createAccessToken(user)
+                )
         );
     }
 
@@ -114,78 +112,76 @@ public class JwtCheckFilter extends OncePerRequestFilter {
         return jwtUtil.createAccessToken(user);
     }
 
+    private Cookie createAccessTokenCookie(String newRefreshToken) {
+        return cookieUtil.createCookie(
+                ACCESS_TOKEN,
+                newRefreshToken,
+                (int) jwtUtil.getAccessTokenExpiredTime()
+        );
+    }
+
     private void refreshTokenReissue(HttpServletResponse response, String username, User user) {
+        log.info("refreshToken reissue - username : {}", username);
         final String refreshToken = createRefreshToken(user);
-        addNewRefreshTokenCookie(response,
+        response.addCookie(
                 createRefreshTokenCookie(refreshToken)
         );
-        log.info("refreshToken reissue - username : {}", username);
         loginService.saveRefreshToken(username, refreshToken);
     }
 
-    private void loginSuccess(CustomUserDetail customUserDetail) {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(customUserDetail.getUser(), null, customUserDetail.getAuthorities()));
+    private Cookie createRefreshTokenCookie(String refreshToken) {
+        return cookieUtil.createCookie(
+                REFRESH_TOKEN,
+                refreshToken,
+                (int) jwtUtil.getRefreshTokenExpiredTime()
+        );
     }
 
-    private boolean tokenIsExpired(String oleRefreshToken) {
-        return !jwtUtil.verify(oleRefreshToken).isResult();
+    private String createRefreshToken(User user) {
+        return jwtUtil.createRefreshToken(user);
+    }
+
+    private void loginSuccess(CustomUserDetail customUserDetail) {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(customUserDetail.getUser(), null, customUserDetail.getAuthorities())
+        );
+    }
+
+    private boolean tokenIsExpired(String token) {
+        return !jwtUtil.verify(token).isResult();
     }
 
     private void clearToken(HttpServletResponse response, String username) {
         tokenCookieReset(response);
-        deleteTokenFromRedis(username);
-    }
-
-    private void deleteTokenFromRedis(String username) {
-            loginService.deleteRefreshTokenByUsername(username);
-    }
-
-    private void tokenCookieReset(HttpServletResponse response) {
-        response.addCookie(
-                createTokenCookie(ACCESS_TOKEN, "",0)
-        );
-        response.addCookie(
-                createTokenCookie(REFRESH_TOKEN, "",0)
-        );
-    }
-    private void addNewRefreshTokenCookie(HttpServletResponse response, Cookie refreshTokenCookie) {
-        response.addCookie(
-                refreshTokenCookie
-            );
-    }
-
-    private Cookie createRefreshTokenCookie(String newFreshToken) {
-        return createTokenCookie(
-                REFRESH_TOKEN,
-                newFreshToken,
-                jwtUtil.getAccessTokenExpiredTime()
-        );
-    }
-
-    private String createRefreshToken(User user){
-        return jwtUtil.createRefreshToken(
-                user
-        );
+        deleteRefreshTokenFromRedis(username);
     }
 
     private CustomUserDetail getCustomUserDetail(String username) {
         return (CustomUserDetail) userDetailService.loadUserByUsername(username);
     }
 
-    private String getRefreshCookieValue(HttpServletRequest request) {
-        final Cookie[] cookies = request.getCookies() != null ? request.getCookies() : new Cookie[]{};
-        final Cookie refreshCookie = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(REFRESH_TOKEN)).findFirst()
-                .orElseThrow(() -> new LoginException(LoginErrorCode.NOT_FOUND_REFRESH_TOKEN));
-        if(!StringUtils.hasText(refreshCookie.getValue())){
-            throw new LoginException(LoginErrorCode.NOT_FOUND_REFRESH_TOKEN);
-        }
-        return refreshCookie.getValue();
+    private void deleteRefreshTokenFromRedis(String username) {
+        loginService.deleteRefreshTokenByUsername(username);
     }
 
-    private Cookie createTokenCookie(String cookieName, String token, long maxAge) {
-        final Cookie tokenCookie = new Cookie(cookieName, token);
-        tokenCookie.setHttpOnly(true);
-        tokenCookie.setMaxAge((int) maxAge);
-        return tokenCookie;
+    private void tokenCookieReset(HttpServletResponse response) {
+        response.addCookie(
+                createResetCookie(ACCESS_TOKEN)
+        );
+        response.addCookie(
+                createResetCookie(REFRESH_TOKEN)
+        );
+    }
+
+    private Cookie createResetCookie(String accessToken) {
+        return cookieUtil.resetCookie(accessToken);
+    }
+
+    private String getCookieValue(HttpServletRequest request, String name) {
+        final Cookie cookie = cookieUtil.getCookie(request, name);
+        if(cookie == null || !StringUtils.hasText(cookie.getValue())){
+            throw new LoginException(LoginErrorCode.NOT_FOUND_REFRESH_TOKEN);
+        }
+        return cookie.getValue();
     }
 }

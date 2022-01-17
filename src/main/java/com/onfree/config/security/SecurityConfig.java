@@ -6,6 +6,7 @@ import com.onfree.config.security.filter.JwtLoginFilter;
 import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
 import com.onfree.config.security.handler.JwtLoginAuthenticationFailHandler;
 import com.onfree.core.service.LoginService;
+import com.onfree.utils.CookieUtil;
 import com.onfree.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,18 +36,22 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 @Slf4j
-@Order(Ordered.LOWEST_PRECEDENCE)
+@Order()
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final CustomUserDetailService customUserDetailService;
-    private final JWTUtil jwtUtil;
     @Qualifier("loginService")
     @Autowired(required = false)
     private LoginService loginService;
+
+    @Qualifier("cookieUtil")
+    @Autowired(required = false)
+    private CookieUtil cookieUtil;
+
+    private final CustomUserDetailService customUserDetailService;
+    private final JWTUtil jwtUtil;
     private final ObjectMapper mapper;
 
-
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web){
         web.ignoring()
                 .antMatchers("/v3/api-docs", "/swagger-resources/configuration/ui",
                         "/swagger-resources", "/swagger-resources/configuration/security",
@@ -89,10 +94,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .addFilterAt(
-                        new JwtCheckFilter(customUserDetailService, authenticationEntryPoint(), jwtUtil, loginService)
+                        new JwtCheckFilter(customUserDetailService, authenticationEntryPoint(), jwtUtil, loginService, cookieUtil)
                         , BasicAuthenticationFilter.class)
                 .addFilterAt(
-                        new JwtLoginFilter(authenticationManagerBean(), authenticationFailHandler(), mapper, loginService, jwtUtil)
+                        new JwtLoginFilter(authenticationManagerBean(), authenticationFailHandler(), mapper, loginService, jwtUtil, cookieUtil)
                         , UsernamePasswordAuthenticationFilter.class)
         ;
     }

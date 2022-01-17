@@ -8,6 +8,7 @@ import com.onfree.config.security.dto.JwtLoginResponse;
 import com.onfree.core.dto.LoginFormDto;
 import com.onfree.core.entity.user.User;
 import com.onfree.core.service.LoginService;
+import com.onfree.utils.CookieUtil;
 import com.onfree.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -23,7 +24,6 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -33,16 +33,18 @@ import static com.onfree.common.constant.SecurityConstant.REFRESH_TOKEN;
 
 @Slf4j
 public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
-    private ObjectMapper mapper;
-    private LoginService loginService;
-    private JWTUtil jwtUtil;
+    private final ObjectMapper mapper;
+    private final LoginService loginService;
+    private final JWTUtil jwtUtil;
+    private final CookieUtil cookieUtil;
 
-    public JwtLoginFilter(AuthenticationManager authenticationManager, AuthenticationFailureHandler authenticationFailureHandler, ObjectMapper mapper, LoginService loginService, JWTUtil jwtUtil) {
+    public JwtLoginFilter(AuthenticationManager authenticationManager, AuthenticationFailureHandler authenticationFailureHandler, ObjectMapper mapper, LoginService loginService, JWTUtil jwtUtil, CookieUtil cookieUtil) {
         super("/login", authenticationManager);
         super.setAuthenticationFailureHandler(authenticationFailureHandler);
         this.mapper = mapper;
         this.loginService = loginService;
         this.jwtUtil = jwtUtil;
+        this.cookieUtil = cookieUtil;
     }
 
     @Override
@@ -83,24 +85,13 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
                 )
         );
         response.addCookie(
-                createTokenCookie(ACCESS_TOKEN, jwtLoginResponse.getAccessToken(), jwtUtil.getAccessTokenExpiredTime())
+                cookieUtil.createCookie(ACCESS_TOKEN, jwtLoginResponse.getAccessToken(), (int)jwtUtil.getAccessTokenExpiredTime())
         );
         response.addCookie(
-                createTokenCookie(REFRESH_TOKEN, jwtLoginResponse.getRefreshToken(), jwtUtil.getRefreshTokenExpiredTime())
+                cookieUtil.createCookie(REFRESH_TOKEN, jwtLoginResponse.getRefreshToken(), (int)jwtUtil.getRefreshTokenExpiredTime())
         );
         loginService.saveRefreshToken(jwtLoginResponse.getUsername(), jwtLoginResponse.getRefreshToken());
     }
-
-
-
-    private Cookie createTokenCookie(String cookieName, String token, long maxAge) {
-        final Cookie tokenCookie = new Cookie(cookieName, token);
-        tokenCookie.setHttpOnly(true);
-        tokenCookie.setMaxAge((int) maxAge);
-        return tokenCookie;
-    }
-
-
 
     private JwtLoginResponse getJWTLoginResponse(User user) {
         final String accessToken = jwtUtil.createAccessToken(user);
