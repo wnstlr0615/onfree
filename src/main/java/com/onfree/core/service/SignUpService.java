@@ -4,7 +4,6 @@ import com.onfree.common.error.code.MailErrorCode;
 import com.onfree.common.error.code.SignUpErrorCode;
 import com.onfree.common.error.exception.MailSenderException;
 import com.onfree.common.error.exception.SignUpException;
-import com.onfree.common.model.SimpleResponse;
 import com.onfree.core.entity.MailTemplate;
 import com.onfree.core.repository.MailTemplateRepository;
 import com.onfree.core.repository.UserRepository;
@@ -71,9 +70,8 @@ public class SignUpService {
 
 
     /** 이메일 인증 확인*/
-    public SimpleResponse checkEmailVerify(String uuid){
+    public void checkEmailVerify(String uuid){
         checkVerificationEmailFromRedis(uuid);
-        return SimpleResponse.success("이메일 인증이 완료되었습니다.");
     }
 
     private void checkVerificationEmailFromRedis(String uuid) {
@@ -89,9 +87,8 @@ public class SignUpService {
     }
 
     /** 닉네임 인증*/
-    public SimpleResponse checkUsedNickname(String nickName) {
+    public void checkUsedNickname(String nickName) {
         validDuplicatedNickname(nickName);
-        return SimpleResponse.success("해당 닉네임은 사용가능합니다.");
     }
 
     private void validDuplicatedNickname(String nickName) {
@@ -99,11 +96,10 @@ public class SignUpService {
            throw new SignUpException(SignUpErrorCode.NICKNAME_IS_DUPLICATED);
        }
     }
-
-    public SimpleResponse checkUsedPersonalURL(String personalUrl) {
+    /** 포트폴리오룸 url 인증 */
+    public void checkUsedPersonalURL(String personalUrl) {
         if(userRepository.countByPortfolioUrlOnlyArtist(personalUrl) != 0){
             throw new SignUpException(SignUpErrorCode.PERSONAL_URL_IS_DUPLICATED);
         }
-        return SimpleResponse.success("해당 URL  은 사용 가능 합니다.");
     }
 }
