@@ -96,4 +96,8 @@ public abstract class User extends BaseTimeEntity {
         this.phoneNumber= phoneNumber;
         this.profileImage= profileImage;
     }
+
+    public void resetPassword(String bcryptPassword) {
+        password=bcryptPassword;
+    }
 }

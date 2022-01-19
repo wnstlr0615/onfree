@@ -106,8 +106,8 @@ class SignupControllerTest extends WebMvcBaseTest {
         );
 
         //when //then
-        mvc.perform(get("/api/signup/verify/email")
-                .queryParam("email", givenEmail)
+        mvc.perform(
+                get("/api/signup/verify/email/{email}", givenEmail)
         )
             .andDo(print())
             .andExpect(status().isOk())
@@ -119,15 +119,15 @@ class SignupControllerTest extends WebMvcBaseTest {
     @DisplayName("[실패][GET] 이메일 비동기 인증 시도 - 공백 입력")
     public void givenBlankEmail_whenAsyncEmailVerification_thenEmailIsBlank() throws Exception{
         //given
-        final String givenEmail = "";
+        final String givenEmail = " ";
         ErrorCode errorCode = SignUpErrorCode.EMAIL_IS_BLANK;
         doNothing().when(signUpService).asyncEmailVerify(
                 eq(givenEmail)
         );
 
         //when //then
-        mvc.perform(get("/api/signup/verify/email")
-                .queryParam("email", givenEmail)
+        mvc.perform(
+                get("/api/signup/verify/email/{email}", givenEmail)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -149,8 +149,8 @@ class SignupControllerTest extends WebMvcBaseTest {
         );
 
         //when //then
-        mvc.perform(get("/api/signup/verify/email")
-                .queryParam("email", givenEmail)
+        mvc.perform(
+                get("/api/signup/verify/email/{email}", givenEmail)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -166,14 +166,12 @@ class SignupControllerTest extends WebMvcBaseTest {
         //given
         final String givenUUID = UUID.randomUUID().toString();
         final String message = "이메일 인증이 완료되었습니다.";
-        when(signUpService.checkEmailVerify(
+        doNothing().when(signUpService).checkEmailVerify(
                 eq(givenUUID)
-        )).thenReturn(
-                givenSimpleResponseOK(message)
         );
         //when //then
-        mvc.perform(get("/api/signup/{uuid}", givenUUID))
-            .andDo(print())
+        mvc.perform(get("/api/signup/verify/uuid/{uuid}", givenUUID))
+                .andDo(print())
             .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value(true))
                 .andExpect(jsonPath("$.message").value(message))
@@ -194,7 +192,7 @@ class SignupControllerTest extends WebMvcBaseTest {
         final SignUpErrorCode errorCode = SignUpErrorCode.UUID_IS_BLANK;
 
         //when //then
-        mvc.perform(get("/api/signup/{uuid}", givenUUID))
+        mvc.perform(get("/api/signup/verify/uuid/{uuid}", givenUUID))
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
@@ -210,13 +208,12 @@ class SignupControllerTest extends WebMvcBaseTest {
         //given
         final String givenUUID = UUID.randomUUID().toString();
         final SignUpErrorCode errorCode = SignUpErrorCode.EXPIRED_EMAIL_OR_WRONG_UUID;
-        when(signUpService.checkEmailVerify(
-                eq(givenUUID)
-        )).thenThrow(
-                new SignUpException(errorCode)
-        );
+        doThrow(new SignUpException(errorCode)).when(signUpService)
+                .checkEmailVerify(
+                        eq(givenUUID)
+                );
         //when //then
-        mvc.perform(get("/api/signup/{uuid}", givenUUID))
+        mvc.perform(get("/api/signup/verify/uuid/{uuid}", givenUUID))
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
@@ -232,14 +229,11 @@ class SignupControllerTest extends WebMvcBaseTest {
     public void givenNickname_whenCheckUserNickname_thenSimpleResponse() throws Exception{
         //given
         final String givenNickname = "온프리짱짱!!";
-        final String message = "사용가능한 닉네임입니다.";
-        when(signUpService.checkUsedNickname(
-                eq(givenNickname)
-        )).thenReturn(givenSimpleResponseOK(message));
+        final String message = "해당 닉네임은 사용가능합니다.";
+        doNothing().when(signUpService).checkUsedNickname(eq(givenNickname));
         //when
         //then
-        mvc.perform(get("/api/signup/verify/nickname")
-            .param("nickname", givenNickname)
+        mvc.perform(get("/api/signup/verify/nickname/{nickname}", givenNickname)
         )
             .andDo(print())
             .andExpect(status().isOk())
@@ -253,12 +247,11 @@ class SignupControllerTest extends WebMvcBaseTest {
     @DisplayName("[실패][GET] 닉네임 중복확인 - 입력된 닉네임이 공백일 경우")
     public void givenBlankNickname_whenCheckUserNickname_thenNicknameIsBlankError() throws Exception{
         //given
-        final String givenNickname = "";
+        final String givenNickname = " ";
         final SignUpErrorCode errorCode = SignUpErrorCode.NICKNAME_IS_BLANK;
         //when
         //then
-        mvc.perform(get("/api/signup/verify/nickname")
-                .param("nickname", givenNickname)
+        mvc.perform(get("/api/signup/verify/nickname/{nickname}", givenNickname)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -274,13 +267,11 @@ class SignupControllerTest extends WebMvcBaseTest {
         //given
         final String givenNickname = "온프리짱짱!!";
         final SignUpErrorCode errorCode = SignUpErrorCode.NICKNAME_IS_DUPLICATED;
-        when(signUpService.checkUsedNickname(
-                eq(givenNickname)
-        )).thenThrow(new SignUpException(errorCode));
+        doThrow(new SignUpException(errorCode)).when(signUpService).checkUsedNickname(eq(givenNickname));
+
         //when
         //then
-        mvc.perform(get("/api/signup/verify/nickname")
-                .param("nickname", givenNickname)
+        mvc.perform(get("/api/signup/verify/nickname/{nickname}", givenNickname)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -295,14 +286,13 @@ class SignupControllerTest extends WebMvcBaseTest {
     public void givenPersonalURL_whenCheckPersonalURL_thenSimpleResponse() throws Exception{
         //given
         final String personalUrl = "joon";
-        final String message = "사용 가능한 URL 입니다.";
-        when(signUpService.checkUsedPersonalURL(
+        final String message = "해당 URL  은 사용 가능 합니다.";
+        doNothing().when(signUpService).checkUsedPersonalURL(
                 eq(personalUrl)
-        )).thenReturn(givenSimpleResponseOK(message));
+        );
         //when
         //then
-        mvc.perform(get("/api/signup/verify/personal_url")
-                .param("personalUrl", personalUrl)
+        mvc.perform(get("/api/signup/verify/personal_url/{personal_url}", personalUrl)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -316,12 +306,11 @@ class SignupControllerTest extends WebMvcBaseTest {
     @DisplayName("[실패][GET] 포트폴리오 개인 URL 중복 확인 - 입력 된 URL이 공백일 경우")
     public void givenBlankPersonalURL_whenCheckPersonalURL_thenPersonalUrlIsBlankError() throws Exception{
         //given
-        final String personalUrl = "";
+        final String personalUrl = " ";
         final SignUpErrorCode errorCode = SignUpErrorCode.PERSONAL_URL_IS_BLANK;
         //when
         //then
-        mvc.perform(get("/api/signup/verify/personal_url")
-                .param("personalUrl", personalUrl)
+        mvc.perform(get("/api/signup/verify/personal_url/{personal_url}", personalUrl).param("personalUrl", personalUrl)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -338,13 +327,13 @@ class SignupControllerTest extends WebMvcBaseTest {
         final String personalUrl = "joon";
 
         final SignUpErrorCode errorCode = SignUpErrorCode.PERSONAL_URL_IS_DUPLICATED;
-        when(signUpService.checkUsedPersonalURL(
+        doThrow(new SignUpException(errorCode)).when(signUpService).checkUsedPersonalURL(
                 eq(personalUrl)
-        )).thenThrow(new SignUpException(errorCode));
+        );
+
         //when
         //then
-        mvc.perform(get("/api/signup/verify/personal_url")
-                .param("personalUrl", personalUrl)
+        mvc.perform(get("/api/signup/verify/personal_url/{personal_url}", personalUrl)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))

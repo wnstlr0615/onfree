@@ -33,7 +33,7 @@ public class ValidateAop {
                 if(error.hasErrors()){
                     printFiledLog(error, joinPoint);
                     final List<FieldErrorDto> fieldErrorDtos = getFieldErrorDtos(error);
-                    throw new GlobalException(GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY, fieldErrorDtos);
+                    throw new GlobalException(GlobalErrorCode.NOT_VALIDATED_REQUEST, fieldErrorDtos);
                 }
             }
         }

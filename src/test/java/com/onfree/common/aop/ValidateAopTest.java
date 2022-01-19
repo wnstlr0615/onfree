@@ -1,9 +1,12 @@
 package com.onfree.common.aop;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.anotation.WithAdminUser;
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
+import com.onfree.common.error.code.ErrorCode;
+import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.core.dto.notice.CreateNoticeDto;
 import com.onfree.core.dto.notice.UpdateNoticeDto;
 import com.onfree.core.dto.question.CreateQuestionDto;
@@ -14,9 +17,7 @@ import com.onfree.core.dto.user.normal.CreateNormalUser;
 import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
-import com.onfree.core.service.JWTRefreshTokenService;
-import com.onfree.common.error.code.ErrorCode;
-import com.onfree.common.error.code.GlobalErrorCode;
+import com.onfree.core.service.LoginService;
 import com.onfree.utils.JWTUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +41,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest()
+@SpringBootTest(properties =
+        "spring.config.location=" +
+        "classpath:application.yml" +
+        ",classpath:aws.yml")
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(print = MockMvcPrint.LOG_DEBUG)
 @ExtendWith(MockitoExtension.class)
@@ -57,7 +61,10 @@ class ValidateAopTest {
     UserRepository userRepository;
 
     @Autowired
-    JWTRefreshTokenService jwtRefreshTokenService;
+    LoginService loginService;
+
+    @Autowired
+    AmazonS3Client amazonS3Client;
 
     @Autowired
     JWTUtil jwtUtil;
@@ -74,14 +81,14 @@ class ValidateAopTest {
     private void saveNormalUser(NormalUser user) {
         userRepository.save(user);
         normalUserAccessToken = jwtUtil.createAccessToken(user);
-        jwtRefreshTokenService.saveRefreshToken(user.getEmail(), jwtUtil.createRefreshToken(user));
+        loginService.saveRefreshToken(user.getEmail(), jwtUtil.createRefreshToken(user));
 
     }
 
     private void saveArtistUser(ArtistUser user) {
         userRepository.save(user);
         artistUserAccessToken = jwtUtil.createAccessToken(user);
-        jwtRefreshTokenService.saveRefreshToken(user.getEmail(), jwtUtil.createRefreshToken(user));
+        loginService.saveRefreshToken(user.getEmail(), jwtUtil.createRefreshToken(user));
 
     }
 
@@ -153,7 +160,7 @@ class ValidateAopTest {
     public void givenCreateUserReq_whenCreateNormalUserWithLoginUser_thenCreateUserRes() throws Exception{
         //given
         CreateNormalUser.Request request = givenWrongCreateNormalUserReq();
-        final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
         mvc.perform(post("/api/users/normal")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -196,7 +203,7 @@ class ValidateAopTest {
     public void givenWrongUpdateUserInfo_whenModifiedNormalUser_thenNotValidRequestParametersError() throws Exception{
         //given
         final long userId = 1L;
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when then
         mvc.perform(put("/api/users/normal/{userId}", userId)
@@ -233,7 +240,7 @@ class ValidateAopTest {
     public void givenWrongCreateUserReq_whenCreateArtistUser_thenParameterValidError() throws Exception{
         //given
         CreateArtistUser.Request request = givenWrongCreateArtistUserReq();
-        ErrorCode errorCode=GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        ErrorCode errorCode=GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when //then
         mvc.perform(post("/api/users/artist")
@@ -279,7 +286,7 @@ class ValidateAopTest {
     public void givenWrongUpdateUserInfo_whenModifiedArtistUser_thenNotValidRequestParametersError() throws Exception{
         //given
         final long userId = 2L;
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when then
         mvc.perform(put("/api/users/artist/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -316,7 +323,7 @@ class ValidateAopTest {
     public void givenWrongCreateNoticeDtoReq_whenCreateNotice_thenCreateNoticeDtoRes() throws Exception{
         //given
 
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
         mvc.perform(post("/admin/api/notices")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -347,7 +354,7 @@ class ValidateAopTest {
     public void givenUpdateNoticeDtoReq_whenUpdateNotice_thenUpdateNoticeDtoRes() throws Exception{
         //given
         final long noticeId = 1L;
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
         mvc.perform(put("/admin/api/notices/{noticeId}", noticeId)
@@ -379,7 +386,7 @@ class ValidateAopTest {
     @WithAdminUser
     public void givenWrongCreateQuestionDtoReq_whenCreateQuestion_thenCreateQuestionDtoRes() throws Exception{
         //given
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
         mvc.perform(post("/admin/api/questions")
@@ -411,7 +418,7 @@ class ValidateAopTest {
     public void givenUpdateQuestionDtoReq_whenUpdateQuestion_thenUpdateQuestionDtoRes() throws Exception{
         //given
         final long questionId = 1L;
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
         mvc.perform(put("/admin/api/questions/{questionId}", questionId)

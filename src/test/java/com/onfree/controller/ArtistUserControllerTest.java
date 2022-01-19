@@ -132,7 +132,7 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
     public void givenWrongCreateUserReq_whenCreateArtistUser_thenParameterValidError() throws Exception{
         //given
         CreateArtistUser.Request request = givenWrongCreateArtistUserReq();
-        ErrorCode errorCode=GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        ErrorCode errorCode=GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when //then
         mvc.perform(post("/api/users/artist")
@@ -469,7 +469,7 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
     public void givenWrongUpdateUserInfo_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
         //given
         final long userId = 1L;
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST_BODY;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         when(checker.isSelf(anyLong()))
                 .thenReturn(true);
         //when then
