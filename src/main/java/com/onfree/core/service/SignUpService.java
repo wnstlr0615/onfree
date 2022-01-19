@@ -4,7 +4,6 @@ import com.onfree.common.error.code.MailErrorCode;
 import com.onfree.common.error.code.SignUpErrorCode;
 import com.onfree.common.error.exception.MailSenderException;
 import com.onfree.common.error.exception.SignUpException;
-import com.onfree.common.model.SimpleResponse;
 import com.onfree.core.entity.MailTemplate;
 import com.onfree.core.repository.MailTemplateRepository;
 import com.onfree.core.repository.UserRepository;
@@ -21,13 +20,15 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.onfree.common.constant.RedisConstant.SIGNUP_UUID;
+import static com.onfree.common.constant.RedisConstant.SIGNUP_VERIFICATION;
+
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
 @Slf4j
 public class SignUpService {
-    public static final String SIGNUP_UUID = "signup:uuid:";
-    public static final String SIGNUP_VERIFICATION = "signup:verification:";
+
     private final MailTemplateRepository mailTemplateRepository;
     private final UserRepository userRepository;
     private final MailComponent mailComponent;
@@ -37,15 +38,20 @@ public class SignUpService {
     @Async(value = "getAsyncExecutor")
     public void asyncEmailVerify(String email) {
         validDuplicatedEmail(email);
+        String uuid = getRandomUuid();
+        saveSignUpUuidRedis(email, uuid);
         MailTemplate checkEmailTemplate = getMailTemplate("CHECK_EMAIL");
-        UUID uuid = UUID.randomUUID();
-        redisTemplate.opsForValue().set(SIGNUP_UUID + uuid, email, Duration.ofSeconds(300));
         String content = getContent(checkEmailTemplate.getContent(), uuid);
         mailComponent.sendMail(email, checkEmailTemplate.getTitle(), content);
     }
 
-    private String getContent( String content, UUID uuid) {
-        return content.replace("<URL>", "http://localhost:8080/test/api/signup/" + uuid);
+    private void saveSignUpUuidRedis(String email, String uuid) {
+        redisTemplate.opsForValue().set(SIGNUP_UUID + uuid, email, Duration.ofSeconds(300));
+    }
+
+    private String getContent( String content, String uuid) {
+        //TODO 링크 MailTemplate에 같이 적용하기
+        return content.replace("<URL>", "http://localhost:8080/api/signup/" + uuid);
     }
 
     private void validDuplicatedEmail(String email) {
@@ -58,11 +64,14 @@ public class SignUpService {
         return mailTemplateRepository.findByMailTemplateName(templateName)
                 .orElseThrow(() -> new MailSenderException(MailErrorCode.WRONG_MAIL_ATTRIBUTE));
     }
+    private String getRandomUuid() {
+        return UUID.randomUUID().toString();
+    }
+
 
     /** 이메일 인증 확인*/
-    public SimpleResponse checkEmailVerify(String uuid){
+    public void checkEmailVerify(String uuid){
         checkVerificationEmailFromRedis(uuid);
-        return SimpleResponse.success("이메일 인증이 완료되었습니다.");
     }
 
     private void checkVerificationEmailFromRedis(String uuid) {
@@ -78,9 +87,8 @@ public class SignUpService {
     }
 
     /** 닉네임 인증*/
-    public SimpleResponse checkUsedNickname(String nickName) {
+    public void checkUsedNickname(String nickName) {
         validDuplicatedNickname(nickName);
-        return SimpleResponse.success("해당 닉네임은 사용가능합니다.");
     }
 
     private void validDuplicatedNickname(String nickName) {
@@ -88,11 +96,10 @@ public class SignUpService {
            throw new SignUpException(SignUpErrorCode.NICKNAME_IS_DUPLICATED);
        }
     }
-
-    public SimpleResponse checkUsedPersonalURL(String personalUrl) {
+    /** 포트폴리오룸 url 인증 */
+    public void checkUsedPersonalURL(String personalUrl) {
         if(userRepository.countByPortfolioUrlOnlyArtist(personalUrl) != 0){
             throw new SignUpException(SignUpErrorCode.PERSONAL_URL_IS_DUPLICATED);
         }
-        return SimpleResponse.success("해당 URL  은 사용 가능 합니다.");
     }
 }

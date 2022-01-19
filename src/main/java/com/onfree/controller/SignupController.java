@@ -59,13 +59,14 @@ public class SignupController {
 
     /** 이메일 인증 */
     @ApiOperation(value = "이메일 인증 API", notes = "이메일 인증 API email 주소로 요청 시 이메일 발송 응답없음(비동기)")
-    @GetMapping("/api/signup/verify/email")
-    public void asyncEmailVerify(
+    @GetMapping("/api/signup/verify/email/{email}")
+    public SimpleResponse asyncEmailVerify(
             @ApiParam(value = "이메일 주소", example = "joon@naver.com")
-            String email
+            @PathVariable("email") String email
     ){
         validatedEmail(email);
         signUpService.asyncEmailVerify(email);
+        return SimpleResponse.success("이메일 인증 확인 메일을 전송하였습니다.");
     }
 
     private void validatedEmail(String email) {
@@ -81,13 +82,15 @@ public class SignupController {
     /** 이메일 인증 확인 */
     
     @ApiOperation(value = "이메일 인증 확인 API", notes = "발급 받은 uuid를 통해 요청 시 인증 확인 처리")
-    @GetMapping("/api/signup/{uuid}")
+    @GetMapping("/api/signup/verify/uuid/{uuid}")
     public SimpleResponse checkEmailVerify(
             @ApiParam(value = "이메일 확인 인증 uuid", example = "123123-54654-54123-21344")
             @PathVariable("uuid") String uuid)
     {
         validatedUUID(uuid);
-        return signUpService.checkEmailVerify(uuid);
+        signUpService.checkEmailVerify(uuid);
+        return SimpleResponse.success("이메일 인증이 완료되었습니다.");
+
     }
 
     private void validatedUUID(String uuid) {
@@ -99,13 +102,14 @@ public class SignupController {
     /** 닉네임 중복확인 */
     
     @ApiOperation(value = "닉네임 중복 확인 API", notes = "닉네임 중복확인 API")
-    @GetMapping("/api/signup/verify/nickname")
+    @GetMapping("/api/signup/verify/nickname/{nickname}")
     public SimpleResponse checkUsedNickname(
             @ApiParam(value = "닉네임",  example = "joon")
-            String nickname
+            @PathVariable("nickname") String nickname
     ){
         validatedNickname(nickname);
-        return signUpService.checkUsedNickname(nickname);
+        signUpService.checkUsedNickname(nickname);
+        return SimpleResponse.success("해당 닉네임은 사용가능합니다.");
     }
 
     private void validatedNickname(String nickname) {
@@ -117,13 +121,15 @@ public class SignupController {
     /** 포트폴리오룸 개인 URL 중복 확인 */
     
     @ApiOperation(value = "포트폴리오룸 개인 URL 중복 확인 API", notes = "포트폴리오룸 개인 URL 중복 확인 API")
-    @GetMapping("/api/signup/verify/personal_url")
+    @GetMapping("/api/signup/verify/personal_url/{personal_url}")
     public SimpleResponse checkPersonalURL(
             @ApiParam(value = "포트폴리오룸 개인 URL ", example = "joon")
-            String personalUrl
+            @PathVariable("personal_url") String personalUrl
     ){
         validatedPersonalUrl(personalUrl);
-        return signUpService.checkUsedPersonalURL(personalUrl);
+        signUpService.checkUsedPersonalURL(personalUrl);
+        return SimpleResponse.success("해당 URL  은 사용 가능 합니다.");
+
     }
 
     private void validatedPersonalUrl(String personalUrl) {
