@@ -1,9 +1,8 @@
 package com.onfree.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
-import com.onfree.config.security.CustomUserDetailService;
+import com.onfree.common.WebMvcBaseTest;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.normal.CreateNormalUser;
 import com.onfree.core.dto.user.normal.NormalUserDetail;
@@ -11,26 +10,22 @@ import com.onfree.core.dto.user.normal.UpdateNormalUser;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
 import com.onfree.core.entity.user.NormalUser;
-import com.onfree.core.service.JWTRefreshTokenService;
 import com.onfree.core.service.NormalUserService;
-import com.onfree.error.code.ErrorCode;
-import com.onfree.error.code.UserErrorCode;
-import com.onfree.error.exception.UserException;
+import com.onfree.common.error.code.ErrorCode;
+import com.onfree.common.error.code.GlobalErrorCode;
+import com.onfree.common.error.code.UserErrorCode;
+import com.onfree.common.error.exception.UserException;
 import com.onfree.utils.Checker;
-import com.onfree.utils.JWTUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -41,26 +36,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = NormalUserController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-class NormalUserControllerTest {
-    @Autowired
-    private MockMvc mvc;
-    @Autowired
-    private ObjectMapper mapper;
-
+class NormalUserControllerTest extends WebMvcBaseTest {
     @MockBean
-    private NormalUserService normalUserService;
-
-    @MockBean
-    private CustomUserDetailService userDetailService;
+    NormalUserService normalUserService;
 
     @MockBean(name = "checker")
-    private Checker checker;
-
-    @MockBean
-    JWTRefreshTokenService jwtRefreshTokenService;
-
-    @MockBean
-    JWTUtil jwtUtil;
+    Checker checker;
 
     @Test
     @WithAnonymousUser
@@ -83,7 +64,7 @@ class NormalUserControllerTest {
                 )
         )
             .andDo(print())
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.name").value("준식"))
             .andExpect(jsonPath("$.nickname").value("온프리짱짱"))
             .andExpect(jsonPath("$.email").value("jun@naver.com"))
@@ -166,10 +147,11 @@ class NormalUserControllerTest {
     @Test
     @WithAnonymousUser
     @DisplayName("[실패][POST] 회원가입 요청 - 회원가입 request가 올바르지 않은 경우")
+    @Disabled("ValidateAOP 사용으로 단위테스트에는 테스트가 적용 되지 않음")
     public void givenWrongCreateUserReq_whenCreateNormalUser_thenParameterValidError() throws Exception{
         //given
         CreateNormalUser.Request request = givenWrongCreateNormalUserReq();
-        ErrorCode errorCode=UserErrorCode.NOT_VALID_REQUEST_PARAMETERS;
+        ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         when(checker.isSelf(anyLong()))
                 .thenReturn(true);
         //when //then
@@ -501,10 +483,11 @@ class NormalUserControllerTest {
     @Test
     @WithNormalUser
     @DisplayName("[실패][PUT] 사용자 정보 수정 - 잘못된 데이터 입력 ")
+    @Disabled("ValidateAOP 사용으로 단위테스트에는 테스트가 적용 되지 않음")
     public void givenWrongUpdateUserInfo_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
         //given
         final long userId = 1L;
-        final UserErrorCode errorCode = UserErrorCode.NOT_VALID_REQUEST_PARAMETERS;
+        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         when(checker.isSelf(anyLong()))
                 .thenReturn(true);
         //when then
@@ -555,7 +538,7 @@ class NormalUserControllerTest {
                 )
         )
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;

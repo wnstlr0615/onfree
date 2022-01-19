@@ -6,11 +6,11 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.onfree.config.error.code.LoginErrorCode;
-import com.onfree.config.error.exception.LoginException;
+import com.onfree.common.error.code.LoginErrorCode;
+import com.onfree.common.error.exception.LoginException;
 import com.onfree.core.entity.user.User;
-import com.onfree.core.model.VerifyResult;
-import com.onfree.properties.JWTProperties;
+import com.onfree.common.model.VerifyResult;
+import com.onfree.common.properties.JWTProperties;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +23,10 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Component
 public class JWTUtil {
-    public static final String REFRESH_TOKEN = "refreshToken";
-    public static final String ACCESS_TOKEN = "accessToken";
-
     private final JWTProperties jwtProperties;
 
     public  String createAccessToken(@NonNull User user){
-        return createAccessToken(user, 60 * jwtProperties.getAccessTokenExpiredTime().getSeconds());
+        return createAccessToken(user, jwtProperties.getAccessTokenExpiredTime().getSeconds());
     }
 
     public  String createAccessToken(@NonNull User user, Long tokenExpiredSecond){
@@ -44,10 +41,11 @@ public class JWTUtil {
         return createRefreshToken(user, jwtProperties.getRefreshTokenExpiredTime().getSeconds());
     }
 
-    public  String createRefreshToken(@NonNull User user, Long tokenExpiredDay){
-        Timestamp expirationTime = Timestamp.valueOf(LocalDateTime.now().plusSeconds(tokenExpiredDay));
+    public  String createRefreshToken(@NonNull User user, Long tokenExpiredSecond){
+        Timestamp expirationTime = Timestamp.valueOf(LocalDateTime.now().plusSeconds(tokenExpiredSecond));
         return JWT.create()
                 .withExpiresAt(expirationTime)
+                .withSubject(user.getEmail())
                 .sign(Algorithm.HMAC512(jwtProperties.getSecretKey()));
     }
 
@@ -76,10 +74,10 @@ public class JWTUtil {
         }
     }
 
-    public Long getAccessTokenExpiredTime(){
+    public long getAccessTokenExpiredTime(){
         return jwtProperties.getAccessTokenExpiredTime().getSeconds();
     }
-    public Long getRefreshTokenExpiredTime(){
+    public long getRefreshTokenExpiredTime(){
         return jwtProperties.getRefreshTokenExpiredTime().getSeconds();
     }
 }

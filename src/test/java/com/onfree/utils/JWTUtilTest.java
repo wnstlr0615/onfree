@@ -1,10 +1,8 @@
 package com.onfree.utils;
 
-import com.onfree.config.error.code.LoginErrorCode;
-import com.onfree.config.error.exception.LoginException;
 import com.onfree.core.entity.user.*;
-import com.onfree.core.model.VerifyResult;
-import com.onfree.properties.JWTProperties;
+import com.onfree.common.model.VerifyResult;
+import com.onfree.common.properties.JWTProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -128,7 +126,7 @@ class JWTUtilTest {
 
         //then
         assertThat(verify.isResult()).isTrue();
-        assertThat(verify.getUsername()).isNull();
+        assertThat(verify.getUsername()).isEqualTo(user.getEmail());
     }
 
     @Test

@@ -18,7 +18,7 @@ Content-Type: application/json
   "adultCertification": true,
   "gender": "MAN",
   "profileImage": "http://onfree.io/images/123456789",
-  "portfolioUrl": "http://onfree.io/images/123456789"
+  "portfolioUrl": "joon"
 }
 
 ### 작가유저 회원가입 데이터 누락

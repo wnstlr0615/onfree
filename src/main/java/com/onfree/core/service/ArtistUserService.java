@@ -6,13 +6,13 @@ import com.onfree.core.dto.user.artist.CreateArtistUser;
 import com.onfree.core.dto.user.artist.UpdateArtistUser;
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.repository.UserRepository;
-import com.onfree.error.exception.UserException;
+import com.onfree.common.error.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.onfree.error.code.UserErrorCode.*;
+import static com.onfree.common.error.code.UserErrorCode.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -24,6 +24,7 @@ public class ArtistUserService {
     /** 회원가입 요청 */
     @Transactional
     public CreateArtistUser.Response createArtistUser(CreateArtistUser.Request request) {
+        //TODO Redis 를 통한 인증 검사 후 회원가입
         duplicatedUserEmail(request.getEmail());
         return CreateArtistUser.Response
                 .fromEntity(

@@ -1,16 +1,22 @@
 package com.onfree.config.security;
 
-import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
-import com.onfree.config.security.handler.JwtLoginAuthenticationFailHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.config.security.filter.JwtCheckFilter;
 import com.onfree.config.security.filter.JwtLoginFilter;
-import com.onfree.core.service.JWTRefreshTokenService;
+import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
+import com.onfree.config.security.handler.JwtLoginAuthenticationFailHandler;
+import com.onfree.core.service.LoginService;
+import com.onfree.utils.CookieUtil;
 import com.onfree.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -26,17 +32,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity()
+@EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 @Slf4j
+@Order()
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Qualifier("loginService")
+    @Autowired(required = false)
+    private LoginService loginService;
+
+    @Qualifier("cookieUtil")
+    @Autowired(required = false)
+    private CookieUtil cookieUtil;
+
     private final CustomUserDetailService customUserDetailService;
-    private final JWTRefreshTokenService jwtRefreshTokenService;
     private final JWTUtil jwtUtil;
+    private final ObjectMapper mapper;
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web){
         web.ignoring()
                 .antMatchers("/v3/api-docs", "/swagger-resources/configuration/ui",
                         "/swagger-resources", "/swagger-resources/configuration/security",
@@ -53,9 +68,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        String[] whiteList=new String[]{
+                "/login", "/error", "/logout", "/api/signup/**", "/api/password/reset/**"
+        };
+        String[] GETWhiteList = new String[]{
+                "/api/notices", "/api/notices/**",
+                "/api/questions", "/api/questions/**"
+        };
         http.authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/api/users/artist", "/api/users/normal").permitAll()
-                .antMatchers("/login", "/error", "/logout").permitAll()
+                .antMatchers(whiteList).permitAll()
+                .antMatchers(HttpMethod.GET,GETWhiteList).permitAll()
+                .antMatchers(HttpMethod.POST, "/api/notices/**", "/api/questions/**").hasRole("ADMIN")
                 .antMatchers("/api/users/artist/**").hasRole("ARTIST")
                 .antMatchers("/api/users/normal/**").hasRole("NORMAL")
                 .anyRequest().authenticated();
@@ -70,10 +94,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .addFilterAt(
-                        new JwtCheckFilter(customUserDetailService, authenticationEntryPoint(), jwtRefreshTokenService, jwtUtil)
+                        new JwtCheckFilter(customUserDetailService, authenticationEntryPoint(), jwtUtil, loginService, cookieUtil)
                         , BasicAuthenticationFilter.class)
                 .addFilterAt(
-                        new JwtLoginFilter(authenticationManagerBean(), authenticationFailHandler(), jwtRefreshTokenService, jwtUtil)
+                        new JwtLoginFilter(authenticationManagerBean(), authenticationFailHandler(), mapper, loginService, jwtUtil, cookieUtil)
                         , UsernamePasswordAuthenticationFilter.class)
         ;
     }

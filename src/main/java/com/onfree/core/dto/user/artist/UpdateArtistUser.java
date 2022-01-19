@@ -13,9 +13,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 public class UpdateArtistUser {
-    @ApiModel(value = "UpdateArtistUser_Request")
     @Builder
     @Getter
+    @ApiModel(value = "UpdateArtistUser_Request")
     public static class Request{
         @ApiModelProperty(value = "사용자 닉네임", example = "온프리대박기원")
         @NotBlank(message = "이름은 공백일수 없습니다.")

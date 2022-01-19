@@ -1,6 +1,6 @@
 package com.onfree.core.entity.user;
 
-import com.onfree.core.model.BaseTimeEntity;
+import com.onfree.common.model.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
@@ -95,5 +95,9 @@ public abstract class User extends BaseTimeEntity {
         this.newsAgency= newsAgency;
         this.phoneNumber= phoneNumber;
         this.profileImage= profileImage;
+    }
+
+    public void resetPassword(String bcryptPassword) {
+        password=bcryptPassword;
     }
 }

@@ -24,6 +24,8 @@ bin/
 *.ipr
 *.yml
 *.properties
+dockerfile
+*.log
 
 out/
 !**/src/main/**/out/

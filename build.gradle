@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.onfree'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
@@ -23,12 +23,17 @@ dependencies {
   //  implementation 'org.springframework.boot:spring-boot-starter-batch'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
- //   implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+ //  implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // amazon s3
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.137'
     //develop 용 db
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     //JWT Token
     implementation group: 'com.auth0', name: 'java-jwt', version: '3.18.1'
-
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.7'
     //swagger
 // https://mvnrepository.com/artifact/io.springfox/springfox-boot-starter
     implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
