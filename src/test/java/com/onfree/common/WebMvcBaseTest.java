@@ -2,6 +2,7 @@ package com.onfree.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.config.security.CustomUserDetailService;
+import com.onfree.utils.Checker;
 import com.onfree.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,4 +24,7 @@ public abstract class WebMvcBaseTest {
 
     @MockBean
     protected JWTUtil jwtUtil;
+
+    @MockBean(name = "checker")
+    protected Checker checker;
 }

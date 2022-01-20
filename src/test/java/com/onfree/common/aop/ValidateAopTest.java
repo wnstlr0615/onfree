@@ -7,6 +7,8 @@ import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.error.code.ErrorCode;
 import com.onfree.common.error.code.GlobalErrorCode;
+import com.onfree.common.error.exception.GlobalException;
+import com.onfree.core.dto.UpdateUserNotificationDto;
 import com.onfree.core.dto.notice.CreateNoticeDto;
 import com.onfree.core.dto.notice.UpdateNoticeDto;
 import com.onfree.core.dto.question.CreateQuestionDto;
@@ -35,6 +37,10 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.onfree.common.constant.SecurityConstant.BEARER;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -50,7 +56,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ValidateAopTest {
-    public static final String BEARER = "Bearer ";
     @Autowired
     MockMvc mvc;
 
@@ -413,7 +418,7 @@ class ValidateAopTest {
     }
 
     @Test
-    @DisplayName("[실패][PUT] 자주하는 질문 수정")
+    @DisplayName("[실패][PUT] 자주하는 질문 수정 - 잘못된 데이터 입력")
     @WithAdminUser
     public void givenUpdateQuestionDtoReq_whenUpdateQuestion_thenUpdateQuestionDtoRes() throws Exception{
         //given
@@ -443,4 +448,40 @@ class ValidateAopTest {
                 .build();
     }
 
+
+    @Test
+    @WithNormalUser
+    @DisplayName("[실패][PUT] 사용자 알림설정 변경 - 잘못된 데이터 입력")
+    public void givenOtherUserIdAndUpdateUserNotificationDto_whenUpdateUserNotification_thenAccessDeniedError() throws Exception{
+        //given
+        final long userId = 1L;
+        final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
+        //when
+        //then
+        mvc.perform(put("/api/users/{userId}/notifications", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, BEARER +normalUserAccessToken)
+                .content(
+                        mapper.writeValueAsString(
+                                givenWrongUpdateUserNotificationDto()
+                        )
+                )
+        )
+                .andDo(print())
+                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
+                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+                .andExpect(jsonPath("$.errors[0]").isNotEmpty())
+
+        ;
+    }
+
+    private UpdateUserNotificationDto givenWrongUpdateUserNotificationDto() {
+        return UpdateUserNotificationDto.builder()
+                .emailNewsNotification(null)
+                .emailRequestNotification(true)
+                .kakaoNewsNotification(false)
+                .kakaoRequestNotification(false)
+                .pushRequestNotification(true)
+                .build();
+    }
 }
