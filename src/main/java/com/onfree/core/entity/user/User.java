@@ -40,6 +40,9 @@ public abstract class User extends BaseTimeEntity {
     @Embedded
     private UserAgree userAgree; // 사용자동의정보
 
+    @Embedded
+    private UserNotification userNotification;
+
     @Column(nullable = false)
     private Boolean adultCertification; // 성인인증
 
@@ -77,6 +80,7 @@ public abstract class User extends BaseTimeEntity {
         this.profileImage = profileImage;
         this.deleted = deleted;
         this.role = role;
+        this.userNotification = UserNotification.allTrueUserNotification();
     }
 
     public void encryptPassword(String encryptPassword){
@@ -99,5 +103,9 @@ public abstract class User extends BaseTimeEntity {
 
     public void resetPassword(String bcryptPassword) {
         password=bcryptPassword;
+    }
+
+    public void updateNotification(UserNotification userNotification) {
+        this.userNotification = userNotification;
     }
 }
