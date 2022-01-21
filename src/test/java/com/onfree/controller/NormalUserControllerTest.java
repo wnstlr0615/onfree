@@ -40,9 +40,6 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     @MockBean
     NormalUserService normalUserService;
 
-    @MockBean(name = "checker")
-    Checker checker;
-
     @Test
     @WithAnonymousUser
     @DisplayName("[성공][POST] 회원가입 요청")

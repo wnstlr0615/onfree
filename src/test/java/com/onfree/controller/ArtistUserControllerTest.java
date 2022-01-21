@@ -40,9 +40,6 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
     @MockBean
     ArtistUserService artistUserService;
 
-    @MockBean(name = "checker")
-    private Checker checker;
-
     @Test
     @DisplayName("[성공][POST] 회원가입 요청")
     @WithAnonymousUser
