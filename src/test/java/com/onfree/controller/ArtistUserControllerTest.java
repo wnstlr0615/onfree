@@ -236,6 +236,7 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.gender").value(request.getGender().getName()))
                 .andExpect(jsonPath("$.profileImage").value(request.getProfileImage()))
                 .andExpect(jsonPath("$.portfolioUrl").value(request.getPortfolioUrl()))
+                .andExpect(jsonPath("$.statusMark").value(StatusMark.OPEN.toString()))
 
         ;
         verify(artistUserService, times(1)).getUserDetail(any());

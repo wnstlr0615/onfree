@@ -57,6 +57,9 @@ public class ArtistUserDetail {
     @ApiModelProperty(value = "포트폴리오 개인룸 URL", example = "http://onfree.io/portfoliourl/546456498")
     private final String portfolioUrl;
 
+    @ApiModelProperty(value = "영업마크 설정 ", example = "OPEN")
+    private final String statusMark;
+
     public static ArtistUserDetail fromEntity(ArtistUser entity) {
         return ArtistUserDetail.builder()
                 .adultCertification(entity.getAdultCertification())
@@ -74,6 +77,7 @@ public class ArtistUserDetail {
                 .policyAgree(entity.getUserAgree().getPolicy())
                 .serviceAgree(entity.getUserAgree().getService())
                 .profileImage(entity.getProfileImage())
+                .statusMark(entity.getStatusMark().name())
                 .build();
     }
 }
