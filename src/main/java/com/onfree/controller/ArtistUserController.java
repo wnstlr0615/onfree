@@ -1,10 +1,15 @@
 package com.onfree.controller;
 
+import com.onfree.common.error.code.GlobalErrorCode;
+import com.onfree.common.error.exception.GlobalException;
+import com.onfree.common.error.response.FieldErrorDto;
+import com.onfree.common.model.SimpleResponse;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.artist.ArtistUserDetail;
 import com.onfree.core.dto.user.artist.CreateArtistUser;
 import com.onfree.core.dto.user.artist.UpdateArtistUser;
 import com.onfree.core.service.ArtistUserService;
+import com.onfree.validator.StatusMarkValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -14,9 +19,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Api(tags = "작가유저 기본기능 제공 컨트롤러",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
@@ -25,6 +33,7 @@ import javax.validation.Valid;
 @RequestMapping(value = "/api/users/artist",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ArtistUserController {
     private final ArtistUserService artistUserService;
+    private final StatusMarkValidator statusMarkValidator;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize(value = "!isAuthenticated()")
@@ -63,16 +72,31 @@ public class ArtistUserController {
             BindingResult errors
     ){
         return artistUserService.modifiedUser(userId, request);
-
     }
 
+    @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
+    @PutMapping("/{userId}/status")
+    public SimpleResponse updateStatusMark(
+            @PathVariable("userId") Long userId,
+            @Valid @RequestBody StatusMarkDto statusMarkDto,
+            BindingResult errors
+    ){
+        statusMarkValidator.validate(statusMarkDto, errors);
+        validStatusMark(errors);
+        artistUserService.updateStatusMark(userId, statusMarkDto);
+        return SimpleResponse.success("영업마크가 성공적으로 변경 되었습니다.");
+    }
 
+    private void validStatusMark(BindingResult error) {
+        if(error.hasErrors()){
+            final List<FieldErrorDto> fieldErrorDtos = getFieldErrorDtos(error);
+            throw new GlobalException(GlobalErrorCode.NOT_VALIDATED_REQUEST, fieldErrorDtos);
+        }
+    }
 
-
-
-
-
-
-
-
+    private List<FieldErrorDto> getFieldErrorDtos(BindingResult errors) {
+        return errors.getFieldErrors().stream()
+                .map(FieldErrorDto::fromFieldError)
+                .collect(Collectors.toList());
+    }
 }

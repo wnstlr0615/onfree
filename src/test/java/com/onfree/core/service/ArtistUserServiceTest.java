@@ -1,5 +1,6 @@
 package com.onfree.core.service;
 
+import com.onfree.controller.StatusMarkDto;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.artist.ArtistUserDetail;
 import com.onfree.core.dto.user.artist.CreateArtistUser;
@@ -362,6 +363,52 @@ class ArtistUserServiceTest {
                 );
         //when
         final UserException userException = assertThrows(UserException.class, () -> artistUserService.modifiedUser(wrongUserId, request));
+        //then
+        assertThat(userException)
+                .hasFieldOrPropertyWithValue("errorCode", UserErrorCode.NOT_FOUND_USERID)
+                .hasFieldOrPropertyWithValue("errorMessage", UserErrorCode.NOT_FOUND_USERID.getDescription())
+        ;
+        verify(userRepository, times(1)).findById(eq(wrongUserId));
+    }
+
+    @Test
+    @DisplayName("[성공] 작가유저 영업마크 변경 ")
+    public void givenStatusMarkDto_whenUpdateStatusMark_thenNothing() throws Exception{
+        //given
+        final long givenUserId = 1L;
+        final StatusMarkDto givenStatusMarkDto = givenStatusMarkDto(StatusMark.REST);
+        final ArtistUser artistUser = getArtistUserEntity(givenUserId);
+        when(userRepository.findById(anyLong()))
+                .thenReturn(
+                        Optional.of(
+                                artistUser
+                        )
+                );
+        //when //then
+        assertThat(artistUser.getStatusMark()).isEqualTo(StatusMark.OPEN);
+        artistUserService.updateStatusMark(givenUserId, givenStatusMarkDto);
+        assertThat(artistUser.getStatusMark()).isEqualTo(StatusMark.REST);
+        verify(userRepository).findById(eq(givenUserId));
+    }
+
+    private StatusMarkDto givenStatusMarkDto(StatusMark statusMark) {
+        return StatusMarkDto.builder()
+                .statusMark(statusMark.name())
+                .build();
+    }
+
+    @Test
+    @DisplayName("[실패] 작가유저 영업마크 변경 - 유저 id가 없는 경우")
+    public void givenStatusMarkDto_whenUpdateStatusMarkButNotFoundUser_thenNotFoundUserError() throws Exception{
+        //given
+        final long wrongUserId = 1L;
+        final StatusMarkDto givenStatusMarkDto = givenStatusMarkDto(StatusMark.REST);
+        when(userRepository.findById(any()))
+                .thenReturn(
+                        Optional.empty()
+                );
+        //when
+        final UserException userException = assertThrows(UserException.class, () -> artistUserService.updateStatusMark(wrongUserId, givenStatusMarkDto));
         //then
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", UserErrorCode.NOT_FOUND_USERID)

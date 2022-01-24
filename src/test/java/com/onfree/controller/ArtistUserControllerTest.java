@@ -10,22 +10,26 @@ import com.onfree.core.dto.user.artist.UpdateArtistUser;
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
+import com.onfree.core.entity.user.StatusMark;
 import com.onfree.core.service.ArtistUserService;
 import com.onfree.common.error.code.ErrorCode;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
-import com.onfree.utils.Checker;
+import com.onfree.validator.StatusMarkValidator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -39,6 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ArtistUserControllerTest extends WebMvcBaseTest {
     @MockBean
     ArtistUserService artistUserService;
+    @MockBean
+    StatusMarkValidator statusMarkValidator;
 
     @Test
     @DisplayName("[성공][POST] 회원가입 요청")
@@ -523,5 +529,47 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
         ;
         verify(artistUserService, times(1)).modifiedUser(eq(wrongUserId), any());
     }
+
+    @Test
+    @WithArtistUser
+    @DisplayName("[성공][PUT] 영업마크 설정")
+    public void givenStatusMark_whenUpdateStatusMark_thenSimpleResponseSuccess() throws Exception{
+        //given
+        final long givenUserId = 1L;
+        final StatusMarkDto givenUpdateStatusMarkDto = givenStatusMarkDto(StatusMark.CLOSE);
+        when(statusMarkValidator.supports(any()))
+                .thenReturn(true);
+        doNothing().when(statusMarkValidator)
+                .validate(any(), any());
+        doNothing().when(artistUserService)
+                .updateStatusMark(anyLong(), any(StatusMarkDto.class));
+        when(checker.isSelf(anyLong()))
+                .thenReturn(true);
+
+        //when //then
+
+        mvc.perform(put("/api/users/artist/{userId}/status", givenUserId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(mapper.writeValueAsString(
+                    givenUpdateStatusMarkDto
+                )
+            )
+        )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.result").value(true))
+            .andExpect(jsonPath("$.message").value("영업마크가 성공적으로 변경 되었습니다."))
+        ;
+        verify(artistUserService).updateStatusMark(eq(givenUserId), any(StatusMarkDto.class));
+    }
+
+    private StatusMarkDto givenStatusMarkDto(StatusMark statusMark) {
+        return StatusMarkDto.builder()
+                .statusMark(statusMark.name())
+                .build();
+    }
+
+
+
 
 }

@@ -1,5 +1,6 @@
 package com.onfree.core.service;
 
+import com.onfree.controller.StatusMarkDto;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.artist.ArtistUserDetail;
 import com.onfree.core.dto.user.artist.CreateArtistUser;
@@ -101,5 +102,11 @@ public class ArtistUserService {
         ArtistUser.update(request);
         return UpdateArtistUser.Response
                 .fromEntity(ArtistUser);
+    }
+    /*사용자 영업마크 수정*/
+    @Transactional
+    public void updateStatusMark(Long userId, StatusMarkDto statusMarkDto) {
+        final ArtistUser artistUser = getArtistUser(userId);
+        artistUser.updateStatusMark(statusMarkDto.getStatusMark());
     }
 }
