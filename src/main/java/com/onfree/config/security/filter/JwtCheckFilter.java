@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -88,7 +89,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
                     clearToken(response, username);
                 }
             }
-        }catch (LoginException e) {
+        }catch (AuthenticationException e) {
             SecurityContextHolder.clearContext();
             authenticationEntryPoint.commence(request, response, e);
             return;
