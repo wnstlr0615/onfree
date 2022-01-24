@@ -74,9 +74,12 @@ public class ArtistUserController {
         return artistUserService.modifiedUser(userId, request);
     }
 
+
     @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
+    @ApiOperation(value = "영업마크 설정")
     @PutMapping("/{userId}/status")
     public SimpleResponse updateStatusMark(
+            @ApiParam(value = "유저 PK", example = "1")
             @PathVariable("userId") Long userId,
             @Valid @RequestBody StatusMarkDto statusMarkDto,
             BindingResult errors
