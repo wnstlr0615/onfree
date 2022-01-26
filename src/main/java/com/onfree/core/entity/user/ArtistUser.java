@@ -17,6 +17,7 @@ import javax.persistence.Enumerated;
 @DiscriminatorValue(value = "A")
 public class ArtistUser extends User{
     private String portfolioUrl;
+
     @Enumerated(EnumType.STRING)
     private StatusMark statusMark;
 

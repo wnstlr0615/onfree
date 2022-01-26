@@ -1,6 +1,6 @@
 package com.onfree.validator;
 
-import com.onfree.controller.StatusMarkDto;
+import com.onfree.core.dto.user.artist.status.StatusMarkDto;
 import com.onfree.core.entity.user.StatusMark;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

@@ -1,6 +1,6 @@
 package com.onfree.core.service;
 
-import com.onfree.controller.StatusMarkDto;
+import com.onfree.core.dto.user.artist.status.StatusMarkDto;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.artist.ArtistUserDetail;
 import com.onfree.core.dto.user.artist.CreateArtistUser;

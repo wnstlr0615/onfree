@@ -1,4 +1,4 @@
-package com.onfree.controller;
+package com.onfree.core.dto.user.artist.status;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

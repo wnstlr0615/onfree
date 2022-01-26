@@ -1,6 +1,6 @@
 package com.onfree.validator;
 
-import com.onfree.controller.StatusMarkDto;
+import com.onfree.core.dto.user.artist.status.StatusMarkDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
