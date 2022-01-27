@@ -38,7 +38,7 @@ class DrawingFieldServiceTest {
         //given
         when(drawingFieldRepository.findAllByOrderByTopDesc())
             .thenReturn(
-                    getDrawingFieldDtoList()
+                    getDrawingFieldList()
             );
         //when
         final List<DrawingFieldDto> drawFieldDtoList = drawingFieldService.getDrawFieldDtoList();
@@ -55,7 +55,7 @@ class DrawingFieldServiceTest {
         verify(drawingFieldRepository).findAllByOrderByTopDesc();
     }
 
-    private List<DrawingField> getDrawingFieldDtoList() {
+    private List<DrawingField> getDrawingFieldList() {
         return List.of(
                 getDrawingField("캐릭터 디자인"),
                 getDrawingField("일러스트"),

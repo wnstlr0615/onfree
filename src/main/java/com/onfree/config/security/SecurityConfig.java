@@ -80,6 +80,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(whiteList).permitAll()
                 .antMatchers(HttpMethod.GET,GETWhiteList).permitAll()
                 .antMatchers(HttpMethod.POST, "/api/notices/**", "/api/questions/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/api/users/artist/**").permitAll()
                 .antMatchers("/api/users/artist/**").hasRole("ARTIST")
                 .antMatchers("/api/users/normal/**").hasRole("NORMAL")
                 .anyRequest().authenticated();
