@@ -92,14 +92,9 @@ public class ArtistUserController {
 
     private void validStatusMark(BindingResult error) {
         if(error.hasErrors()){
-            final List<FieldErrorDto> fieldErrorDtos = getFieldErrorDtos(error);
-            throw new GlobalException(GlobalErrorCode.NOT_VALIDATED_REQUEST, fieldErrorDtos);
+            throw new GlobalException(GlobalErrorCode.NOT_VALIDATED_REQUEST, error.getFieldErrors());
         }
     }
 
-    private List<FieldErrorDto> getFieldErrorDtos(BindingResult errors) {
-        return errors.getFieldErrors().stream()
-                .map(FieldErrorDto::fromFieldError)
-                .collect(Collectors.toList());
-    }
+
 }

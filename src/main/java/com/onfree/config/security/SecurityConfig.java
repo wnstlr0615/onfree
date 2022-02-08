@@ -3,6 +3,7 @@ package com.onfree.config.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.config.security.filter.JwtCheckFilter;
 import com.onfree.config.security.filter.JwtLoginFilter;
+import com.onfree.config.security.handler.CustomAccessDeniedException;
 import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
 import com.onfree.config.security.handler.JwtLoginAuthenticationFailHandler;
 import com.onfree.core.service.LoginService;
@@ -28,6 +29,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -72,8 +74,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/login", "/error", "/logout", "/api/signup/**", "/api/password/reset/**"
         };
         String[] GETWhiteList = new String[]{
-                "/api/notices", "/api/notices/**",
-                "/api/questions", "/api/questions/**"
+                "/api/notices/**", "/api/notices/**",
+                "/api/questions/**", "/api/questions/**",
+                "/api/portfolios/**"
         };
         http.authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/api/users/artist", "/api/users/normal").permitAll()
@@ -91,6 +94,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint())
+                .accessDeniedHandler(accessDeniedException())
         ;
 
         http
@@ -101,6 +105,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         new JwtLoginFilter(authenticationManagerBean(), authenticationFailHandler(), mapper, loginService, jwtUtil, cookieUtil)
                         , UsernamePasswordAuthenticationFilter.class)
         ;
+    }
+
+    private AccessDeniedHandler accessDeniedException() {
+        return new CustomAccessDeniedException();
     }
 
     @Override

@@ -7,23 +7,25 @@ import lombok.Getter;
 @Getter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SimpleResponse {
-    private boolean result;
-    private String message;
-    private Object data;
+public class SimpleResponse <T>{
+    private final boolean result;
+    private final String message;
+    private final T data;
 
-    public static SimpleResponse success(String message){
-        return SimpleResponse.builder()
-                .result(true)
-                .message(message)
-                .build();
-    }
     public static SimpleResponse success(String message, Object data){
         return SimpleResponse.builder()
                 .result(true)
                 .message(message)
                 .data(data)
                 .build();
+    }
+
+    public static SimpleResponse success(String message){
+        return success(message, null);
+    }
+
+    public static SimpleResponse success(Object data){
+        return success(null, data);
     }
 
     public static SimpleResponse fail(String message){

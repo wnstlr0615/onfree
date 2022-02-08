@@ -51,6 +51,12 @@ public class GlobalExceptionHandler {
         return ResponseResult.fail(e.getErrorCode());
     }
 
+    @ExceptionHandler(PortfolioException.class)
+    public ResponseEntity<?> portfolioExceptionHandler(PortfolioException e, HttpServletRequest request){
+        printLog(request, "PortfolioException", e.getErrorCode());
+        return ResponseResult.fail(e.getErrorCode());
+    }
+
     private void printLog(HttpServletRequest request, String exception, ErrorCode errorCode) {
         log.error(exception + ": {}", errorCode);
         log.error("remoteHost: {},  request Url : {}", request.getRemoteHost(), request.getRequestURL());
