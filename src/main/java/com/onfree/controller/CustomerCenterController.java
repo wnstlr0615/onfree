@@ -39,7 +39,8 @@ public class CustomerCenterController {
     @GetMapping("/notices/{noticeId}")
     @ApiOperation(value = "공지사항 상세 조회", notes = "공지사항을 상세조회하는 API")
     public NoticeDetailDto getNoticeDetailDto(
-            @ApiParam(value = "공지글 ID", defaultValue = "1L", example = "1") @PathVariable("noticeId") Long noticeId
+            @ApiParam(value = "공지글 ID", defaultValue = "1L", example = "1")
+            @PathVariable("noticeId") Long noticeId
     ){
         return customerCenterService.getNoticeDetailDto(noticeId);
     }

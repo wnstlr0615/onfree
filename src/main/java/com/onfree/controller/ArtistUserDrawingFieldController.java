@@ -23,7 +23,7 @@ public class ArtistUserDrawingFieldController {
     @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
     @ApiOperation(value = "그림분야 변경")
     @PutMapping("/{userId}/drawing-fields")
-    public SimpleResponse UpdateDrawingFields(
+    public SimpleResponse<?> UpdateDrawingFields(
             @PathVariable("userId") Long userId,
             @Valid @RequestBody UpdateDrawingFieldsDto updateDrawingFieldsDto
     ){
@@ -33,12 +33,11 @@ public class ArtistUserDrawingFieldController {
 
     @ApiOperation(value = "작가유저 그림 분야 목록 조회")
     @GetMapping("/{userId}/drawing-fields")
-    public SimpleResponse getAllArtistUserDrawingFields(
+    public SimpleResponse<?> getAllArtistUserDrawingFields(
             @PathVariable("userId") Long userId
     ){
         final List<UsedDrawingFieldDto> artistUserUsedDrawingFields = drawingFieldService.getAllArtistUserUsedDrawingFields(userId);
         return SimpleResponse.success(null, artistUserUsedDrawingFields);
     }
-
 
 }

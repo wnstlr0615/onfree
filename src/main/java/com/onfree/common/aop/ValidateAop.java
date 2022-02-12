@@ -24,12 +24,17 @@ public class ValidateAop {
     public void isCreate(){}
 
     @Pointcut("execution(* com.onfree.controller..update*(..))")
-    public void isUpdate(){}
+    public void isUpdatePrefix(){}
+
+    @Pointcut("execution(* com.onfree.controller..*Update(..))")
+    public void isUpdateSuffix(){}
 
     @Pointcut("execution(* com.onfree.controller..*Add(..))")
     public void isAdd(){}
 
-    @Around("isCreate() || isUpdate() || isAdd()")
+
+
+    @Around("isCreate() || isUpdatePrefix() || isAdd() ||  isUpdateSuffix()")
     public Object validatedRequestBody(ProceedingJoinPoint joinPoint) throws Throwable {
         for(Object o : joinPoint.getArgs()){
             if(o instanceof BindingResult){

@@ -28,6 +28,15 @@ public class DrawingField {
     @Column(nullable = false)
     private Boolean top;
 
+    public static DrawingField createDrawingField(String fieldName, String description, boolean top) {
+        return DrawingField.builder()
+                .fieldName(fieldName)
+                .description(description)
+                .disabled(false)
+                .top(top)
+                .build();
+    }
+
     public void modifiedDrawingField(DrawingField drawingField) {
         this.fieldName =drawingField.getFieldName();
         this.description =drawingField.getDescription();

@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto.*;
+
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -92,25 +94,17 @@ public class ArtistUserDrawingFieldService {
     private List<UsedDrawingFieldDto> getUsedDrawingFieldDtoList(List<DrawingField> allDrawingFields, List<Long> artistUserHasDrawingFieldIdList) {
         if(artistUserHasDrawingFieldIdList.isEmpty()){
             return allDrawingFields.stream()
-                    .map(drawingField -> createUsedDrawingFieldDto(drawingField,false))
+                    .map(drawingField -> createUsedDrawingFieldDtoFromEntity(drawingField,false))
                     .collect(Collectors.toList());
         }
 
         return allDrawingFields.stream().map(
                 drawingField -> {
                     if(artistUserHasDrawingFieldIdList.contains(drawingField.getDrawingFieldId())){
-                        return createUsedDrawingFieldDto(drawingField,true);
+                        return createUsedDrawingFieldDtoFromEntity(drawingField,true);
                     }
-                    return createUsedDrawingFieldDto(drawingField,false);
+                    return createUsedDrawingFieldDtoFromEntity(drawingField,false);
                 }
         ).collect(Collectors.toList());
-    }
-
-    private UsedDrawingFieldDto createUsedDrawingFieldDto(DrawingField drawingField, boolean used) {
-        return UsedDrawingFieldDto.builder()
-                .drawingFieldId(drawingField.getDrawingFieldId())
-                .drawingFieldName(drawingField.getFieldName())
-                .used(used)
-                .build();
     }
 }
