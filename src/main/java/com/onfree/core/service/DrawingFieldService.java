@@ -8,6 +8,7 @@ import com.onfree.core.dto.drawingfield.UpdateDrawingFieldDto;
 import com.onfree.core.entity.DrawingField;
 import com.onfree.core.repository.DrawingFieldRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +66,7 @@ public class DrawingFieldService {
     }
     /**그림 분야 추가*/
     @Transactional
+    @CacheEvict(value = "drawingFieldAll", allEntries = true)
     public void createDrawingField(CreateDrawingFieldDto createDrawingFieldDto) {
         final DrawingField drawingField = createDrawingFieldDto.toEntity();
         validDuplicatedDrawinFieldName(drawingField);
