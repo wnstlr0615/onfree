@@ -40,7 +40,7 @@ class ArtistUserServiceTest {
 
     @Test
     @DisplayName("[성공] 회원가입 요청 - 정상적인 요청 성공")
-    public void givenCreateUserRes_whenCreateUser_thenReturnSuccessfulResponse() throws Exception {
+    public void givenCreateUserRes_whenCreateUser_thenReturnSuccessfulResponse() {
         //given
         final CreateArtistUser.Request userReq = givenCreateArtistUserReq();
         when(userRepository.save(any()))
@@ -77,7 +77,7 @@ class ArtistUserServiceTest {
 
     @Test
     @DisplayName("[실패] 회원가입 요청 - 이메일(아이디) 중복으로 인한 회원가입 실패")
-    public void givenDuplicatedUserEmail_whenCreateUser_thenUserEmailDuplicatedError() throws Exception {
+    public void givenDuplicatedUserEmail_whenCreateUser_thenUserEmailDuplicatedError() {
         //given
         when(userRepository.countByEmail(any()))
                 .thenReturn(1);
@@ -125,7 +125,7 @@ class ArtistUserServiceTest {
 
     @Test
     @DisplayName("[성공] 사용자 정보 조회 ")
-    public void givenUserId_whenGetUserInfo_thenUserInfo() throws Exception {
+    public void givenUserId_whenGetUserInfo_thenUserInfo() {
         //given
         final long userId = 1L;
         final CreateArtistUser.Request request = givenCreateArtistUserReq();
@@ -160,7 +160,7 @@ class ArtistUserServiceTest {
 
     @Test
     @DisplayName("[실패] 사용자 정보 조회 - 없는 유저 아이디로 조회")
-    public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserId() throws Exception {
+    public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserId() {
         //given
         final long userId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
@@ -182,7 +182,7 @@ class ArtistUserServiceTest {
     }
     @Test
     @DisplayName("[성공] 사용자 계정 삭제")
-    public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse() throws Exception{
+    public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse(){
         //given
         final long deletedUserId = 1L;
         when(userRepository.findById(deletedUserId))
@@ -206,7 +206,7 @@ class ArtistUserServiceTest {
 
     @Test
     @DisplayName("[실패] 사용자 계정 삭제 - userId가 없는 경우")
-    public void givenWrongDeletedUserId_whenDeletedUser_thenNotFoundUserId() throws Exception{
+    public void givenWrongDeletedUserId_whenDeletedUser_thenNotFoundUserId(){
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
@@ -227,7 +227,7 @@ class ArtistUserServiceTest {
 
     @Test
     @DisplayName("[실패] 사용자 계정 삭제 - 이미 삭제된 계정인 경우")
-    public void givenAlreadyDeletedUserId_whenDeletedUser_thenAlreadyUserDeleted() throws Exception{
+    public void givenAlreadyDeletedUserId_whenDeletedUser_thenAlreadyUserDeleted(){
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
@@ -279,7 +279,7 @@ class ArtistUserServiceTest {
     }
     @Test
     @DisplayName("[성공] 사용자 계정 수정 ")
-    public void givenUpdateArtistUserReq_whenModifiedUser_thenReturnUpdateArtistUserResponse() throws Exception{
+    public void givenUpdateArtistUserReq_whenModifiedUser_thenReturnUpdateArtistUserResponse(){
         //given
         final long userId = 1L;
         final UpdateArtistUser.Request request = givenUpdateArtistUserReq();
@@ -353,7 +353,7 @@ class ArtistUserServiceTest {
     }
     @Test
     @DisplayName("[실패] 사용자 계정 수정 - userId가 존재하지 않는 경우")
-    public void givenWrongUserId_whenModifiedUser_thenNorFoundUserId() throws Exception{
+    public void givenWrongUserId_whenModifiedUser_thenNorFoundUserId(){
         //given
         final long wrongUserId = 1L;
         final UpdateArtistUser.Request request = givenUpdateArtistUserReq();
@@ -373,7 +373,7 @@ class ArtistUserServiceTest {
 
     @Test
     @DisplayName("[성공] 작가유저 영업마크 변경 ")
-    public void givenStatusMarkDto_whenUpdateStatusMark_thenNothing() throws Exception{
+    public void givenStatusMarkDto_whenUpdateStatusMark_thenNothing(){
         //given
         final long givenUserId = 1L;
         final StatusMarkDto givenStatusMarkDto = givenStatusMarkDto(StatusMark.REST);
@@ -399,7 +399,7 @@ class ArtistUserServiceTest {
 
     @Test
     @DisplayName("[실패] 작가유저 영업마크 변경 - 유저 id가 없는 경우")
-    public void givenStatusMarkDto_whenUpdateStatusMarkButNotFoundUser_thenNotFoundUserError() throws Exception{
+    public void givenStatusMarkDto_whenUpdateStatusMarkButNotFoundUser_thenNotFoundUserError(){
         //given
         final long wrongUserId = 1L;
         final StatusMarkDto givenStatusMarkDto = givenStatusMarkDto(StatusMark.REST);

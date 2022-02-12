@@ -34,7 +34,7 @@ class DrawingFieldServiceTest {
 
     @Test
     @DisplayName("[성공] 그림 분야 전체 조회")
-    public void givenNothing_whenGetDrawFieldDtoList_thenDrawingFieldDtoList() throws Exception{
+    public void givenNothing_whenGetDrawFieldDtoList_thenDrawingFieldDtoList(){
         //given
         when(drawingFieldRepository.findAllByOrderByTopDesc())
             .thenReturn(
@@ -74,7 +74,7 @@ class DrawingFieldServiceTest {
 
     @Test
     @DisplayName("[실패] 그림 분야 전체 조회 - 등록된 그림 분야가 없는 경우")
-    public void givenNothing_whenGetEmptyDrawFieldDtoList_thenDrawingFieldEmptyError() throws Exception{
+    public void givenNothing_whenGetEmptyDrawFieldDtoList_thenDrawingFieldEmptyError(){
         //given
         ErrorCode errorCode = DrawingFieldErrorCode.DRAWING_FIELD_EMPTY;
         when(drawingFieldRepository.findAllByOrderByTopDesc())
@@ -96,7 +96,7 @@ class DrawingFieldServiceTest {
 
     @Test
     @DisplayName("[성공] 그림 분야 상세 조회")
-    public void givenDrawingFieldId_whenGetOneDrawingFieldDto_thenDrawingFieldDto() throws Exception{
+    public void givenDrawingFieldId_whenGetOneDrawingFieldDto_thenDrawingFieldDto(){
         //given
         final String fieldName = "캐릭터 디자인";
         when(drawingFieldRepository.findById(anyLong()))
@@ -122,7 +122,7 @@ class DrawingFieldServiceTest {
 
     @Test
     @DisplayName("[실패] 그림 분야 상세 조회- 해당 아이디에 해당하는 데이터가 없는 경우")
-    public void givenWrongDrawingFieldId_whenGetOneDrawingFieldDto_thenNotFoundDrawingFieldError() throws Exception{
+    public void givenWrongDrawingFieldId_whenGetOneDrawingFieldDto_thenNotFoundDrawingFieldError(){
         //given
         ErrorCode errorCode = DrawingFieldErrorCode.NOT_FOUND_DRAWING_FIELD;
         final long wrongDrawingFieldId = 999L;
@@ -146,7 +146,7 @@ class DrawingFieldServiceTest {
 
     @Test
     @DisplayName("[성공] 그림 분야 추가")
-    public void givenCreateDrawingFieldDto_whenCreateDrawingField_thenNothing() throws Exception{
+    public void givenCreateDrawingFieldDto_whenCreateDrawingField_thenNothing(){
         //given
         final String fieldName = "캐릭터 디자인";
         when(drawingFieldRepository.save(any(DrawingField.class)))
@@ -207,7 +207,7 @@ class DrawingFieldServiceTest {
 
     @Test
     @DisplayName("[성공] 그림 분야 수정")
-    public void givenDrawingFieldIdAndUpdateDrawingFieldDto_whenUpdateDrawingField_thenNothing() throws Exception{
+    public void givenDrawingFieldIdAndUpdateDrawingFieldDto_whenUpdateDrawingField_thenNothing(){
         //given
         final String fieldName = "캐릭터 디자인";
         final long drawingFieldId = 1L;
@@ -247,7 +247,7 @@ class DrawingFieldServiceTest {
 
     @Test
     @DisplayName("[실패] 그림 분야 수정 - 해당 아이디가 없는 경우")
-    public void givenWrongDrawingFieldId_whenUpdateDrawingField_thenNotFoundDrawingFieldError() throws Exception{
+    public void givenWrongDrawingFieldId_whenUpdateDrawingField_thenNotFoundDrawingFieldError(){
         //given
         final long wrongDrawingFieldId = 999L;
         final DrawingFieldErrorCode errorCode = DrawingFieldErrorCode.NOT_FOUND_DRAWING_FIELD;
@@ -274,7 +274,7 @@ class DrawingFieldServiceTest {
 
     @Test
     @DisplayName("[성공] 그림 분야 삭제")
-    public void givenDrawingFieldId_whenDeleteDrawingField_thenNothing() throws Exception{
+    public void givenDrawingFieldId_whenDeleteDrawingField_thenNothing(){
         //given
         final String fieldName = "캐릭터 디자인";
         final long drawingFieldId = 1L;
@@ -298,7 +298,7 @@ class DrawingFieldServiceTest {
 
     @Test
     @DisplayName("[실패] 그림 분야 삭제 - 해당 아이디를 가진 데이터가 없는 경우")
-    public void givenDrawingFieldId_whenDeleteDrawingField_thenNotFoundDrawingFieldError() throws Exception{
+    public void givenDrawingFieldId_whenDeleteDrawingField_thenNotFoundDrawingFieldError(){
         //given
         final long wrongDrawingFieldId = 999L;
         final DrawingFieldErrorCode errorCode = DrawingFieldErrorCode.NOT_FOUND_DRAWING_FIELD;

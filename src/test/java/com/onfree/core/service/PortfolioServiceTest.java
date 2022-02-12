@@ -46,10 +46,9 @@ class PortfolioServiceTest {
 
     @Test
     @DisplayName("[성공] 포트폴리오 추가")
-    public void givenUserIdAndCreatePortfolioDto_whenAddPortfolio_thenNotting() throws Exception{
+    public void givenUserIdAndCreatePortfolioDto_whenAddPortfolio_thenNotting(){
         //given
         final long givenUserId = 1L;
-        final boolean representative = false;
         final boolean temporary = false;
 
         when(userRepository.findById(anyLong()))
@@ -155,12 +154,12 @@ class PortfolioServiceTest {
 
     @Test
     @DisplayName("[성공] 포트폴리오 상세 조회 - 임시 저장 글이 아닌 경우")
-    public void givenPortfolioId_whenFindPortfolio_thenPortfolioDetailDto() throws Exception{
+    public void givenPortfolioId_whenFindPortfolio_thenPortfolioDetailDto(){
         //given
 
         final long givenPortfolioId = 1L;
 
-        final Portfolio portfolio = getPortfolio(givenPortfolioId, false);
+        final Portfolio portfolio = getPortfolio(false);
         final Long beforeView = portfolio.getView();
 
         when(portfolioRepository.findByPortfolioIdAndTemporaryAndDeletedIsFalse(anyLong(), eq(false)))
@@ -185,9 +184,9 @@ class PortfolioServiceTest {
 
     }
 
-    private Portfolio getPortfolio(long portfolioId, boolean temporary) {
+    private Portfolio getPortfolio(boolean temporary) {
         return Portfolio.builder()
-                .portfolioId(portfolioId)
+                .portfolioId((long) 1)
                 .representative(false)
                 .artistUser(getArtistUser())
                 .temporary(temporary)
@@ -202,10 +201,10 @@ class PortfolioServiceTest {
 
     @Test
     @DisplayName("[성공] 포트폴리오 상세 조회 - 임시 저장 글인 경우")
-    public void givenTemporaryPortfolioId_whenFindPortfolio_thenPortfolioDetailDto() throws Exception{
+    public void givenTemporaryPortfolioId_whenFindPortfolio_thenPortfolioDetailDto(){
         //given
         final long givenTempPortfolioId = 1L;
-        final Portfolio tempPortfolio = getPortfolio(givenTempPortfolioId, true);
+        final Portfolio tempPortfolio = getPortfolio(true);
         final Long beforeView = tempPortfolio.getView();
 
         when(portfolioRepository.findByPortfolioIdAndTemporaryAndDeletedIsFalse(anyLong(), eq(true)))
@@ -230,7 +229,7 @@ class PortfolioServiceTest {
 
     @Test
     @DisplayName("[실패] 포트폴리오 상세 조회 - 포트폴리오가 없는 경우")
-    public void givenNotFoundPortfolioId_whenFindPortfolio_thenNotfoundPortfolioError() throws Exception{
+    public void givenNotFoundPortfolioId_whenFindPortfolio_thenNotfoundPortfolioError(){
         //given
         final long givenTempPortfolioId = 1L;
         final PortfolioErrorCode errorCode = PortfolioErrorCode.NOT_FOUND_PORTFOLIO;
@@ -253,7 +252,7 @@ class PortfolioServiceTest {
 
     @Test
     @DisplayName("[성공] 작가 포트폴리오 조회")
-    public void givenUserIdAndTemporary_whenFindAllPortfolioByUserIdAndTemporary_thenPortfolioSimpleDtos() throws Exception{
+    public void givenUserIdAndTemporary_whenFindAllPortfolioByUserIdAndTemporary_thenPortfolioSimpleDtos(){
         //given
         final long givenUserId = 1L;
         final long portfolioId = 1L;
@@ -292,7 +291,7 @@ class PortfolioServiceTest {
 
     @Test
     @DisplayName("[성공] 작가 임시 저장 포트폴리오 조회")
-    public void givenUserIdAndTemporaryIsTrue_whenFindAllPortfolioByUserIdAndTemporary_thenPortfolioSimpleDtos() throws Exception{
+    public void givenUserIdAndTemporaryIsTrue_whenFindAllPortfolioByUserIdAndTemporary_thenPortfolioSimpleDtos(){
         //given
         final long givenUserId = 1L;
         final long portfolioId = 1L;
@@ -331,15 +330,15 @@ class PortfolioServiceTest {
 
     @Test
     @DisplayName("[성공] 포트폴리오 삭제하기")
-    public void givenPortfolioId_whenPortfolioRemove_thenSuccess() throws Exception{
+    public void givenPortfolioId_whenPortfolioRemove_thenSuccess(){
         //given
         final long portfolioId = 1L;
         Long userId = 1L;
-        final Portfolio portfolio = getPortfolio(portfolioId, true);
+        final Portfolio portfolio = getPortfolio(true);
         final boolean beforeDeleted = portfolio.isDeleted();
         when(portfolioRepository.findById(anyLong()))
                 .thenReturn(
-                        Optional.ofNullable(
+                        Optional.of(
                                 portfolio
                         )
                 );
@@ -357,7 +356,7 @@ class PortfolioServiceTest {
 
     @Test
     @DisplayName("[실패] 포트폴리오 삭제하기 - 중복으로 삭제요청을 보낸 경우")
-    public void givenPortfolioId_whenDeplicatedPortfolioRemove_thenAlreadyDeletedPortfolioError() throws Exception{
+    public void givenPortfolioId_whenDeplicatedPortfolioRemove_thenAlreadyDeletedPortfolioError(){
         //given
         final long portfolioId = 1L;
         Long userId = 1L;
@@ -383,11 +382,11 @@ class PortfolioServiceTest {
 
     @Test
     @DisplayName("[성공] 포트폴리오 대표 설정")
-    public void givenPortfolioId_whenRepresentPortfolio_thenSuccess() throws Exception{
+    public void givenPortfolioId_whenRepresentPortfolio_thenSuccess(){
         //given
         final long portfolioId = 1L;
         Long userId = 1L;
-        final Portfolio portfolio = getPortfolio(portfolioId, false);
+        final Portfolio portfolio = getPortfolio(false);
         final boolean beforeRepresentative = portfolio.isRepresentative();
         final List<Portfolio> portfoliosAnyOneRepresentative = getPortfoliosAnyOneRepresentative();
         final boolean beforeHasRepresentative = portfoliosAnyOneRepresentative.stream().anyMatch(Portfolio::isRepresentative);
@@ -433,7 +432,7 @@ class PortfolioServiceTest {
 
     @Test
     @DisplayName("[실패] 포트폴리오 대표 설정 - 해당 포트폴리오가 임시 저장 포트폴리오 인 경우")
-    public void givenTempPortfolioId_whenRepresentPortfolio_thenPortfolioError() throws Exception{
+    public void givenTempPortfolioId_whenRepresentPortfolio_thenPortfolioError(){
         //given
         final PortfolioErrorCode errorCode = PortfolioErrorCode.NOT_ALLOW_REPRESENTATIVE_TEMP_PORTFOLIO;
 
@@ -442,7 +441,7 @@ class PortfolioServiceTest {
         when(portfolioRepository.findById(anyLong()))
             .thenReturn(
                     Optional.of(
-                            getPortfolio(portfolioId, true)
+                            getPortfolio(true)
                     )
             );
         //when
@@ -461,7 +460,7 @@ class PortfolioServiceTest {
 
     @Test
     @DisplayName("[실패] 포트폴리오 대표 설정 - 해당 포트폴리오가 이미 대표 포트폴리오로 지정된 경우")
-    public void givenPortfolioId_whenDuplicatedRepresentPortfolio_thenPortfolioError() throws Exception{
+    public void givenPortfolioId_whenDuplicatedRepresentPortfolio_thenPortfolioError(){
         //given
         final PortfolioErrorCode errorCode = PortfolioErrorCode.ALREADY_REGISTER_REPRESENTATIVE_PORTFOLIO;
 

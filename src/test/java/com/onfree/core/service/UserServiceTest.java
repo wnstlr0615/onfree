@@ -32,7 +32,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("[성공] 사용자 알림 설정 ")
-    public void givenUserIdAndUpdateUserNotificationDto_whenUpdateUserNotification_thenUpdateUser() throws Exception{
+    public void givenUserIdAndUpdateUserNotificationDto_whenUpdateUserNotification_thenUpdateUser(){
         //given
         final long givenUserId = 1L;
         final NormalUser givenUser = getUser();
@@ -110,7 +110,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("[실패] 사용자 알림 설정 - 사용자가 없는 경우")
-    public void givenWrongUserId_whenUpdateUserNotification_thenNotFoundUserIdError() throws Exception{
+    public void givenWrongUserId_whenUpdateUserNotification_thenNotFoundUserIdError(){
         //given
         final long givenUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;

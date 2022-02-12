@@ -37,7 +37,7 @@ class NormalUserServiceTest {
 
     @Test
     @DisplayName("[성공] 회원가입 요청 - 정상적인 요청 성공")
-    public void givenCreateUserRes_whenCreateUser_thenReturnSuccessfulResponse() throws Exception {
+    public void givenCreateUserRes_whenCreateUser_thenReturnSuccessfulResponse() {
         //given
         final CreateNormalUser.Request userReq = givenCreateNormalUserReq();
         when(userRepository.save(any()))
@@ -72,7 +72,7 @@ class NormalUserServiceTest {
 
     @Test
     @DisplayName("[실패] 회원가입 요청 - 이메일(아이디) 중복으로 인한 회원가입 실패")
-    public void givenDuplicatedUserEmail_whenCreateUser_thenUserEmailDuplicatedError() throws Exception {
+    public void givenDuplicatedUserEmail_whenCreateUser_thenUserEmailDuplicatedError() {
         //given
         when(userRepository.countByEmail(any()))
                 .thenReturn(1);
@@ -119,7 +119,7 @@ class NormalUserServiceTest {
 
     @Test
     @DisplayName("[성공] 사용자 정보 조회 ")
-    public void givenUserId_whenGetUserInfo_thenUserInfo() throws Exception {
+    public void givenUserId_whenGetUserInfo_thenUserInfo() {
         //given
         final long userId = 1L;
         final CreateNormalUser.Request request = givenCreateNormalUserReq();
@@ -152,7 +152,7 @@ class NormalUserServiceTest {
 
     @Test
     @DisplayName("[실패] 사용자 정보 조회 - 없는 유저 아이디로 조회")
-    public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserId() throws Exception {
+    public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserId() {
         //given
         final long userId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
@@ -174,7 +174,7 @@ class NormalUserServiceTest {
     }
     @Test
     @DisplayName("[성공] 사용자 계정 삭제")
-    public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse() throws Exception{
+    public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse(){
         //given
         final long deletedUserId = 1L;
         when(userRepository.findById(deletedUserId))
@@ -198,7 +198,7 @@ class NormalUserServiceTest {
 
     @Test
     @DisplayName("[실패] 사용자 계정 삭제 - userId가 없는 경우")
-    public void givenWrongDeletedUserId_whenDeletedUser_thenNotFoundUserId() throws Exception{
+    public void givenWrongDeletedUserId_whenDeletedUser_thenNotFoundUserId(){
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
@@ -219,7 +219,7 @@ class NormalUserServiceTest {
 
     @Test
     @DisplayName("[실패] 사용자 계정 삭제 - 이미 삭제된 계정인 경우")
-    public void givenAlreadyDeletedUserId_whenDeletedUser_thenAlreadyUserDeleted() throws Exception{
+    public void givenAlreadyDeletedUserId_whenDeletedUser_thenAlreadyUserDeleted(){
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
@@ -270,7 +270,7 @@ class NormalUserServiceTest {
     }
     @Test
     @DisplayName("[성공] 사용자 계정 수정 ")
-    public void givenUpdateNormalUserReq_whenModifiedUser_thenReturnUpdateNormalUserResponse() throws Exception{
+    public void givenUpdateNormalUserReq_whenModifiedUser_thenReturnUpdateNormalUserResponse(){
         //given
         final long userId = 1L;
         final UpdateNormalUser.Request request = givenUpdateNormalUserReq();
@@ -341,7 +341,7 @@ class NormalUserServiceTest {
     }
     @Test
     @DisplayName("[실패] 사용자 계정 수정 - userId가 존재하지 않는 경우")
-    public void givenWrongUserId_whenModifiedUser_thenNorFoundUserId() throws Exception{
+    public void givenWrongUserId_whenModifiedUser_thenNorFoundUserId(){
         //given
         final long wrongUserId = 1L;
         final UpdateNormalUser.Request request = givenUpdateNormalUserReq();

@@ -42,7 +42,7 @@ class ArtistUserDrawingFieldServiceTest {
 
     @Test
     @DisplayName("[성공] 그림분야 수정")
-    public void givenUpdateDrawingFields_whenUpdateDrawingFields_thenNothing() throws Exception{
+    public void givenUpdateDrawingFields_whenUpdateDrawingFields_thenNothing(){
         //given
         final long givenUserId = 1L;
         final UpdateDrawingFieldsDto updateDrawingFieldsDto = givenUpdateDrawingFieldsDto(List.of(1L, 2L, 3L));
@@ -132,7 +132,7 @@ class ArtistUserDrawingFieldServiceTest {
 
     @Test
     @DisplayName("[실패] 그림분야 수정 - 등록 되지 않은 그림분야가 포함된 경우")
-    public void givenWrongUpdateDrawingFields_whenUpdateDrawingFields_thenWrongDrawingFieldError() throws Exception{
+    public void givenWrongUpdateDrawingFields_whenUpdateDrawingFields_thenWrongDrawingFieldError(){
         //given
         final long givenUserId = 1L;
         final List<Long> notRegisterDrawingFieldId = List.of(1L, 99L, 100L);
@@ -169,7 +169,7 @@ class ArtistUserDrawingFieldServiceTest {
 
     @Test
     @DisplayName("[성공] 작가유저 그림분야 가져오기 - 작가 유저에 그림 분야가 있는 경우")
-    public void givenUserId_whenGetAllArtistUserUsedDrawingFields_thenUsedDrawingFieldDtoList() throws Exception{
+    public void givenUserId_whenGetAllArtistUserUsedDrawingFields_thenUsedDrawingFieldDtoList(){
         //given
         final long givenUserId = 1L;
         when(userRepository.findById(anyLong()))
@@ -217,7 +217,7 @@ class ArtistUserDrawingFieldServiceTest {
 
     @Test
     @DisplayName("[성공] 작가유저 그림분야 가져오기 - 작가유저 그림분야가 비어 있는 경우")
-    public void givenUserId_whenGetAllArtistUserUsedDrawingFieldsButEmptyHasDrawingField_thenUsedDrawingFieldDtoList() throws Exception{
+    public void givenUserId_whenGetAllArtistUserUsedDrawingFieldsButEmptyHasDrawingField_thenUsedDrawingFieldDtoList(){
         //given
         final long givenUserId = 1L;
         when(userRepository.findById(anyLong()))
