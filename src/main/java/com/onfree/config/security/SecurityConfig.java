@@ -3,7 +3,7 @@ package com.onfree.config.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.config.security.filter.JwtCheckFilter;
 import com.onfree.config.security.filter.JwtLoginFilter;
-import com.onfree.config.security.handler.CustomAccessDeniedException;
+import com.onfree.config.security.handler.CustomAccessDeniedHandler;
 import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
 import com.onfree.config.security.handler.JwtLoginAuthenticationFailHandler;
 import com.onfree.core.service.LoginService;
@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -108,7 +107,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     private AccessDeniedHandler accessDeniedException() {
-        return new CustomAccessDeniedException();
+        return new CustomAccessDeniedHandler();
     }
 
     @Override
