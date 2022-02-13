@@ -1,9 +1,9 @@
 package com.onfree.controller;
 
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.normal.CreateNormalUser;
-import com.onfree.core.dto.user.normal.NormalUserDetail;
-import com.onfree.core.dto.user.normal.UpdateNormalUser;
+import com.onfree.core.dto.user.normal.CreateNormalUserDto;
+import com.onfree.core.dto.user.normal.NormalUserDetailDto;
+import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
 import com.onfree.core.service.NormalUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,8 +30,8 @@ public class NormalUserController {
     @PreAuthorize("!isAuthenticated()")
     @ApiOperation(value = "일반 유저 회원 가입 요청" , notes = "일반 유저 회원 가입 요청")
     @PostMapping("")
-    public CreateNormalUser.Response createNormalUser(
-            @RequestBody @Valid  CreateNormalUser.Request request,
+    public CreateNormalUserDto.Response createNormalUser(
+            @RequestBody @Valid  CreateNormalUserDto.Request request,
             BindingResult errors
     ){
         return normalUserService.createdNormalUser(request);
@@ -39,7 +39,7 @@ public class NormalUserController {
     @PreAuthorize(value = "hasRole('NORMAL') and @checker.isSelf(#userId)")
     @ApiOperation(value = "일반 유저 사용자 정보 조회", notes = "일반 유저 사용자 정보 조회")
     @GetMapping("/{userId}")
-    public NormalUserDetail getUserInfo(
+    public NormalUserDetailDto getUserInfo(
             @ApiParam(value = "사용자 userId ") @PathVariable(name = "userId") Long userId
     ){
         return normalUserService.getUserDetail(userId);
@@ -57,9 +57,9 @@ public class NormalUserController {
     @PreAuthorize(value = "hasRole('NORMAL') and @checker.isSelf(#userId)")
     @ApiOperation(value = "일반 유저 정보수정")
     @PutMapping("/{userId}")
-    public UpdateNormalUser.Response updateUserInfo(
+    public UpdateNormalUserDto.Response updateUserInfo(
             @ApiParam(value = "업데이트 할 사용자 ID") @PathVariable("userId") Long userId,
-            @RequestBody @Valid UpdateNormalUser.Request request,
+            @RequestBody @Valid UpdateNormalUserDto.Request request,
             BindingResult errors
     ){
         return normalUserService.modifyedUser(userId, request);

@@ -1,4 +1,4 @@
-package com.onfree.core.dto.user;
+package com.onfree.core.dto.user.normal;
 
 import com.onfree.core.entity.user.NormalUser;
 import io.swagger.annotations.ApiModelProperty;
@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class NormalUserDetail {
+public class NormalUserDetailDto {
     @ApiModelProperty(value = "사용자 이름", example = "김모씨")
     private final String name;
 
@@ -51,8 +51,8 @@ public class NormalUserDetail {
     @ApiModelProperty(value = "프로필 URL", example = "http://onfree.io/images/546456498")
     private final String profileImage;
 
-    public static NormalUserDetail fromEntity(NormalUser entity) {
-        return NormalUserDetail.builder()
+    public static NormalUserDetailDto fromEntity(NormalUser entity) {
+        return NormalUserDetailDto.builder()
                 .adultCertification(entity.getAdultCertification())
                 .email(entity.getEmail())
                 .gender(entity.getGender().getName())

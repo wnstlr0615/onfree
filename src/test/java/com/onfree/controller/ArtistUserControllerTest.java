@@ -4,9 +4,9 @@ import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.WebMvcBaseTest;
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.artist.ArtistUserDetail;
-import com.onfree.core.dto.user.artist.CreateArtistUser;
-import com.onfree.core.dto.user.artist.UpdateArtistUser;
+import com.onfree.core.dto.user.artist.ArtistUserDetailDto;
+import com.onfree.core.dto.user.artist.CreateArtistUserDto;
+import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
 import com.onfree.core.dto.user.artist.status.StatusMarkDto;
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.entity.user.BankName;
@@ -49,8 +49,8 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
     @WithAnonymousUser
     public void givenCreateUserReq_whenCreateArtistUser_thenCreateUserRes() throws Exception{
         //given
-        CreateArtistUser.Request request = givenCreateArtistUserReq();
-        CreateArtistUser.Response response = givenCreateArtistUserRes(request);
+        CreateArtistUserDto.Request request = givenCreateArtistUserReq();
+        CreateArtistUserDto.Response response = givenCreateArtistUserRes(request);
         when(artistUserService.createArtistUser(any()))
                 .thenReturn(response);
 
@@ -84,8 +84,8 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
         ;
         verify(artistUserService, times(1)).createArtistUser(any());
     }
-    private CreateArtistUser.Request givenCreateArtistUserReq() {
-        return CreateArtistUser.Request
+    private CreateArtistUserDto.Request givenCreateArtistUserReq() {
+        return CreateArtistUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("jun@naver.com")
@@ -105,8 +105,8 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
                 .portfolioUrl("http://onfree.io/portfolioUrl/123456789")
                 .build();
     }
-    private CreateArtistUser.Response givenCreateArtistUserRes(CreateArtistUser.Request request){
-        return CreateArtistUser.Response
+    private CreateArtistUserDto.Response givenCreateArtistUserRes(CreateArtistUserDto.Request request){
+        return CreateArtistUserDto.Response
                 .builder()
                 .adultCertification(request.getAdultCertification())
                 .email(request.getEmail())
@@ -132,7 +132,7 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
     @Disabled("ValidateAOP 사용으로 단위테스트에는 테스트가 적용 되지 않음")
     public void givenWrongCreateUserReq_whenCreateArtistUser_thenParameterValidError() throws Exception{
         //given
-        CreateArtistUser.Request request = givenWrongCreateArtistUserReq();
+        CreateArtistUserDto.Request request = givenWrongCreateArtistUserReq();
         ErrorCode errorCode=GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when //then
@@ -152,8 +152,8 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
         verify(artistUserService, never()).createArtistUser(any());
     }
 
-    private CreateArtistUser.Request givenWrongCreateArtistUserReq() {
-        return CreateArtistUser.Request
+    private CreateArtistUserDto.Request givenWrongCreateArtistUserReq() {
+        return CreateArtistUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("")
@@ -178,7 +178,7 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
     @DisplayName("[실패][POST] 회원가입 요청 - 이메일 중복으로 인한 회원가입 실패")
     public void givenDuplicatedEmail_whenCreateArtistUser_thenDuplicatedEmailError() throws Exception{
         //given
-        CreateArtistUser.Request request = givenCreateArtistUserReq();
+        CreateArtistUserDto.Request request = givenCreateArtistUserReq();
         UserErrorCode errorCode = UserErrorCode.USER_EMAIL_DUPLICATED;
         when(artistUserService.createArtistUser(any()))
                 .thenThrow( new UserException(errorCode));
@@ -205,7 +205,7 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
     public void givenUserId_whenGetUserInfo_thenReturnUserInfo() throws Exception {
         //given
         final Long userId = 1L;
-        final CreateArtistUser.Request request = givenCreateArtistUserReq();
+        final CreateArtistUserDto.Request request = givenCreateArtistUserReq();
         when(checker.isSelf(anyLong()))
                 .thenReturn(true);
         when(artistUserService.getUserDetail(userId))
@@ -241,14 +241,14 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
     }
 
 
-    public ArtistUserDetail getArtistUserInfo(CreateArtistUser.Request request){
-            return ArtistUserDetail
+    public ArtistUserDetailDto getArtistUserInfo(CreateArtistUserDto.Request request){
+            return ArtistUserDetailDto
                     .fromEntity(
                             getArtistUserEntityFromCreateArtistUserRequest(request)
                     );
     }
 
-    public ArtistUser getArtistUserEntityFromCreateArtistUserRequest(CreateArtistUser.Request request){
+    public ArtistUser getArtistUserEntityFromCreateArtistUserRequest(CreateArtistUserDto.Request request){
             return request.toEntity();
     }
 
@@ -417,8 +417,8 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
         verify(artistUserService, times(1)).modifiedUser(eq(userId), any());
     }
 
-    private UpdateArtistUser.Response getUpdateArtistUserRes() {
-        return UpdateArtistUser.Response.builder()
+    private UpdateArtistUserDto.Response getUpdateArtistUserRes() {
+        return UpdateArtistUserDto.Response.builder()
                 .nickname("온프리프리")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-0000-0000")
@@ -429,8 +429,8 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
                 .build();
     }
 
-    private UpdateArtistUser.Request givenUpdateArtistUserReq() {
-        return UpdateArtistUser.Request.builder()
+    private UpdateArtistUserDto.Request givenUpdateArtistUserReq() {
+        return UpdateArtistUserDto.Request.builder()
                 .nickname("온프리프리")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-0000-0000")
@@ -491,8 +491,8 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
         verify(artistUserService, never()).modifiedUser(eq(userId), any());
     }
 
-    private UpdateArtistUser.Request givenWrongUpdateArtistUserReq() {
-        return UpdateArtistUser.Request.builder()
+    private UpdateArtistUserDto.Request givenWrongUpdateArtistUserReq() {
+        return UpdateArtistUserDto.Request.builder()
                 .nickname("온프리프리")
                 .accountNumber("010-0000-0000")
                 .newsAgency("SKT")

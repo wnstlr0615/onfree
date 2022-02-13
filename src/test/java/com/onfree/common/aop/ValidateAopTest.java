@@ -7,16 +7,15 @@ import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.error.code.ErrorCode;
 import com.onfree.common.error.code.GlobalErrorCode;
-import com.onfree.common.error.exception.GlobalException;
-import com.onfree.core.dto.UpdateUserNotificationDto;
+import com.onfree.core.dto.user.UpdateUserNotificationDto;
 import com.onfree.core.dto.notice.CreateNoticeDto;
 import com.onfree.core.dto.notice.UpdateNoticeDto;
 import com.onfree.core.dto.question.CreateQuestionDto;
 import com.onfree.core.dto.question.UpdateQuestionDto;
-import com.onfree.core.dto.user.artist.CreateArtistUser;
-import com.onfree.core.dto.user.artist.UpdateArtistUser;
-import com.onfree.core.dto.user.normal.CreateNormalUser;
-import com.onfree.core.dto.user.normal.UpdateNormalUser;
+import com.onfree.core.dto.user.artist.CreateArtistUserDto;
+import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
+import com.onfree.core.dto.user.normal.CreateNormalUserDto;
+import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.core.service.LoginService;
@@ -40,7 +39,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import static com.onfree.common.constant.SecurityConstant.BEARER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -164,7 +162,7 @@ class ValidateAopTest {
     @DisplayName("[실패][POST] 회원가입 요청 - 잘못된 데이터 입력")
     public void givenCreateUserReq_whenCreateNormalUserWithLoginUser_thenCreateUserRes() throws Exception{
         //given
-        CreateNormalUser.Request request = givenWrongCreateNormalUserReq();
+        CreateNormalUserDto.Request request = givenWrongCreateNormalUserReq();
         final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
         mvc.perform(post("/api/users/normal")
@@ -181,8 +179,8 @@ class ValidateAopTest {
                 .andExpect(jsonPath("$.errors[0]").isNotEmpty())
         ;
     }
-    private CreateNormalUser.Request givenWrongCreateNormalUserReq() {
-        return CreateNormalUser.Request
+    private CreateNormalUserDto.Request givenWrongCreateNormalUserReq() {
+        return CreateNormalUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("jun@naver.com")
@@ -227,8 +225,8 @@ class ValidateAopTest {
         ;
     }
 
-    private UpdateNormalUser.Request givenWrongUpdateNormalUserReq() {
-        return UpdateNormalUser.Request.builder()
+    private UpdateNormalUserDto.Request givenWrongUpdateNormalUserReq() {
+        return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")
                 .accountNumber("010-0000-0000")
                 .newsAgency("SKT")
@@ -244,7 +242,7 @@ class ValidateAopTest {
     @DisplayName("[실패][POST] 회원가입 요청 -  잘못된 데이터 입력")
     public void givenWrongCreateUserReq_whenCreateArtistUser_thenParameterValidError() throws Exception{
         //given
-        CreateArtistUser.Request request = givenWrongCreateArtistUserReq();
+        CreateArtistUserDto.Request request = givenWrongCreateArtistUserReq();
         ErrorCode errorCode=GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when //then
@@ -264,8 +262,8 @@ class ValidateAopTest {
         ;
     }
 
-    private CreateArtistUser.Request givenWrongCreateArtistUserReq() {
-        return CreateArtistUser.Request
+    private CreateArtistUserDto.Request givenWrongCreateArtistUserReq() {
+        return CreateArtistUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("")
@@ -309,8 +307,8 @@ class ValidateAopTest {
         ;
     }
 
-    private UpdateArtistUser.Request givenWrongUpdateArtistUserReq() {
-        return UpdateArtistUser.Request.builder()
+    private UpdateArtistUserDto.Request givenWrongUpdateArtistUserReq() {
+        return UpdateArtistUserDto.Request.builder()
                 .nickname("온프리프리")
                 .accountNumber("010-0000-0000")
                 .newsAgency("SKT")

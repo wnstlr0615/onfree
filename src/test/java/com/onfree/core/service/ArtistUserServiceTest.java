@@ -2,9 +2,9 @@ package com.onfree.core.service;
 
 import com.onfree.core.dto.user.artist.status.StatusMarkDto;
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.artist.ArtistUserDetail;
-import com.onfree.core.dto.user.artist.CreateArtistUser;
-import com.onfree.core.dto.user.artist.UpdateArtistUser;
+import com.onfree.core.dto.user.artist.ArtistUserDetailDto;
+import com.onfree.core.dto.user.artist.CreateArtistUserDto;
+import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.common.error.code.UserErrorCode;
@@ -42,7 +42,7 @@ class ArtistUserServiceTest {
     @DisplayName("[성공] 회원가입 요청 - 정상적인 요청 성공")
     public void givenCreateUserRes_whenCreateUser_thenReturnSuccessfulResponse() {
         //given
-        final CreateArtistUser.Request userReq = givenCreateArtistUserReq();
+        final CreateArtistUserDto.Request userReq = givenCreateArtistUserReq();
         when(userRepository.save(any()))
                 .thenReturn(
                         getArtistUserEntity(userReq)
@@ -50,7 +50,7 @@ class ArtistUserServiceTest {
         when(userRepository.countByEmail(any()))
                 .thenReturn(0);
         //when
-        CreateArtistUser.Response response = artistUserService.createArtistUser(
+        CreateArtistUserDto.Response response = artistUserService.createArtistUser(
                 userReq
         );
         //then
@@ -97,8 +97,8 @@ class ArtistUserServiceTest {
 
     }
 
-    private CreateArtistUser.Request givenCreateArtistUserReq() {
-        return CreateArtistUser.Request
+    private CreateArtistUserDto.Request givenCreateArtistUserReq() {
+        return CreateArtistUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("jun@naver.com")
@@ -118,7 +118,7 @@ class ArtistUserServiceTest {
                 .portfolioUrl("http://onfree.io/portfolioUrl/123456789")
                 .build();
     }
-    private ArtistUser getArtistUserEntity(CreateArtistUser.Request request){
+    private ArtistUser getArtistUserEntity(CreateArtistUserDto.Request request){
         return  getArtistUserEntity(request, 1L);
     }
 
@@ -128,7 +128,7 @@ class ArtistUserServiceTest {
     public void givenUserId_whenGetUserInfo_thenUserInfo() {
         //given
         final long userId = 1L;
-        final CreateArtistUser.Request request = givenCreateArtistUserReq();
+        final CreateArtistUserDto.Request request = givenCreateArtistUserReq();
         when(userRepository.findById(any()))
                 .thenReturn(
                         Optional.of(
@@ -136,7 +136,7 @@ class ArtistUserServiceTest {
                         )
                 );
         //when
-        final ArtistUserDetail userInfo = artistUserService.getUserDetail(userId);
+        final ArtistUserDetailDto userInfo = artistUserService.getUserDetail(userId);
         //then
         verify(userRepository, times(1)).findById(any());
         assertThat(userInfo)
@@ -200,7 +200,7 @@ class ArtistUserServiceTest {
         verify(userRepository, times(1)).findById(eq(deletedUserId));
     }
 
-    private ArtistUser getArtistUserEntity(CreateArtistUser.Request request, Long userId) {
+    private ArtistUser getArtistUserEntity(CreateArtistUserDto.Request request, Long userId) {
         return getArtistUserEntity(request, userId, false);
     }
 
@@ -250,7 +250,7 @@ class ArtistUserServiceTest {
                 .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
         verify(userRepository, times(1)).findById(eq(deletedUserId));
     }
-    private ArtistUser getArtistUserEntity(CreateArtistUser.Request request, Long userId, boolean deleted){
+    private ArtistUser getArtistUserEntity(CreateArtistUserDto.Request request, Long userId, boolean deleted){
         final BankInfo bankInfo = getBankInfo(request.getBankName(), request.getAccountNumber());
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(request.getAdvertisementAgree())
@@ -282,13 +282,13 @@ class ArtistUserServiceTest {
     public void givenUpdateArtistUserReq_whenModifiedUser_thenReturnUpdateArtistUserResponse(){
         //given
         final long userId = 1L;
-        final UpdateArtistUser.Request request = givenUpdateArtistUserReq();
+        final UpdateArtistUserDto.Request request = givenUpdateArtistUserReq();
         when(userRepository.findById(any()))
                 .thenReturn(
                         Optional.of(getArtistUserEntity(userId))
                 );
         //when
-        final UpdateArtistUser.Response response = artistUserService.modifiedUser(userId, request);
+        final UpdateArtistUserDto.Response response = artistUserService.modifiedUser(userId, request);
         //then
         assertThat(response)
             .hasFieldOrPropertyWithValue("nickname",request.getNickname())
@@ -332,8 +332,8 @@ class ArtistUserServiceTest {
                 .personalInfo(true)
                 .build();
     }
-    private UpdateArtistUser.Request givenUpdateArtistUserReq() {
-        return UpdateArtistUser.Request.builder()
+    private UpdateArtistUserDto.Request givenUpdateArtistUserReq() {
+        return UpdateArtistUserDto.Request.builder()
                 .nickname("온프리프리")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-0000-0000")
@@ -356,7 +356,7 @@ class ArtistUserServiceTest {
     public void givenWrongUserId_whenModifiedUser_thenNorFoundUserId(){
         //given
         final long wrongUserId = 1L;
-        final UpdateArtistUser.Request request = givenUpdateArtistUserReq();
+        final UpdateArtistUserDto.Request request = givenUpdateArtistUserReq();
         when(userRepository.findById(any()))
                 .thenReturn(
                         Optional.empty()

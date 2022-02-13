@@ -2,12 +2,11 @@ package com.onfree.controller;
 
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.exception.GlobalException;
-import com.onfree.common.error.response.FieldErrorDto;
 import com.onfree.common.model.SimpleResponse;
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.artist.ArtistUserDetail;
-import com.onfree.core.dto.user.artist.CreateArtistUser;
-import com.onfree.core.dto.user.artist.UpdateArtistUser;
+import com.onfree.core.dto.user.artist.ArtistUserDetailDto;
+import com.onfree.core.dto.user.artist.CreateArtistUserDto;
+import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
 import com.onfree.core.dto.user.artist.status.StatusMarkDto;
 import com.onfree.core.service.ArtistUserService;
 import com.onfree.validator.StatusMarkValidator;
@@ -23,8 +22,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Api(tags = "작가유저 기본기능 제공 컨트롤러",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
@@ -39,8 +36,8 @@ public class ArtistUserController {
     @PreAuthorize(value = "!isAuthenticated()")
     @ApiOperation(value = "작가 유저 회원 가입 요청" , notes = "작가 유저 회원 가입 요청")
     @PostMapping("")
-    public CreateArtistUser.Response createNormalUser(
-            @RequestBody @Valid  CreateArtistUser.Request request,
+    public CreateArtistUserDto.Response createNormalUser(
+            @RequestBody @Valid  CreateArtistUserDto.Request request,
             BindingResult errors){
         return artistUserService.createArtistUser(request);
     }
@@ -48,7 +45,7 @@ public class ArtistUserController {
     @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
     @ApiOperation(value = "작가 유저 사용자 정보 조회", notes = "작가 유저 사용자 정보 조회")
     @GetMapping("/{userId}")
-    public ArtistUserDetail getUserInfo(
+    public ArtistUserDetailDto getUserInfo(
             @ApiParam(value = "사용자 userId ") @PathVariable(name = "userId") Long userId
     ){
         return artistUserService.getUserDetail(userId);
@@ -66,9 +63,9 @@ public class ArtistUserController {
     @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
     @ApiOperation(value = "작가 유저 정보수정")
     @PutMapping("/{userId}")
-    public UpdateArtistUser.Response updateUserInfo(
+    public UpdateArtistUserDto.Response updateUserInfo(
             @ApiParam(value = "업데이트 할 사용자 ID") @PathVariable("userId") Long userId,
-            @RequestBody @Valid UpdateArtistUser.Request request,
+            @RequestBody @Valid UpdateArtistUserDto.Request request,
             BindingResult errors
     ){
         return artistUserService.modifiedUser(userId, request);

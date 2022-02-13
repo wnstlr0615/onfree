@@ -1,13 +1,13 @@
-package com.onfree.core.dto.user.normal;
+package com.onfree.core.dto.user.artist;
 
-import com.onfree.core.entity.user.NormalUser;
+import com.onfree.core.entity.user.ArtistUser;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class NormalUserDetail {
+public class ArtistUserDetailDto {
     @ApiModelProperty(value = "사용자 이름", example = "김모씨")
     private final String name;
 
@@ -51,9 +51,16 @@ public class NormalUserDetail {
     @ApiModelProperty(value = "프로필 URL", example = "http://onfree.io/images/546456498")
     private final String profileImage;
 
-    public static NormalUserDetail fromEntity(NormalUser entity) {
-        return NormalUserDetail.builder()
+    @ApiModelProperty(value = "포트폴리오 개인룸 URL", example = "http://onfree.io/portfoliourl/546456498")
+    private final String portfolioUrl;
+
+    @ApiModelProperty(value = "영업마크 설정 ", example = "OPEN")
+    private final String statusMark;
+
+    public static ArtistUserDetailDto fromEntity(ArtistUser entity) {
+        return ArtistUserDetailDto.builder()
                 .adultCertification(entity.getAdultCertification())
+                .portfolioUrl(entity.getPortfolioUrl())
                 .email(entity.getEmail())
                 .gender(entity.getGender().getName())
                 .name(entity.getName())
@@ -67,6 +74,7 @@ public class NormalUserDetail {
                 .policyAgree(entity.getUserAgree().getPolicy())
                 .serviceAgree(entity.getUserAgree().getService())
                 .profileImage(entity.getProfileImage())
+                .statusMark(entity.getStatusMark().name())
                 .build();
     }
 }

@@ -2,9 +2,9 @@ package com.onfree.core.service;
 
 import com.onfree.core.dto.user.artist.status.StatusMarkDto;
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.artist.ArtistUserDetail;
-import com.onfree.core.dto.user.artist.CreateArtistUser;
-import com.onfree.core.dto.user.artist.UpdateArtistUser;
+import com.onfree.core.dto.user.artist.ArtistUserDetailDto;
+import com.onfree.core.dto.user.artist.CreateArtistUserDto;
+import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.common.error.exception.UserException;
@@ -24,10 +24,10 @@ public class ArtistUserService {
 
     /** 회원가입 요청 */
     @Transactional
-    public CreateArtistUser.Response createArtistUser(CreateArtistUser.Request request) {
+    public CreateArtistUserDto.Response createArtistUser(CreateArtistUserDto.Request request) {
         //TODO Redis 를 통한 인증 검사 후 회원가입
         duplicatedUserEmail(request.getEmail());
-        return CreateArtistUser.Response
+        return CreateArtistUserDto.Response
                 .fromEntity(
                     saveArtistUser(
                             bcryptPassword(request.toEntity())
@@ -61,8 +61,8 @@ public class ArtistUserService {
         );
     }
     /** 사용자 정보 조회*/
-    public ArtistUserDetail getUserDetail(Long userId) {
-        return ArtistUserDetail.fromEntity(
+    public ArtistUserDetailDto getUserDetail(Long userId) {
+        return ArtistUserDetailDto.fromEntity(
                 getArtistUser(userId)
         );
     }
@@ -97,10 +97,10 @@ public class ArtistUserService {
 
     /** 사용자 계정 수정*/
     @Transactional
-    public UpdateArtistUser.Response modifiedUser(Long userId, UpdateArtistUser.Request request) {
+    public UpdateArtistUserDto.Response modifiedUser(Long userId, UpdateArtistUserDto.Request request) {
         ArtistUser ArtistUser = getArtistUser(userId);
         ArtistUser.update(request);
-        return UpdateArtistUser.Response
+        return UpdateArtistUserDto.Response
                 .fromEntity(ArtistUser);
     }
     /*사용자 영업마크 수정*/

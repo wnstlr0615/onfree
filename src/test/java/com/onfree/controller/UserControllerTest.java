@@ -4,7 +4,7 @@ import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.WebMvcBaseTest;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.exception.GlobalException;
-import com.onfree.core.dto.UpdateUserNotificationDto;
+import com.onfree.core.dto.user.UpdateUserNotificationDto;
 import com.onfree.core.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

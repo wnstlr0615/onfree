@@ -4,9 +4,9 @@ import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.WebMvcBaseTest;
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.normal.CreateNormalUser;
-import com.onfree.core.dto.user.normal.NormalUserDetail;
-import com.onfree.core.dto.user.normal.UpdateNormalUser;
+import com.onfree.core.dto.user.normal.CreateNormalUserDto;
+import com.onfree.core.dto.user.normal.NormalUserDetailDto;
+import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.Gender;
 import com.onfree.core.entity.user.NormalUser;
@@ -15,7 +15,6 @@ import com.onfree.common.error.code.ErrorCode;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
-import com.onfree.utils.Checker;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,8 +45,8 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     public void givenCreateUserReq_whenCreateNormalUser_thenCreateUserRes() throws Exception{
 
         //given
-        CreateNormalUser.Request request = givenCreateNormalUserReq();
-        CreateNormalUser.Response response = givenCreateNormalUserRes(request);
+        CreateNormalUserDto.Request request = givenCreateNormalUserReq();
+        CreateNormalUserDto.Response response = givenCreateNormalUserRes(request);
         when(normalUserService.createdNormalUser(any()))
                 .thenReturn(response);
 
@@ -85,7 +84,7 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     @DisplayName("[실패][POST] 회원가입 요청 - 익명 사용자가 아닌 다른 사람이 접근 할 경우")
     public void givenCreateUserReq_whenCreateNormalUserWithLoginUser_thenCreateUserRes() throws Exception{
         //given
-        CreateNormalUser.Request request = givenCreateNormalUserReq();
+        CreateNormalUserDto.Request request = givenCreateNormalUserReq();
         when(checker.isSelf(anyLong()))
                 .thenReturn(true);
         //when //then
@@ -102,8 +101,8 @@ class NormalUserControllerTest extends WebMvcBaseTest {
         ;
         verify(normalUserService, never()).createdNormalUser(any());
     }
-    private CreateNormalUser.Request givenCreateNormalUserReq() {
-        return CreateNormalUser.Request
+    private CreateNormalUserDto.Request givenCreateNormalUserReq() {
+        return CreateNormalUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("jun@naver.com")
@@ -122,8 +121,8 @@ class NormalUserControllerTest extends WebMvcBaseTest {
                 .profileImage("http://onfree.io/images/123456789")
                 .build();
     }
-    private CreateNormalUser.Response givenCreateNormalUserRes(CreateNormalUser.Request request){
-        return CreateNormalUser.Response
+    private CreateNormalUserDto.Response givenCreateNormalUserRes(CreateNormalUserDto.Request request){
+        return CreateNormalUserDto.Response
                 .builder()
                 .adultCertification(request.getAdultCertification())
                 .email(request.getEmail())
@@ -147,7 +146,7 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     @Disabled("ValidateAOP 사용으로 단위테스트에는 테스트가 적용 되지 않음")
     public void givenWrongCreateUserReq_whenCreateNormalUser_thenParameterValidError() throws Exception{
         //given
-        CreateNormalUser.Request request = givenWrongCreateNormalUserReq();
+        CreateNormalUserDto.Request request = givenWrongCreateNormalUserReq();
         ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         when(checker.isSelf(anyLong()))
                 .thenReturn(true);
@@ -168,8 +167,8 @@ class NormalUserControllerTest extends WebMvcBaseTest {
         verify(normalUserService, never()).createdNormalUser(any());
     }
 
-    private CreateNormalUser.Request givenWrongCreateNormalUserReq() {
-        return CreateNormalUser.Request
+    private CreateNormalUserDto.Request givenWrongCreateNormalUserReq() {
+        return CreateNormalUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("")
@@ -193,7 +192,7 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     @DisplayName("[실패][POST] 회원가입 요청 - 이메일 중복으로 인한 회원가입 실패")
     public void givenDuplicatedEmail_whenCreateNormalUser_thenDuplicatedEmailError() throws Exception{
         //given
-        CreateNormalUser.Request request = givenCreateNormalUserReq();
+        CreateNormalUserDto.Request request = givenCreateNormalUserReq();
         UserErrorCode errorCode = UserErrorCode.USER_EMAIL_DUPLICATED;
         when(normalUserService.createdNormalUser(any()))
                 .thenThrow( new UserException(errorCode));
@@ -250,8 +249,8 @@ class NormalUserControllerTest extends WebMvcBaseTest {
                 ;
         verify(normalUserService, times(1)).getUserDetail(any());
     }
-    public NormalUserDetail getNormalUserInfo(){
-            return NormalUserDetail
+    public NormalUserDetailDto getNormalUserInfo(){
+            return NormalUserDetailDto
                     .fromEntity(
                             getNormalUserEntityFromCreateNormalUserRequest()
                     );
@@ -433,8 +432,8 @@ class NormalUserControllerTest extends WebMvcBaseTest {
         verify(normalUserService, times(1)).modifyedUser(eq(userId), any());
     }
 
-    private UpdateNormalUser.Response getUpdateNormalUserRes() {
-        return UpdateNormalUser.Response.builder()
+    private UpdateNormalUserDto.Response getUpdateNormalUserRes() {
+        return UpdateNormalUserDto.Response.builder()
                 .nickname("온프리프리")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-0000-0000")
@@ -445,8 +444,8 @@ class NormalUserControllerTest extends WebMvcBaseTest {
                 .build();
     }
 
-    private UpdateNormalUser.Request givenUpdateNormalUserReq() {
-        return UpdateNormalUser.Request.builder()
+    private UpdateNormalUserDto.Request givenUpdateNormalUserReq() {
+        return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-0000-0000")
@@ -504,8 +503,8 @@ class NormalUserControllerTest extends WebMvcBaseTest {
         verify(normalUserService, never()).modifyedUser(eq(userId), any());
     }
 
-    private UpdateNormalUser.Request givenWrongUpdateNormalUserReq() {
-        return UpdateNormalUser.Request.builder()
+    private UpdateNormalUserDto.Request givenWrongUpdateNormalUserReq() {
+        return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")
                 .accountNumber("010-0000-0000")
                 .newsAgency("SKT")

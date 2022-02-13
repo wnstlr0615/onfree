@@ -1,7 +1,7 @@
 package com.onfree.controller;
 
 import com.onfree.common.model.SimpleResponse;
-import com.onfree.core.dto.UpdateUserNotificationDto;
+import com.onfree.core.dto.user.UpdateUserNotificationDto;
 import com.onfree.core.service.UserService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.onfree.core.dto.user.normal;
+package com.onfree.core.dto.user.artist;
 
 import com.onfree.core.entity.user.*;
 import io.swagger.annotations.ApiModel;
@@ -8,11 +8,10 @@ import lombok.Getter;
 
 import javax.validation.constraints.*;
 
-
-public class CreateNormalUser {
+public class CreateArtistUserDto {
     @Getter
     @Builder
-    @ApiModel(value = "CreateUserDto_Request")
+    @ApiModel(value = "CreateArtistUserDto_Request")
     public static class Request {
         @ApiModelProperty(value = "사용자 이름", example = "김모씨")
         @NotBlank(message = "이름은 공백일수 없습니다.")
@@ -37,7 +36,7 @@ public class CreateNormalUser {
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
-        @Pattern(regexp = "^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", message="핸드폰번호 패턴이 올바르지 않습니다.")
+        @Pattern(regexp = "^01(0|1|[6-9])-(\\d{3}|\\d{4})-\\d{4}$", message="핸드폰번호 패턴이 올바르지 않습니다.")
         private final String phoneNumber;
 
         @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = " ${BankName.joinString()}" )
@@ -47,6 +46,7 @@ public class CreateNormalUser {
         @ApiModelProperty(value = "계좌번호", example = "123456-456789-12")
         @NotBlank(message = "계좌번호는 공백일 수 없습니다.")
         private final String accountNumber;
+        //TODO 계좌번호 패턴 검사
 
         @AssertTrue(message = "서비스 동의를 하지 않으면 회원가입이 불가합니다.")
         @ApiModelProperty(value = "서비스동의", example = "true")
@@ -76,10 +76,14 @@ public class CreateNormalUser {
         private final Gender gender;
 
         @ApiModelProperty(value = "프로필 URL", example = "http://onfree.io/images/546456498")
-        @NotBlank(message = "프로필 url은 필수입니다.")
+        @NotBlank(message = "프로필 URL 은 필수입니다.")
         private final String profileImage;
 
-        public NormalUser toEntity() {
+        @ApiModelProperty(value = "포트폴리오 개인룸 URL", example = "http://onfree.io/portfoliourl/546456498")
+        @NotBlank(message = "포트폴리오 개인룸 URL 은 필수입니다.")
+        private final String portfolioUrl;
+
+        public ArtistUser toEntity() {
             BankInfo bankInfo = BankInfo.builder()
                     .bankName(bankName)
                     .accountNumber(accountNumber)
@@ -90,7 +94,7 @@ public class CreateNormalUser {
                     .service(serviceAgree)
                     .policy(policyAgree)
                     .build();
-            return NormalUser.builder()
+            return ArtistUser.builder()
                     .adultCertification(adultCertification)
                     .email(email)
                     .nickname(nickname)
@@ -103,15 +107,16 @@ public class CreateNormalUser {
                     .userAgree(userAgree)
                     .adultCertification(adultCertification)
                     .profileImage(profileImage)
+                    .portfolioUrl(portfolioUrl)
                     .deleted(false)
-                    .role(Role.NORMAL)
+                    .role(Role.ARTIST)
                     .build();
         }
     }
 
     @Getter
     @Builder
-    @ApiModel(value = "CreateUserDto_Request")
+    @ApiModel(value = "CreateArtistUserDto_Response")
     public static class Response{
         @ApiModelProperty(value = "사용자 이름", example = "김모씨")
         private final String name;
@@ -157,7 +162,11 @@ public class CreateNormalUser {
         @ApiModelProperty(value = "프로필 URL", example = "http://onfree.io/images/546456498")
         private final String profileImage;
 
-        public static Response fromEntity(NormalUser entity) {
+        @ApiModelProperty(value = "포트폴리오 개인룸 URL", example = "http://onfree.io/portfoliourl/546456498")
+        @NotBlank(message = "포트폴리오 개인룸 URL 은 필수입니다.")
+        private final String portfolioUrl;
+
+        public static Response fromEntity(ArtistUser entity) {
             return Response.builder()
                     .adultCertification(entity.getAdultCertification())
                     .email(entity.getEmail())
@@ -173,6 +182,7 @@ public class CreateNormalUser {
                     .policyAgree(entity.getUserAgree().getPolicy())
                     .serviceAgree(entity.getUserAgree().getService())
                     .profileImage(entity.getProfileImage())
+                    .portfolioUrl(entity.getPortfolioUrl())
                     .build();
         }
     }

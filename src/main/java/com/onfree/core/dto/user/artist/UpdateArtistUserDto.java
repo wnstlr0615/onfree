@@ -1,18 +1,20 @@
-package com.onfree.core.dto.user.normal;
+package com.onfree.core.dto.user.artist;
 
+import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.entity.user.BankName;
-import com.onfree.core.entity.user.NormalUser;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
-public class UpdateNormalUser {
-    @ApiModel(value = "UpdaetNormalUser_Request")
+public class UpdateArtistUserDto {
     @Builder
     @Getter
+    @ApiModel(value = "UpdateArtistUser_Request")
     public static class Request{
         @ApiModelProperty(value = "사용자 닉네임", example = "온프리대박기원")
         @NotBlank(message = "이름은 공백일수 없습니다.")
@@ -43,10 +45,14 @@ public class UpdateNormalUser {
         @NotBlank(message = "프로필 url은 필수입니다.")
         private final String profileImage;
 
+        @ApiModelProperty(value = "포트폴리오 개인룸 URL", example = "http://onfree.io/portfoliourl/546456498")
+        @NotBlank(message = "포트폴리오 개인룸 URL 은 필수입니다.")
+        private final String portfolioUrl;
+
     }
     @Getter
     @Builder
-    @ApiModel(value = "UpdateNormalUser_Response")
+    @ApiModel(value = "UpdateArtistUser_Response")
     public static class Response{
         @ApiModelProperty(value = "사용자 닉네임", example = "온프리대박기원")
         @NotBlank(message = "이름은 공백일수 없습니다.")
@@ -77,8 +83,12 @@ public class UpdateNormalUser {
         @NotBlank(message = "프로필 url은 필수입니다.")
         private final String profileImage;
 
-        public static UpdateNormalUser.Response fromEntity(NormalUser entity){
-            return UpdateNormalUser.Response.builder()
+        @ApiModelProperty(value = "포트폴리오 개인룸 URL", example = "http://onfree.io/portfoliourl/546456498")
+        @NotBlank(message = "포트폴리오 개인룸 URL 은 필수입니다.")
+        private final String portfolioUrl;
+
+        public static UpdateArtistUserDto.Response fromEntity(ArtistUser entity){
+            return UpdateArtistUserDto.Response.builder()
                     .nickname(entity.getNickname())
                     .bankName(entity.getBankInfo().getBankName())
                     .accountNumber(entity.getBankInfo().getAccountNumber())
@@ -86,6 +96,7 @@ public class UpdateNormalUser {
                     .phoneNumber(entity.getPhoneNumber())
                     .profileImage(entity.getProfileImage())
                     .adultCertification(entity.getAdultCertification())
+                    .portfolioUrl(entity.getPortfolioUrl())
                     .build();
         }
     }

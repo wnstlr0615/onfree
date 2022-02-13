@@ -1,9 +1,9 @@
 package com.onfree.core.service;
 
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.normal.NormalUserDetail;
-import com.onfree.core.dto.user.normal.CreateNormalUser;
-import com.onfree.core.dto.user.normal.UpdateNormalUser;
+import com.onfree.core.dto.user.normal.NormalUserDetailDto;
+import com.onfree.core.dto.user.normal.CreateNormalUserDto;
+import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
 import com.onfree.core.entity.user.NormalUser;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.common.error.exception.UserException;
@@ -23,10 +23,10 @@ public class NormalUserService {
 
     /** 회원가입 요청 */
     @Transactional
-    public CreateNormalUser.Response createdNormalUser(CreateNormalUser.Request request) {
+    public CreateNormalUserDto.Response createdNormalUser(CreateNormalUserDto.Request request) {
         //TODO Redis 를 통한 인증 검사 후 회원가입
         duplicatedUserEmail(request.getEmail());
-        return CreateNormalUser.Response
+        return CreateNormalUserDto.Response
                 .fromEntity(
                     saveNormalUser(
                             bcryptPassword(request.toEntity())
@@ -60,8 +60,8 @@ public class NormalUserService {
         );
     }
     /** 사용자 정보 조회*/
-    public NormalUserDetail getUserDetail(Long userId) {
-        return NormalUserDetail.fromEntity(
+    public NormalUserDetailDto getUserDetail(Long userId) {
+        return NormalUserDetailDto.fromEntity(
                 getNormalUser(userId)
         );
     }
@@ -96,10 +96,10 @@ public class NormalUserService {
 
     /** 사용자 계정 수정*/
     @Transactional
-    public UpdateNormalUser.Response modifyedUser(Long userId, UpdateNormalUser.Request request) {
+    public UpdateNormalUserDto.Response modifyedUser(Long userId, UpdateNormalUserDto.Request request) {
         NormalUser normalUser = getNormalUser(userId);
         normalUser.update(request);
-        return UpdateNormalUser.Response
+        return UpdateNormalUserDto.Response
                 .fromEntity(normalUser);
     }
 }

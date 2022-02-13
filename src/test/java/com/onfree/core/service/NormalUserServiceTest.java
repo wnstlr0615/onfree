@@ -1,9 +1,9 @@
 package com.onfree.core.service;
 
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.normal.NormalUserDetail;
-import com.onfree.core.dto.user.normal.CreateNormalUser;
-import com.onfree.core.dto.user.normal.UpdateNormalUser;
+import com.onfree.core.dto.user.normal.NormalUserDetailDto;
+import com.onfree.core.dto.user.normal.CreateNormalUserDto;
+import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.common.error.code.UserErrorCode;
@@ -39,7 +39,7 @@ class NormalUserServiceTest {
     @DisplayName("[성공] 회원가입 요청 - 정상적인 요청 성공")
     public void givenCreateUserRes_whenCreateUser_thenReturnSuccessfulResponse() {
         //given
-        final CreateNormalUser.Request userReq = givenCreateNormalUserReq();
+        final CreateNormalUserDto.Request userReq = givenCreateNormalUserReq();
         when(userRepository.save(any()))
                 .thenReturn(
                         getNormalUserEntity(userReq)
@@ -47,7 +47,7 @@ class NormalUserServiceTest {
         when(userRepository.countByEmail(any()))
                 .thenReturn(0);
         //when
-        CreateNormalUser.Response response = normalUserService.createdNormalUser(
+        CreateNormalUserDto.Response response = normalUserService.createdNormalUser(
                 userReq
         );
         //then
@@ -92,8 +92,8 @@ class NormalUserServiceTest {
 
     }
 
-    private CreateNormalUser.Request givenCreateNormalUserReq() {
-        return CreateNormalUser.Request
+    private CreateNormalUserDto.Request givenCreateNormalUserReq() {
+        return CreateNormalUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("jun@naver.com")
@@ -112,7 +112,7 @@ class NormalUserServiceTest {
                 .profileImage("http://onfree.io/images/123456789")
                 .build();
     }
-    private NormalUser getNormalUserEntity(CreateNormalUser.Request request){
+    private NormalUser getNormalUserEntity(CreateNormalUserDto.Request request){
         return  getNormalUserEntity(request, 1L);
     }
 
@@ -122,7 +122,7 @@ class NormalUserServiceTest {
     public void givenUserId_whenGetUserInfo_thenUserInfo() {
         //given
         final long userId = 1L;
-        final CreateNormalUser.Request request = givenCreateNormalUserReq();
+        final CreateNormalUserDto.Request request = givenCreateNormalUserReq();
         when(userRepository.findById(any()))
                 .thenReturn(
                         Optional.of(
@@ -130,7 +130,7 @@ class NormalUserServiceTest {
                         )
                 );
         //when
-        final NormalUserDetail userInfo = normalUserService.getUserDetail(userId);
+        final NormalUserDetailDto userInfo = normalUserService.getUserDetail(userId);
         //then
         verify(userRepository, times(1)).findById(any());
         assertThat(userInfo)
@@ -192,7 +192,7 @@ class NormalUserServiceTest {
         verify(userRepository, times(1)).findById(eq(deletedUserId));
     }
 
-    private NormalUser getNormalUserEntity(CreateNormalUser.Request request, Long userId) {
+    private NormalUser getNormalUserEntity(CreateNormalUserDto.Request request, Long userId) {
         return getNormalUserEntity(request, userId, false);
     }
 
@@ -242,7 +242,7 @@ class NormalUserServiceTest {
                 .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
         verify(userRepository, times(1)).findById(eq(deletedUserId));
     }
-    private NormalUser getNormalUserEntity(CreateNormalUser.Request request, Long userId, boolean deleted){
+    private NormalUser getNormalUserEntity(CreateNormalUserDto.Request request, Long userId, boolean deleted){
         final BankInfo bankInfo = getBankInfo(request.getBankName(), request.getAccountNumber());
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(request.getAdvertisementAgree())
@@ -273,13 +273,13 @@ class NormalUserServiceTest {
     public void givenUpdateNormalUserReq_whenModifiedUser_thenReturnUpdateNormalUserResponse(){
         //given
         final long userId = 1L;
-        final UpdateNormalUser.Request request = givenUpdateNormalUserReq();
+        final UpdateNormalUserDto.Request request = givenUpdateNormalUserReq();
         when(userRepository.findById(any()))
                 .thenReturn(
                         Optional.of(getNormalUserEntity(userId))
                 );
         //when
-        final UpdateNormalUser.Response response = normalUserService.modifyedUser(userId, request);
+        final UpdateNormalUserDto.Response response = normalUserService.modifyedUser(userId, request);
         //then
         assertThat(response)
             .hasFieldOrPropertyWithValue("nickname",request.getNickname())
@@ -321,8 +321,8 @@ class NormalUserServiceTest {
                 .personalInfo(true)
                 .build();
     }
-    private UpdateNormalUser.Request givenUpdateNormalUserReq() {
-        return UpdateNormalUser.Request.builder()
+    private UpdateNormalUserDto.Request givenUpdateNormalUserReq() {
+        return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-0000-0000")
@@ -344,7 +344,7 @@ class NormalUserServiceTest {
     public void givenWrongUserId_whenModifiedUser_thenNorFoundUserId(){
         //given
         final long wrongUserId = 1L;
-        final UpdateNormalUser.Request request = givenUpdateNormalUserReq();
+        final UpdateNormalUserDto.Request request = givenUpdateNormalUserReq();
         when(userRepository.findById(any()))
                 .thenReturn(
                         Optional.empty()
