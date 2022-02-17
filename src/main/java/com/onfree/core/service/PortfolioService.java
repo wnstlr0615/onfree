@@ -248,7 +248,7 @@ public class PortfolioService {
     }
 
     /** 작가 유저 임시 포트폴리오 전체 조회 */
-    public Page<PortfolioSimpleDto> findTempPortfolioByArtistUser(ArtistUser artistUser, Pageable pageable) {
+    public Page<PortfolioSimpleDto> findAllTempPortfolioByArtistUser(ArtistUser artistUser, Pageable pageable) {
         return getPortfolioSimpleDtosByArtistUser( //Portfolio 리스트를  PortfolioSimpleDto 리스트로 변환
                     getPagingTempPortfoliosByArtistUser( // 작가유저 임시 저장 포트폴리오 조회
                         artistUser, pageable

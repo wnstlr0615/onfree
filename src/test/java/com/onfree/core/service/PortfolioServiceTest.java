@@ -481,7 +481,7 @@ class PortfolioServiceTest {
                 );
         //when
         final Page<PortfolioSimpleDto> portfolioSimpleDtos
-                = portfolioService.findTempPortfolioByArtistUser(artistUser, pageRequest);
+                = portfolioService.findAllTempPortfolioByArtistUser(artistUser, pageRequest);
 
         //then
         assertThat(portfolioSimpleDtos.getTotalElements()).isEqualTo(3);

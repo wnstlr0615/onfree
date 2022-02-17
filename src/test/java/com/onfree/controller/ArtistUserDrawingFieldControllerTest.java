@@ -76,10 +76,9 @@ class ArtistUserDrawingFieldControllerTest extends WebMvcBaseTest {
         mvc.perform(get("/api/users/artist/{userId}/drawing-fields", givenUserId))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.result").value(true))
-            .andExpect(jsonPath("$.data[0].drawingFieldId").value(1))
-            .andExpect(jsonPath("$.data[0].drawingFieldName").value("캐릭터 디자인"))
-            .andExpect(jsonPath("$.data[0].used").value(true))
+            .andExpect(jsonPath("$.[0].drawingFieldId").value(1))
+            .andExpect(jsonPath("$.[0].drawingFieldName").value("캐릭터 디자인"))
+            .andExpect(jsonPath("$.[0].used").value(true))
         ;
         verify(artistUserDrawingFieldService).getAllArtistUserUsedDrawingFields(eq(givenUserId));
     }

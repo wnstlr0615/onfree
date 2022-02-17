@@ -3,20 +3,21 @@ package com.onfree.controller;
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.WebMvcBaseTest;
+import com.onfree.config.webmvc.resolver.CurrentArtistUserArgumentResolver;
+import com.onfree.core.dto.portfolio.PortfolioSimpleDto;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.artist.ArtistUserDetailDto;
 import com.onfree.core.dto.user.artist.CreateArtistUserDto;
 import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
 import com.onfree.core.dto.user.artist.status.StatusMarkDto;
-import com.onfree.core.entity.user.ArtistUser;
-import com.onfree.core.entity.user.BankName;
-import com.onfree.core.entity.user.Gender;
-import com.onfree.core.entity.user.StatusMark;
+import com.onfree.core.entity.portfolio.PortfolioStatus;
+import com.onfree.core.entity.user.*;
 import com.onfree.core.service.ArtistUserService;
 import com.onfree.common.error.code.ErrorCode;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
+import com.onfree.core.service.PortfolioService;
 import com.onfree.validator.StatusMarkValidator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -24,11 +25,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.toList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -42,7 +50,11 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
     @MockBean
     ArtistUserService artistUserService;
     @MockBean
+    PortfolioService portfolioService;
+    @MockBean
     StatusMarkValidator statusMarkValidator;
+    @SpyBean
+    CurrentArtistUserArgumentResolver currentArtistUserArgumentResolver;
 
     @Test
     @DisplayName("[성공][POST] 회원가입 요청")
@@ -567,8 +579,107 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
                 .statusMark(statusMark.name())
                 .build();
     }
+    @Test
+    @DisplayName("[성공][GET] 작가 사용자 포트폴리오 조회")
+    public void givenUserIdAndPage_whenPortfolioList_thenReturnPagingPortfolioSimpleDtos() throws Exception{
+        //given
+        final long userId = 1L;
 
+        final List<PortfolioSimpleDto> portfolioSimpleDtos = getIteraterPortfolioSimpleDtos(6, PortfolioStatus.NORMAL);
+        final PageRequest pageRequest = PageRequest.of(0, 6);
+        when(portfolioService.findAllPortfolioByUserId(anyLong(), any(PageRequest.class)))
+                .thenReturn(
+                        new PageImpl<>(portfolioSimpleDtos, pageRequest, portfolioSimpleDtos.size())
+                );
+        //when //then
+        mvc.perform(get("/api/users/artist/{userId}/portfolios", userId)
+            .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.items[0].portfolioId").value(1L))
+            .andExpect(jsonPath("$._embedded.items[0].mainImageUrl").value("mainImageUrl"))
+            .andExpect(jsonPath("$._embedded.items[0].title").value("포트폴리오 제목 1"))
+            .andExpect(jsonPath("$._embedded.items[0].view").value(0L))
+            .andExpect(jsonPath("$._embedded.items[0].status").value(PortfolioStatus.NORMAL.toString()))
+            .andExpect(jsonPath("$._embedded.items[0]._links.detail-portfolio.href").exists())
+        ;
+        verify(portfolioService).findAllPortfolioByUserId(eq(userId), any(PageRequest.class));
+    }
 
+    @Test
+    @WithArtistUser
+    @DisplayName("[성공][GET] 작가 사용자 임시 저장 포트폴리오 조회")
+    public void givenUserIdAndPage_whenTempPortfolioList_thenReturnPagingPortfolioSimpleDtos() throws Exception{
+        //given
+        final long userId = 1L;
+
+        final List<PortfolioSimpleDto> portfolioSimpleDtos = getIteraterPortfolioSimpleDtos(6, PortfolioStatus.TEMPORARY);
+        final PageRequest pageRequest = PageRequest.of(0, 6);
+        when(portfolioService.findAllTempPortfolioByArtistUser(any(ArtistUser.class), any(PageRequest.class)))
+                .thenReturn(
+                        new PageImpl<>(portfolioSimpleDtos, pageRequest, portfolioSimpleDtos.size())
+                );
+
+        when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(
+                        getArtistUser()
+                );
+        //when //then
+        mvc.perform(get("/api/users/artist/{userId}/portfolios/temp", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.items[0].portfolioId").value(1L))
+                .andExpect(jsonPath("$._embedded.items[0].mainImageUrl").value("mainImageUrl"))
+                .andExpect(jsonPath("$._embedded.items[0].title").value("포트폴리오 제목 1"))
+                .andExpect(jsonPath("$._embedded.items[0].view").value(0L))
+                .andExpect(jsonPath("$._embedded.items[0].status").value(PortfolioStatus.TEMPORARY.toString()))
+                .andExpect(jsonPath("$._embedded.items[0]._links.detail-portfolio.href").exists())
+        ;
+        verify(portfolioService).findAllTempPortfolioByArtistUser(any(ArtistUser.class), any(PageRequest.class));
+    }
+
+    private List<PortfolioSimpleDto> getIteraterPortfolioSimpleDtos(int size, PortfolioStatus status) {
+        return IntStream.rangeClosed(1, size)
+                .mapToObj(operand ->
+                        PortfolioSimpleDto
+                                .createPortfolioSimpleDto(operand, "포트폴리오 제목 "+ operand, "mainImageUrl", status)
+                )
+                .collect(toList());
+    }
+
+    private ArtistUser getArtistUser() {
+        final BankInfo bankInfo = BankInfo.builder()
+                .accountNumber("010-0000-0000")
+                .bankName(BankName.IBK_BANK)
+                .build();
+        UserAgree userAgree = UserAgree.builder()
+                .advertisement(true)
+                .personalInfo(true)
+                .service(true)
+                .policy(true)
+                .build();
+        return ArtistUser.builder()
+                .userId(1L)
+                .nickname("joon")
+                .adultCertification(Boolean.TRUE)
+                .email("joon@naver.com")
+                .password("{bcrypt}onfree")
+                .gender(Gender.MAN)
+                .name("joon")
+                .newsAgency("SKT")
+                .phoneNumber("010-0000-0000")
+                .bankInfo(bankInfo)
+                .userAgree(userAgree)
+                .adultCertification(true)
+                .profileImage("http://www.onfree.co.kr/images/dasdasfasd")
+                .deleted(false)
+                .role(Role.ARTIST)
+                .portfolioUrl("http://www.onfree.co.kr/folioUrl/dasdasfasd")
+                .build();
+    }
 
 
 }
