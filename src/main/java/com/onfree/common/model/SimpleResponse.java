@@ -3,29 +3,21 @@ package com.onfree.common.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.hateoas.RepresentationModel;
 
 @Getter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SimpleResponse <T>{
+public class SimpleResponse  extends RepresentationModel<SimpleResponse> {
     private final boolean result;
     private final String message;
-    private final T data;
 
-    public static SimpleResponse success(String message, Object data){
+
+    public static SimpleResponse success(String message){
         return SimpleResponse.builder()
                 .result(true)
                 .message(message)
-                .data(data)
                 .build();
-    }
-
-    public static SimpleResponse success(String message){
-        return success(message, null);
-    }
-
-    public static SimpleResponse success(Object data){
-        return success(null, data);
     }
 
     public static SimpleResponse fail(String message){
