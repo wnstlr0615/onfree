@@ -1,7 +1,7 @@
 package com.onfree.core.entity.portfoliocontent;
 
 import com.onfree.common.model.BaseEntity;
-import com.onfree.core.entity.Portfolio;
+import com.onfree.core.entity.portfolio.Portfolio;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

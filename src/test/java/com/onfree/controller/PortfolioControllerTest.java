@@ -5,10 +5,12 @@ import com.onfree.common.WebMvcBaseTest;
 import com.onfree.common.error.code.ErrorCode;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.code.PortfolioErrorCode;
-import com.onfree.common.error.exception.GlobalException;
 import com.onfree.common.error.exception.PortfolioException;
+import com.onfree.config.webmvc.resolver.CurrentArtistUserArgumentResolver;
 import com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto;
 import com.onfree.core.dto.portfolio.*;
+import com.onfree.core.entity.portfolio.PortfolioStatus;
+import com.onfree.core.entity.user.*;
 import com.onfree.core.service.PortfolioService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -34,21 +38,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PortfolioControllerTest extends WebMvcBaseTest {
     @MockBean
     PortfolioService portfolioService;
+    @SpyBean
+    CurrentArtistUserArgumentResolver currentArtistUserArgumentResolver;
 
     @Test
     @WithArtistUser
-    @DisplayName("[성공][POST] 포트폴리오 작성하기")
-    public void givenCratedPortfolioDto_whenPortfolioAdd_thenSimpleResponse() throws Exception {
+    @DisplayName("[성공][POST] 정상적인 포트폴리오 작성하기")
+    public void givenCratedPortfolioDtoRequest_whenPortfolioAdd_thenReturnCreatedPortfolioDtoResponse() throws Exception {
         //given
-        final long givenUserId = 1L;
-        final CreatePortfolioDto.Request createPortfolioDto = givenCreatedPortfolioDto("포트폴리오 제목", false, false);
+        final boolean temporary = false;
+        final CreatePortfolioDto.Request createPortfolioDto
+                = givenCreatedPortfolioDto("포트폴리오 제목", temporary);
 
-        doNothing().when(portfolioService)
-                .addPortfolio(anyLong(), any(CreatePortfolioDto.Request.class));
-        when(checker.isSelf(anyLong())).thenReturn(true);
+        when(portfolioService.addPortfolio(any(ArtistUser.class), any(CreatePortfolioDto.Request.class)))
+                .thenReturn(
+                        getCreateNormalPortfolioDtoResponse()
+                );
+
+        when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(getArtistUser());
         //when //then
         mvc.perform(post("/api/portfolios")
-                .queryParam("userId", String.valueOf(givenUserId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -58,42 +68,97 @@ class PortfolioControllerTest extends WebMvcBaseTest {
         )
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.result").value(true))
-                .andExpect(jsonPath("$.message").value("포트폴리오가 성공적으로 등록되었습니다."))
+                .andExpect(jsonPath("$.portfolioId").value(1L))
+                .andExpect(jsonPath("$.title").value("포트폴리오 제목"))
+                .andExpect(jsonPath("$.status").value(PortfolioStatus.NORMAL.toString()))
+                .andExpect(jsonPath("$.mainImageUrl").value("mainImageUrl"))
+                .andExpect(jsonPath("$.drawingFields").isNotEmpty())
+                .andExpect(jsonPath("$.tags").isNotEmpty())
         ;
-        verify(portfolioService).addPortfolio(eq(givenUserId), any(CreatePortfolioDto.Request.class));
+        verify(portfolioService).addPortfolio(any(ArtistUser.class), any(CreatePortfolioDto.Request.class));
     }
 
-    private CreatePortfolioDto.Request givenCreatedPortfolioDto(String title, boolean representative, boolean temporary) {
-        List<CreatePortfolioContentDto> createPortfolioContentDtoList = new ArrayList<>();
-        createPortfolioContentDtoList.add(createTextContent("텍스트"));
-        createPortfolioContentDtoList.add(createVideoContent("https://www.youtube.com/watch?v=vSY0VEuqeRo&t=146s"));
-        createPortfolioContentDtoList.add(createImageContent("https://onfree-store.s3.ap-northeast-2.amazonaws.com/13123.PNG"));
+    private ArtistUser getArtistUser() {
+        final BankInfo bankInfo = BankInfo.builder()
+                .accountNumber("010-0000-0000")
+                .bankName(BankName.IBK_BANK)
+                .build();
+        UserAgree userAgree = UserAgree.builder()
+                .advertisement(true)
+                .personalInfo(true)
+                .service(true)
+                .policy(true)
+                .build();
+        return ArtistUser.builder()
+                .userId(1L)
+                .nickname("joon")
+                .adultCertification(Boolean.TRUE)
+                .email("joon@naver.com")
+                .password("{bcrypt}onfree")
+                .gender(Gender.MAN)
+                .name("joon")
+                .newsAgency("SKT")
+                .phoneNumber("010-0000-0000")
+                .bankInfo(bankInfo)
+                .userAgree(userAgree)
+                .adultCertification(true)
+                .profileImage("http://www.onfree.co.kr/images/dasdasfasd")
+                .deleted(false)
+                .role(Role.ARTIST)
+                .portfolioUrl("http://www.onfree.co.kr/folioUrl/dasdasfasd")
+                .build();
+    }
+    private CreatePortfolioDto.Response getCreateNormalPortfolioDtoResponse() {
+        final List<String> drawingFieldNames = List.of("캐릭터 디자인", "일러스트");
+        final List<String> tags = getTags();
+        final String mainImageUrl = "mainImageUrl";
+        final long portfolioId = 1L;
+        final String title = "포트폴리오 제목";
+        final List<PortfolioContentDetailDto> contents = List.of(
+                PortfolioContentDetailDto.createImagePortfolioContentDetailDto("imageUrl"),
+                PortfolioContentDetailDto.createVideoPortfolioContentDetailDto("videoUrl"),
+                PortfolioContentDetailDto.createTextPortfolioContentDetailDto("text")
+        );
 
-        return CreatePortfolioDto.Request.createPortfolioDto(
+        return CreatePortfolioDto.Response.createPortfolioDtoResponse(
+                portfolioId, title, contents,
+                mainImageUrl, tags, drawingFieldNames, PortfolioStatus.NORMAL
+        );
+    }
+
+    private CreatePortfolioDto.Request givenCreatedPortfolioDto(String title, boolean temporary) {
+        List<CreatePortfolioContentDto> createPortfolioContentDtoList = getCreatePortfolioContentDtos();
+
+        final List<Long> drawingfieldIds = List.of(1L,2L,3L);
+        return CreatePortfolioDto.Request.createPortfolioDtoRequest(
                 title,
                 "https://onfree-store.s3.ap-northeast-2.amazonaws.com/13123.PNG",
                 List.of("일러스트", "캐릭터"),
                 createPortfolioContentDtoList,
+                drawingfieldIds,
                 temporary
         );
     }
 
+
+
     @Test
     @WithArtistUser
-    @DisplayName("[실패][POST] 포트폴리오 작성하기 - 다른 사용자가 접근 할 경우")
-    public void givenOtherUserAndCratedPortfolioDto_whenPortfolioAdd_thenAccessDeniedError() throws Exception {
+    @DisplayName("[성공][POST] 임시 저장 포트폴리오 작성하기")
+    public void givenTempCratedPortfolioDtoRequest_whenPortfolioAdd_thenReturnTempCreatedPortfolioDtoResponse() throws Exception {
         //given
-        final long givenUserId = 1L;
-        final CreatePortfolioDto.Request createPortfolioDto = givenCreatedPortfolioDto("포트폴리오 제목", false, false);
-        final GlobalErrorCode errorCode = GlobalErrorCode.ACCESS_DENIED;
+        final CreatePortfolioDto.Request createPortfolioDto
+                = givenTempCreatedPortfolioDto("포트폴리오 제목");
 
-        doNothing().when(portfolioService)
-                .addPortfolio(anyLong(), any(CreatePortfolioDto.Request.class));
-        when(checker.isSelf(anyLong())).thenThrow(new GlobalException(errorCode));
+        when(portfolioService.addPortfolio(any(ArtistUser.class), any(CreatePortfolioDto.Request.class)))
+                .thenReturn(
+                        getCreateTempPortfolioDtoResponse()
+                );
+
+        when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(getArtistUser());
         //when //then
         mvc.perform(post("/api/portfolios")
-                .queryParam("userId", String.valueOf(givenUserId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -102,11 +167,54 @@ class PortfolioControllerTest extends WebMvcBaseTest {
                 )
         )
                 .andDo(print())
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
-                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.portfolioId").value(1L))
+                .andExpect(jsonPath("$.title").value("포트폴리오 제목"))
+                .andExpect(jsonPath("$.status").value(PortfolioStatus.TEMPORARY.toString()))
+                .andExpect(jsonPath("$.mainImageUrl").value("defaultMainImage"))
+                .andExpect(jsonPath("$.drawingFields").isEmpty())
+                .andExpect(jsonPath("$.tags").isEmpty())
         ;
-        verify(portfolioService, never()).addPortfolio(eq(givenUserId), any(CreatePortfolioDto.Request.class));
+        verify(portfolioService).addPortfolio(any(ArtistUser.class), any(CreatePortfolioDto.Request.class));
+    }
+
+    private CreatePortfolioDto.Request givenTempCreatedPortfolioDto(String title) {
+        List<CreatePortfolioContentDto> createPortfolioContentDtoList = getCreatePortfolioContentDtos();
+
+        return CreatePortfolioDto.Request.createPortfolioDtoRequest(
+                title,
+                null,
+                List.of(),
+                createPortfolioContentDtoList,
+                List.of(),
+                true
+        );
+    }
+
+    private CreatePortfolioDto.Response getCreateTempPortfolioDtoResponse() {
+        final List<String> drawingFieldNames = List.of();
+        final List<String> tags = List.of();
+        final String mainImageUrl = "defaultMainImage";
+        final long portfolioId = 1L;
+        final String title = "포트폴리오 제목";
+        final List<PortfolioContentDetailDto> contents = List.of(
+                PortfolioContentDetailDto.createImagePortfolioContentDetailDto("imageUrl"),
+                PortfolioContentDetailDto.createVideoPortfolioContentDetailDto("videoUrl"),
+                PortfolioContentDetailDto.createTextPortfolioContentDetailDto("text")
+        );
+
+        return CreatePortfolioDto.Response.createPortfolioDtoResponse(
+                portfolioId, title, contents,
+                mainImageUrl, tags, drawingFieldNames, PortfolioStatus.TEMPORARY
+        );
+    }
+
+    private List<CreatePortfolioContentDto> getCreatePortfolioContentDtos() {
+        List<CreatePortfolioContentDto> createPortfolioContentDtoList = new ArrayList<>();
+        createPortfolioContentDtoList.add(createTextContent("텍스트"));
+        createPortfolioContentDtoList.add(createVideoContent("https://www.youtube.com/watch?v=vSY0VEuqeRo&t=146s"));
+        createPortfolioContentDtoList.add(createImageContent("https://onfree-store.s3.ap-northeast-2.amazonaws.com/13123.PNG"));
+        return createPortfolioContentDtoList;
     }
 
     @Test
@@ -114,15 +222,14 @@ class PortfolioControllerTest extends WebMvcBaseTest {
     public void givenPortfolioId_whenPortfolioDetails_thenSuccess() throws Exception {
         //given
         final long givenPortfolioId = 1L;
-        final String artistUser = "joon@naver.com";
+        final String email = "joon@naver.com";
         final String title = "제목입니다";
-        final boolean temporary = false;
-        final boolean representative = false;
+
 
         when(portfolioService.findPortfolio(
-                eq(givenPortfolioId), eq(false)
+                eq(givenPortfolioId)
         )).thenReturn(
-                createPortfolioDetailDto(givenPortfolioId, artistUser, title, temporary, representative)
+                createPortfolioDetailDto(givenPortfolioId, email, title, PortfolioStatus.NORMAL)
         );
 
         //when
@@ -131,19 +238,16 @@ class PortfolioControllerTest extends WebMvcBaseTest {
         mvc.perform(get("/api/portfolios/{portfolioId}", givenPortfolioId))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(true))
-                .andExpect(jsonPath("$.data.portfolioId").value(givenPortfolioId))
-                .andExpect(jsonPath("$.data.artistUser").value(artistUser))
-                .andExpect(jsonPath("$.data.title").value(title))
-                .andExpect(jsonPath("$.data.representative").value(representative))
-                .andExpect(jsonPath("$.data.temporary").value(temporary))
-                .andExpect(jsonPath("$.data.tags[0]").value("일러스트"))
-                .andExpect(jsonPath("$.data.contents").isNotEmpty())
+                .andExpect(jsonPath("$.portfolioId").value(givenPortfolioId))
+                .andExpect(jsonPath("$.artistUser").value(email))
+                .andExpect(jsonPath("$.title").value(title))
+                .andExpect(jsonPath("$.tags[0]").value("일러스트"))
+                .andExpect(jsonPath("$.contents").isNotEmpty())
         ;
-        verify(portfolioService).findPortfolio(eq(givenPortfolioId), eq(false));
+        verify(portfolioService).findPortfolio(eq(givenPortfolioId));
     }
 
-    private PortfolioDetailDto createPortfolioDetailDto(long portfolioId, String artistUser, String title, boolean temporary, boolean representative) {
+    private PortfolioDetailDto createPortfolioDetailDto(long portfolioId, String artistUser, String title, PortfolioStatus status) {
         final List<String> tags = getTags();
         final List<PortfolioContentDetailDto> contents = List.of(
                 PortfolioContentDetailDto.createImagePortfolioContentDetailDto("imageUrl"),
@@ -157,7 +261,7 @@ class PortfolioControllerTest extends WebMvcBaseTest {
                 UsedDrawingFieldDto.createUsedDrawingFieldDto("메타 버스", true)
         );
         return PortfolioDetailDto
-                .createPortfolioDetailDto(portfolioId, artistUser, title, representative, temporary, tags, contents, usedDrawingFieldDtos);
+                .createPortfolioDetailDto(portfolioId, artistUser, title, status, tags, contents, usedDrawingFieldDtos);
     }
 
     private List<String> getTags() {
@@ -172,8 +276,8 @@ class PortfolioControllerTest extends WebMvcBaseTest {
         final PortfolioErrorCode errorCode = PortfolioErrorCode.NOT_FOUND_PORTFOLIO;
 
         when(portfolioService.findPortfolio(
-                eq(givenPortfolioId), anyBoolean()
-        )).thenThrow(
+                eq(givenPortfolioId))
+        ).thenThrow(
                  new PortfolioException(errorCode)
         );
         //when
@@ -186,7 +290,7 @@ class PortfolioControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
 
         ;
-        verify(portfolioService).findPortfolio(eq(givenPortfolioId), eq(false));
+        verify(portfolioService).findPortfolio(eq(givenPortfolioId));
     }
 
     @Test
@@ -195,37 +299,31 @@ class PortfolioControllerTest extends WebMvcBaseTest {
     public void givenTempPortfolioId_whenPortfolioDetails_thenSuccess() throws Exception {
         //given
         final long givenTempPortfolioId = 1L;
-        final long userId = 1L;
-        final String artistUser = "joon@naver.com";
+        final String email = "joon@naver.com";
         final String title = "제목입니다";
-        final boolean temporary = true;
-        final boolean representative = false;
 
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
 
-        when(portfolioService.findPortfolio(
-                eq(givenTempPortfolioId), eq(true)
-        )).thenReturn(
-                createPortfolioDetailDto(givenTempPortfolioId, artistUser, title, temporary, representative)
+        when(portfolioService.findTempPortfolio(eq(givenTempPortfolioId), any(ArtistUser.class))
+        ).thenReturn(
+                createPortfolioDetailDto(givenTempPortfolioId, email, title, PortfolioStatus.TEMPORARY)
         );
+
+        when(currentArtistUserArgumentResolver.resolveArgument(any(),any(),any(),any()))
+                .thenReturn(getArtistUser());
 
         //when //then
         mvc.perform(get("/api/portfolios/{portfolioId}/temp", givenTempPortfolioId)
-                .queryParam("userId", String.valueOf(userId))
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(true))
-                .andExpect(jsonPath("$.data.portfolioId").value(givenTempPortfolioId))
-                .andExpect(jsonPath("$.data.artistUser").value(artistUser))
-                .andExpect(jsonPath("$.data.title").value(title))
-                .andExpect(jsonPath("$.data.representative").value(representative))
-                .andExpect(jsonPath("$.data.temporary").value(temporary))
-                .andExpect(jsonPath("$.data.tags[0]").value("일러스트"))
-                .andExpect(jsonPath("$.data.contents").isNotEmpty())
+                .andExpect(jsonPath("$.portfolioId").value(givenTempPortfolioId))
+                .andExpect(jsonPath("$.artistUser").value(email))
+                .andExpect(jsonPath("$.title").value(title))
+                .andExpect(jsonPath("$.status").value(PortfolioStatus.TEMPORARY.toString()))
+                .andExpect(jsonPath("$.tags[0]").value("일러스트"))
+                .andExpect(jsonPath("$.contents").isNotEmpty())
         ;
-        verify(portfolioService).findPortfolio(eq(givenTempPortfolioId), eq(true));
+        verify(portfolioService).findTempPortfolio(eq(givenTempPortfolioId), any(ArtistUser.class));
     }
 
     @Test
@@ -241,13 +339,10 @@ class PortfolioControllerTest extends WebMvcBaseTest {
         final boolean representative = false;
         ErrorCode errorCode = GlobalErrorCode.ACCESS_DENIED;
 
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
-
         when(portfolioService.findPortfolio(
-                eq(givenTempPortfolioId), eq(true)
+                eq(givenTempPortfolioId)
         )).thenReturn(
-                createPortfolioDetailDto(givenTempPortfolioId, artistUser, title, temporary, representative)
+                createPortfolioDetailDto(givenTempPortfolioId, artistUser, title, PortfolioStatus.TEMPORARY)
         );
 
         //when //then
@@ -260,39 +355,7 @@ class PortfolioControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
 
         ;
-        verify(portfolioService, never()).findPortfolio(eq(givenTempPortfolioId), eq(true));
-    }
-
-
-
-    @Test
-    @DisplayName("[성공][GET]포트폴리오 전체 조회")
-    public void givenUserIdAndTemporary_whenPortfolioDetailListThenSuccess() throws Exception{
-        //given
-        final long givenUserId = 1L;
-        final boolean temporary = false;
-
-        when(portfolioService.findAllPortfolioByUserIdAndTemporary(anyLong(), anyBoolean()))
-                .thenReturn(
-                        getPortfolioSimpleDtos()
-                );
-        //when
-        //then
-        mvc.perform(get("/api/portfolios")
-                .queryParam("userId", String.valueOf(givenUserId))
-                .queryParam("temporary", String.valueOf(temporary))
-        )
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.result").value(true))
-            .andExpect(jsonPath("$.data").isNotEmpty())
-            .andExpect(jsonPath("$.data[0].portfolioId").value(1L))
-            .andExpect(jsonPath("$.data[0].mainImageUrl").value("mainImageUrl"))
-            .andExpect(jsonPath("$.data[0].title").value("제목1"))
-            .andExpect(jsonPath("$.data[0].view").value(0))
-        ;
-        verify(checker, never()).isSelf(anyLong());
-        verify(portfolioService).findAllPortfolioByUserIdAndTemporary(eq(givenUserId), eq(temporary));
+        verify(portfolioService, never()).findPortfolio(eq(givenTempPortfolioId));
     }
 
     private List<PortfolioSimpleDto> getPortfolioSimpleDtos() {
@@ -304,94 +367,33 @@ class PortfolioControllerTest extends WebMvcBaseTest {
     }
 
     private PortfolioSimpleDto createPortfolioSimple(long portfolioId, String title, String mainImageUrl) {
-        return PortfolioSimpleDto.createPortfolioSimpleDto(portfolioId, title, mainImageUrl, false);
+        return PortfolioSimpleDto.createPortfolioSimpleDto(portfolioId, title, mainImageUrl, PortfolioStatus.NORMAL);
     }
 
-    @Test
-    @WithArtistUser
-    @DisplayName("[성공][GET]포트폴리오 임시 저장글 전체 조회 - 작성자 본인이 일경우")
-    public void givenUserIdAndTemporary_whenPortfolioDetailListThenAccessDenied() throws Exception{
-        //given
-        final long givenUserId = 1L;
-        final boolean temporary = true;
 
 
-        when(portfolioService.findAllPortfolioByUserIdAndTemporary(anyLong(), anyBoolean()))
-                .thenReturn(
-                        getPortfolioSimpleDtos()
-                );
-
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
-        //when
-        //then
-        mvc.perform(get("/api/portfolios")
-                .queryParam("userId", String.valueOf(givenUserId))
-                .queryParam("temporary", String.valueOf(temporary))
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(true))
-                .andExpect(jsonPath("$.data").isNotEmpty())
-                .andExpect(jsonPath("$.data[0].portfolioId").value(1L))
-                .andExpect(jsonPath("$.data[0].mainImageUrl").value("mainImageUrl"))
-                .andExpect(jsonPath("$.data[0].title").value("제목1"))
-                .andExpect(jsonPath("$.data[0].view").value(0))
-        ;
-        verify(checker).isSelf(anyLong());
-        verify(portfolioService).findAllPortfolioByUserIdAndTemporary(eq(givenUserId), eq(temporary));
-    }
-
-    @Test
-    @WithArtistUser
-    @DisplayName("[실패][GET]포트폴리오 임시 저장글 전체 조회 - 작성자 본인이 아닌 경우")
-    public void givenOtherUserIdAndTemporary_whenPortfolioDetailListThenAccessDenied() throws Exception{
-        //given
-        final long givenUserId = 1L;
-        final boolean temporary = true;
-        final GlobalErrorCode errorCode = GlobalErrorCode.ACCESS_DENIED;
-
-        when(checker.isSelf(anyLong()))
-                .thenThrow(new GlobalException(errorCode));
-        //when
-        //then
-        mvc.perform(get("/api/portfolios")
-                .queryParam("userId", String.valueOf(givenUserId))
-                .queryParam("temporary", String.valueOf(temporary))
-        )
-                .andDo(print())
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
-                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
-        ;
-        verify(checker).isSelf(anyLong());
-        verify(portfolioService, never()).findAllPortfolioByUserIdAndTemporary(eq(givenUserId), eq(temporary));
-    }
 
     @Test
     @WithArtistUser
     @DisplayName("[성공] 포트폴리오 삭제")
-    public void givenPortfolioId_whenRemovePortfolio_thenSuccess() throws Exception{
+    public void givenPortfolioId_whenRemovePortfolio_thenNothing() throws Exception{
         //given
         final long givenPortfolioId = 1L;
-        final long userId = 1L;
 
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
         doNothing().when(portfolioService)
-                .removePortfolio(anyLong(), anyLong());
+                .removePortfolio(anyLong(), any(ArtistUser.class));
+        when(currentArtistUserArgumentResolver.resolveArgument(any(),any(),any(),any()))
+                .thenReturn(getArtistUser());
         //when
         //then
         mvc.perform(delete("/api/portfolios/{portfolioId}", givenPortfolioId)
-                .queryParam("userId", String.valueOf(userId))
         )
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.result").value(true))
             .andExpect(jsonPath("$.message").value("포트폴리오를 성공적으로 삭제하였습니다."))
         ;
-        verify(checker).isSelf(eq(userId));
-        verify(portfolioService).removePortfolio(eq(givenPortfolioId), eq(userId));
+        verify(portfolioService).removePortfolio(eq(givenPortfolioId), any(ArtistUser.class));
     }
 
     @Test
@@ -400,25 +402,22 @@ class PortfolioControllerTest extends WebMvcBaseTest {
     public void givenPortfolioId_whenDuplicatedRemovePortfolio_thenAlreadyDeletePortfolioError() throws Exception{
         //given
         final long givenPortfolioId = 1L;
-        final long userId = 1L;
         final PortfolioErrorCode errorCode = PortfolioErrorCode.ALREADY_DELETED_PORTFOLIO;
 
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
         doThrow(new PortfolioException(errorCode)).when(portfolioService)
-                .removePortfolio(anyLong(), anyLong());
+                .removePortfolio(anyLong(), any(ArtistUser.class));
+        when(currentArtistUserArgumentResolver.resolveArgument(any(),any(),any(),any()))
+                .thenReturn(getArtistUser());
         //when
         //then
         mvc.perform(delete("/api/portfolios/{portfolioId}", givenPortfolioId)
-                .queryParam("userId", String.valueOf(userId))
         )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
-        verify(checker).isSelf(eq(userId));
-        verify(portfolioService).removePortfolio(eq(givenPortfolioId), eq(userId));
+        verify(portfolioService).removePortfolio(eq(givenPortfolioId), any(ArtistUser.class));
     }
 
     @Test
@@ -427,16 +426,15 @@ class PortfolioControllerTest extends WebMvcBaseTest {
     public void givenPortfolioId_whenPortfolioRepresent_themSuccess() throws Exception{
         //given
         final long portfolioId = 1L;
-        final String userId = "1";
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
+
         doNothing().when(portfolioService)
-                .representPortfolio(anyLong(), anyLong());
+                .representPortfolio(anyLong(), any(ArtistUser.class));
+        when(currentArtistUserArgumentResolver.resolveArgument(any(),any(),any(),any()))
+                .thenReturn(getArtistUser());
 
         //when //then
         mvc.perform(put("/api/portfolios/{portfolioId}/representative", portfolioId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .queryParam("userId", userId)
         )
             .andDo(print())
             .andExpect(status().isOk())
@@ -444,7 +442,7 @@ class PortfolioControllerTest extends WebMvcBaseTest {
             .andExpect(jsonPath("$.message").value("해당 포트폴리오를 대표설정하였습니다."))
         ;
 
-        verify(portfolioService).representPortfolio(eq(portfolioId), eq(1L));
+        verify(portfolioService).representPortfolio(eq(portfolioId), any(ArtistUser.class));
     }
 
     @Test
@@ -453,18 +451,16 @@ class PortfolioControllerTest extends WebMvcBaseTest {
     public void givenTempPortfolioId_whenPortfolioRepresent_thenPortfolioError() throws Exception{
         //given
         final long tempPortfolioId = 1L;
-        final String userId = "1";
 
         PortfolioErrorCode errorCode = PortfolioErrorCode.NOT_ALLOW_REPRESENTATIVE_TEMP_PORTFOLIO;
 
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
         doThrow(new PortfolioException(errorCode)).when(portfolioService)
-                .representPortfolio(anyLong(), anyLong());
+                .representPortfolio(anyLong(), any(ArtistUser.class));
+        when(currentArtistUserArgumentResolver.resolveArgument(any(),any(),any(),any()))
+                .thenReturn(getArtistUser());
         //when //then
         mvc.perform(put("/api/portfolios/{portfolioId}/representative", tempPortfolioId)
             .contentType(MediaType.APPLICATION_JSON)
-                .queryParam("userId", userId)
 
         )
             .andDo(print())
@@ -473,7 +469,7 @@ class PortfolioControllerTest extends WebMvcBaseTest {
             .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
 
-        verify(portfolioService).representPortfolio(eq(tempPortfolioId), eq(1L));
+        verify(portfolioService).representPortfolio(eq(tempPortfolioId), any(ArtistUser.class));
     }
 
     @Test
@@ -482,17 +478,15 @@ class PortfolioControllerTest extends WebMvcBaseTest {
     public void givenPortfolioId_whenDuplicatedPortfolioRepresent_thenPortfolioError() throws Exception{
         //given
         final long tempPortfolioId = 1L;
-        final String userId = "1";
         PortfolioErrorCode errorCode = PortfolioErrorCode.ALREADY_DELETED_PORTFOLIO;
 
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
         doThrow(new PortfolioException(errorCode)).when(portfolioService)
-                .representPortfolio(anyLong(), anyLong());
+                .representPortfolio(anyLong(), any(ArtistUser.class));
+        when(currentArtistUserArgumentResolver.resolveArgument(any(),any(),any(),any()))
+                .thenReturn(getArtistUser());
         //when //then
         mvc.perform(put("/api/portfolios/{portfolioId}/representative", tempPortfolioId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .queryParam("userId", userId)
 
         )
                 .andDo(print())
@@ -501,7 +495,7 @@ class PortfolioControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
 
-        verify(portfolioService).representPortfolio(eq(tempPortfolioId), eq(1L));
+        verify(portfolioService).representPortfolio(eq(tempPortfolioId), any(ArtistUser.class));
     }
 
     @Test
@@ -510,16 +504,15 @@ class PortfolioControllerTest extends WebMvcBaseTest {
     public void givenPortfolioId_whenPortfolioUpdate_Success() throws Exception{
         //given
         final long portfolioId = 1L;
-        final long userId = 1L;
 
         doNothing().when(portfolioService)
-                .updatePortfolio(anyLong(), anyLong(), any(UpdatePortfolioDto.class));
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
+                .updatePortfolio(anyLong(), any(ArtistUser.class), any(UpdatePortfolioDto.class));
+        when(currentArtistUserArgumentResolver.resolveArgument(any(),any(),any(),any()))
+                .thenReturn(getArtistUser());
+
         //when //then
 
         mvc.perform(put("/api/portfolios/{portfolioId}", portfolioId)
-            .queryParam("userId", String.valueOf(userId))
             .contentType(MediaType.APPLICATION_JSON)
             .content(
                     mapper.writeValueAsString(
@@ -532,7 +525,7 @@ class PortfolioControllerTest extends WebMvcBaseTest {
             .andExpect(jsonPath("$.result").value(true))
             .andExpect(jsonPath("$.message").value("포트폴리오 수정을 완료 하였습니다."))
         ;
-        verify(portfolioService).updatePortfolio(eq(portfolioId), eq(userId), any(UpdatePortfolioDto.class));
+        verify(portfolioService).updatePortfolio(eq(portfolioId), any(ArtistUser.class), any(UpdatePortfolioDto.class));
     }
 
     private UpdatePortfolioDto createUpdatePortfolioDto() {
@@ -547,25 +540,4 @@ class PortfolioControllerTest extends WebMvcBaseTest {
         return UpdatePortfolioDto.createUpdatePortfolioDto("mainImageUrl", "수정된 제목", tags, drawingFieldIds, false, contents);
     }
 
-    @Test
-    @Disabled("userId 제거 방향 고려")
-    @DisplayName("[실패][PUT] 포트폴리오 수정하기 - 다른 사용자가 접근한 경우")
-    public void givenOtherUserId_whenPortfolioUpdate_thenNotAccessPortfolioError() throws Exception{
-        //given
-        PortfolioErrorCode errorCode = PortfolioErrorCode.NOT_ACCESS_PORTFOLIO;
-        final long portfolioId = 1L;
-        final long otherUserId = 1L;
-        when(checker.isSelf(anyLong()))
-                .thenReturn(false);
-        //when //then
-        mvc.perform(put("/api/portfolios/{portfolioId}", portfolioId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .queryParam("userId", String.valueOf(otherUserId))
-        )
-            .andDo(print())
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
-            .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
-        ;
-    }
 }

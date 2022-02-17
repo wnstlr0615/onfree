@@ -1,6 +1,7 @@
 package com.onfree.core.entity;
 
 import com.onfree.common.model.BaseEntity;
+import com.onfree.core.entity.portfolio.Portfolio;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,10 +46,16 @@ public class PortfolioDrawingField extends BaseEntity {
                 .drawingField(drawingField)
                 .build();
     }
+
     //== 비즈니스 로직 ==//
     //그림분야 식별키 반환
     public Long getDrawingFieldId(){
         return drawingField.getDrawingFieldId();
+    }
+
+    //그림분야명 반환
+    public String getDrawingFieldName(){
+        return drawingField.getFieldName();
     }
 
 }

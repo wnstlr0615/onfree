@@ -1,6 +1,7 @@
-package com.onfree.core.entity;
+package com.onfree.core.entity.portfolio;
 
 import com.onfree.common.model.BaseEntity;
+import com.onfree.core.entity.PortfolioDrawingField;
 import com.onfree.core.entity.portfoliocontent.PortfolioContent;
 import com.onfree.core.entity.user.ArtistUser;
 import lombok.AllArgsConstructor;
@@ -8,10 +9,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @NamedEntityGraph(
         name = "portfolio-details-graph",
@@ -52,9 +55,8 @@ public class Portfolio extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "portfolio", cascade = CascadeType.ALL)
     private List<PortfolioDrawingField> portfolioDrawingFields = new ArrayList<>(); // 그림 분야
 
-    private boolean representative; // 대표설정
-    private boolean temporary; // 임시 저장 유무
-    private boolean deleted; // 삭제 여부
+    @Enumerated(EnumType.STRING)
+    private PortfolioStatus status; //포트폴리오 상태
 
     //==연관 관계 메서드 ==//
     public void addPortfolioContent(@NonNull PortfolioContent portFolioContent){
@@ -76,17 +78,17 @@ public class Portfolio extends BaseEntity {
     //== 생성 메서드 ==//
     public static Portfolio createPortfolio(
             ArtistUser artistUser, String mainImageUrl, String title, List<PortfolioContent> contents,
-            String tags, List<PortfolioDrawingField> portfolioDrawingFields, boolean representative, boolean temporary
+            String tags, List<PortfolioDrawingField> portfolioDrawingFields, PortfolioStatus status
     ) {
+        final String imageUrl = StringUtils.hasText(mainImageUrl) ? mainImageUrl : "defaultImageUrl";
+
         final Portfolio portfolio = Portfolio.builder()
                 .artistUser(artistUser)
                 .title(title)
-                .mainImageUrl(mainImageUrl)
+                .mainImageUrl(imageUrl)
                 .tags(tags)
                 .view(0L)
-                .representative(representative)
-                .temporary(temporary)
-                .deleted(false)
+                .status(status)
                 .portfolioContents(new ArrayList<>())
                 .portfolioDrawingFields(new ArrayList<>())
                 .build();
@@ -105,37 +107,43 @@ public class Portfolio extends BaseEntity {
     //== 비즈니스 로직 ==//
     //조회 수 증가
     public void increaseView() {
-        if(!isTemporary()){
+        if(isStatusEquals(PortfolioStatus.NORMAL) || isStatusEquals(PortfolioStatus.REPRESENTATION)){
             this.view++;
         }
     }
 
     // 삭제 처리
     public void remove() {
-        this.deleted = true;
+        status = PortfolioStatus.DELETED;
     }
 
     //대표 설정 취소
     public void representCancel(){
-        if(isRepresentative()){
-            this.representative = false;
-        }
+        status = PortfolioStatus.NORMAL;
     }
     //대표 설정
     public void represent(){
-        if(!isRepresentative()){
-            this.representative = true;
-        }
-    }
-    public boolean isWriter(Long userId){
-        return artistUser.getUserId().equals(userId);
+        status = PortfolioStatus.REPRESENTATION;
     }
 
-    public void updatePortfolio(String title, String mainImageUrl, List<PortfolioContent> contents, List<PortfolioDrawingField> portfolioDrawingFields, List<String> tags, Boolean temporary) {
+    // 사용자 그림분야를 그림분야 식별자 리스트로 반환
+    public List<Long> getDrawingFieldIds(){
+        return portfolioDrawingFields.stream()
+                .map(PortfolioDrawingField::getDrawingFieldId)
+                .collect(Collectors.toList());
+
+    }
+    public boolean isStatusEquals(PortfolioStatus portfolioStatus){
+        return this.status.equals(portfolioStatus);
+
+    }
+    public void updatePortfolio(
+            String title, String mainImageUrl, List<PortfolioContent> contents,
+            List<PortfolioDrawingField> portfolioDrawingFields, List<String> tags, PortfolioStatus status) {
         this.title = title;
         this.mainImageUrl = mainImageUrl;
         this.tags = String.join(",", tags);
-        this.temporary = temporary;
+        this.status = status;
 
         //TODO 삭제 하지 않고 효율적으로 내용 가져오기
         //포트폴리오 내용 설정
@@ -148,9 +156,5 @@ public class Portfolio extends BaseEntity {
             this.addPortfolioDrawingField(portfolioDrawingField);
         }
 
-
-        if(temporary){
-            this.representative = false;
-        }
     }
 }

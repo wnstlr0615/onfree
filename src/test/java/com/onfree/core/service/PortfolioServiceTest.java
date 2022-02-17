@@ -7,8 +7,9 @@ import com.onfree.core.dto.portfolio.CreatePortfolioDto;
 import com.onfree.core.dto.portfolio.PortfolioDetailDto;
 import com.onfree.core.dto.portfolio.PortfolioSimpleDto;
 import com.onfree.core.entity.DrawingField;
-import com.onfree.core.entity.Portfolio;
 import com.onfree.core.entity.PortfolioDrawingField;
+import com.onfree.core.entity.portfolio.Portfolio;
+import com.onfree.core.entity.portfolio.PortfolioStatus;
 import com.onfree.core.entity.portfoliocontent.ImageContent;
 import com.onfree.core.entity.portfoliocontent.PortfolioContent;
 import com.onfree.core.entity.portfoliocontent.TextContent;
@@ -23,7 +24,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,31 +47,43 @@ class PortfolioServiceTest {
     private PortfolioRepository portfolioRepository;
     @Mock
     private DrawingFieldRepository drawingFieldRepository;
+
     @InjectMocks
     private PortfolioService portfolioService;
 
     @Test
     @DisplayName("[성공] 포트폴리오 추가")
-    public void givenUserIdAndCreatePortfolioDto_whenAddPortfolio_thenNotting(){
+    public void givenNormalRequestDto_whenAddPortfolio_thenCreatePortfolioDtoResponse(){
         //given
-        final long givenUserId = 1L;
         final boolean temporary = false;
 
-        when(userRepository.findById(anyLong()))
-                .thenReturn(
-                        Optional.ofNullable(getArtistUser())
-                );
         when(drawingFieldRepository.findAllByDisabledIsFalseAndDrawingFieldIdIn(any()))
                 .thenReturn(
                         getDrawingFields()
                 );
+
+        when(portfolioRepository.save(any(Portfolio.class)))
+                .thenReturn(
+                        getPortfolioOnPortfolioStatus(PortfolioStatus.NORMAL)
+                );
         //when
-        portfolioService.addPortfolio(givenUserId, givenCreatePortfolioDto("제목", "mainImageUrl", temporary));
+        final CreatePortfolioDto.Response response
+                = portfolioService.addPortfolio(
+                        getArtistUser(), givenNormalCreatePortfolioDtoRequest("제목", "mainImageUrl")
+        );
 
         //then
-
-        verify(userRepository).findById(eq(givenUserId));
-        verify(portfolioRepository, never()).findByArtistUserAndDeletedIsFalse(any(ArtistUser.class));
+        assertAll(
+            () -> assertThat(response)
+                    .hasFieldOrPropertyWithValue("portfolioId", 1L)
+                    .hasFieldOrPropertyWithValue("mainImageUrl", "mainImageUrl")
+                    .hasFieldOrPropertyWithValue("title", "제목")
+                    .hasFieldOrPropertyWithValue("status", PortfolioStatus.NORMAL),
+            () -> assertThat(response.getContents()).isNotEmpty(),
+            () -> assertThat(response.getDrawingFields()).isNotEmpty(),
+            () -> assertThat(response.getTags()).isNotEmpty()
+        );
+        verify(drawingFieldRepository).findAllByDisabledIsFalseAndDrawingFieldIdIn(any());
         verify(portfolioRepository).save(any(Portfolio.class));
     }
 
@@ -108,11 +126,21 @@ class PortfolioServiceTest {
                 .build();
     }
 
-    private CreatePortfolioDto.Request givenCreatePortfolioDto(String title, String mainImageUrl, boolean temporary) {
-        final List<String> tags = List.of("일러스트", "캐릭터 작업");
-        final List<CreatePortfolioContentDto> createPortfolioContentDtos = getCreatePortfolioContentDtos();
-        return CreatePortfolioDto.Request.createPortfolioDto(title, mainImageUrl, tags, createPortfolioContentDtos,  temporary);
+    private CreatePortfolioDto.Request givenNormalCreatePortfolioDtoRequest(String title, String mainImageUrl) {
+        final List<String> tags = getTags();
+        return createPortfolioDtoRequest(title, mainImageUrl, List.of(1L, 2L), tags, false);
     }
+
+    private CreatePortfolioDto.Request createPortfolioDtoRequest(String title, String mainImageUrl, List<Long> drawingFieldIds, List<String> tags, boolean temporary) {
+        final List<CreatePortfolioContentDto> createPortfolioContentDtos = getCreatePortfolioContentDtos();
+
+        return CreatePortfolioDto.Request.createPortfolioDtoRequest(title, mainImageUrl, tags, createPortfolioContentDtos, drawingFieldIds, temporary);
+    }
+
+    private List<String> getTags() {
+        return List.of("일러스트", "캐릭터 작업");
+    }
+
 
     private List<CreatePortfolioContentDto> getCreatePortfolioContentDtos() {
         return List.of(
@@ -122,13 +150,16 @@ class PortfolioServiceTest {
         );
     }
 
-    private Portfolio createPortfolio(ArtistUser artistUser, String title, boolean representative, boolean temporary) {
-        final String tags = String.join(", ", List.of("일러스트", "캐릭터 작업"));
+    private Portfolio createPortfolio(String title,  PortfolioStatus status) {
+        final ArtistUser artistUser = getArtistUser();
+        final String tags = String.join(", ", getTags());
         final List<PortfolioDrawingField> portfolioDrawingFields = getPortfolioDrawingFields();
         final List<PortfolioContent> portfolioContents = getPortfolioContents();
+
         return Portfolio.createPortfolio(
-                artistUser, "mainImageUrl", title, portfolioContents,
-                tags, portfolioDrawingFields, representative, temporary);
+                artistUser, "mainImageUrl", title,
+                portfolioContents, tags, portfolioDrawingFields, status
+        );
     }
 
     private List<PortfolioDrawingField> getPortfolioDrawingFields() {
@@ -153,300 +184,462 @@ class PortfolioServiceTest {
     }
 
     @Test
-    @DisplayName("[성공] 포트폴리오 상세 조회 - 임시 저장 글이 아닌 경우")
-    public void givenPortfolioId_whenFindPortfolio_thenPortfolioDetailDto(){
+    @DisplayName("[성공] 임시 포트폴리오 추가")
+    public void givenTempRequestDto_whenAddPortfolio_thenCreatePortfolioDtoResponse(){
         //given
 
-        final long givenPortfolioId = 1L;
-
-        final Portfolio portfolio = getPortfolio(false);
-        final Long beforeView = portfolio.getView();
-
-        when(portfolioRepository.findByPortfolioIdAndTemporaryAndDeletedIsFalse(anyLong(), eq(false)))
+        when(portfolioRepository.save(any(Portfolio.class)))
                 .thenReturn(
-                        Optional.of(
-                                portfolio
-                        )
+                        getTempPortfolio()
                 );
-        //when //then
-        final PortfolioDetailDto portfolioDetailDto = portfolioService.findPortfolio(givenPortfolioId, false);
-        assertThat(beforeView + 1).isEqualTo(portfolio.getView())
-                .as("조회 전과 후 조회수 증가 검증");
-        assertThat(portfolioDetailDto)
-            .hasFieldOrPropertyWithValue("portfolioId", givenPortfolioId)
-            .hasFieldOrPropertyWithValue("artistUser", "joon@naver.com")
-            .hasFieldOrPropertyWithValue("title", "제목")
-            .hasFieldOrPropertyWithValue("representative", false)
-            .hasFieldOrPropertyWithValue("temporary", false)
-        ;
+        //when
+        final CreatePortfolioDto.Response response
+                = portfolioService.addPortfolio(
+                getArtistUser(), givenTempCreatePortfolioDtoRequest("제목")
+        );
 
-        verify(portfolioRepository).findByPortfolioIdAndTemporaryAndDeletedIsFalse(anyLong(), eq(false));
+        //then
+        assertAll(
+                () -> assertThat(response)
+                        .hasFieldOrPropertyWithValue("portfolioId", 1L)
+                        .hasFieldOrPropertyWithValue("mainImageUrl", "defaultImageUrl")
+                        .hasFieldOrPropertyWithValue("title", "제목")
+                        .hasFieldOrPropertyWithValue("status", PortfolioStatus.TEMPORARY),
+                () -> assertThat(response.getContents()).isNotEmpty(),
+                () -> assertThat(response.getDrawingFields()).isEmpty(),
+                () -> assertThat(response.getTags()).isEmpty()
+        );
 
+        verify(portfolioRepository).save(any(Portfolio.class));
     }
 
-    private Portfolio getPortfolio(boolean temporary) {
+    private CreatePortfolioDto.Request givenTempCreatePortfolioDtoRequest(String title) {
+        return createPortfolioDtoRequest(title, null, Collections.EMPTY_LIST, Collections.EMPTY_LIST, true);
+    }
+
+    private Portfolio getTempPortfolio() {
+        final String tags = "";
+        final List<PortfolioDrawingField> drawingFields = List.of();
+        final String mainImageUrl = "defaultImageUrl";
+
+        return getPortfolio(tags, PortfolioStatus.TEMPORARY, mainImageUrl, drawingFields);
+    }
+
+    private Portfolio getPortfolio(String tags, PortfolioStatus status, String mainImageUrl, List<PortfolioDrawingField> portfolioDrawingFields) {
+        final List<PortfolioContent> portfolioContents = getPortfolioContents();
         return Portfolio.builder()
                 .portfolioId((long) 1)
-                .representative(false)
-                .artistUser(getArtistUser())
-                .temporary(temporary)
-                .portfolioContents(List.of())
-                .view(0L)
-                .tags("일러스트,캐릭터작업")
-                .portfolioDrawingFields(getPortfolioDrawingFields())
-                .mainImageUrl("mainImageUrl")
+                .mainImageUrl(mainImageUrl)
                 .title("제목")
+                .view(0L)
+                .status(status)
+                .artistUser(getArtistUser())
+                .portfolioContents(
+                        portfolioContents
+                )
+                .tags(tags)
+                .portfolioDrawingFields(
+                        portfolioDrawingFields
+                )
                 .build();
     }
 
     @Test
-    @DisplayName("[성공] 포트폴리오 상세 조회 - 임시 저장 글인 경우")
-    public void givenTemporaryPortfolioId_whenFindPortfolio_thenPortfolioDetailDto(){
+    @DisplayName("[성공] 보통 포트폴리오 상세 조회 - 포트폴리오 조회 시 조회 수가 1 오르고 PortfolioDetailDto 반환")
+    public void givenNormalPortfolioId_whenFindPortfolio_thenPortfolioIncreaseViewAndReturnPortfolioDetailDto(){
+        //given
+
+        final long normalPortfolioId = 1L;
+
+        final Portfolio normalPortfolio = getPortfolioOnPortfolioStatus(PortfolioStatus.NORMAL);
+        final Long beforeView = normalPortfolio.getView();
+
+        when(portfolioRepository.findByPortfolioId(anyLong()))
+                .thenReturn(
+                        Optional.of(
+                                normalPortfolio
+                        )
+                );
+        //when 
+        final PortfolioDetailDto portfolioDetailDto = portfolioService.findPortfolio(normalPortfolioId);
+
+        //then
+        assertThat(beforeView + 1)
+                .isEqualTo(normalPortfolio.getView())
+                .as("조회 전과 후 조회수 증가 검증");
+        
+        assertThat(portfolioDetailDto)
+            .hasFieldOrPropertyWithValue("portfolioId", normalPortfolioId)
+            .hasFieldOrPropertyWithValue("artistUser", "joon@naver.com")
+            .hasFieldOrPropertyWithValue("title", "제목")
+            .hasFieldOrPropertyWithValue("status", PortfolioStatus.NORMAL)
+        ;
+
+        verify(portfolioRepository).findByPortfolioId(eq(normalPortfolioId));
+
+    }
+
+    private Portfolio getPortfolioOnPortfolioStatus(PortfolioStatus status) {
+        final String tags = "일러스트,캐릭터작업";
+        final List<PortfolioDrawingField> portfolioDrawingFields = getPortfolioDrawingFields();
+        return getPortfolio(tags, status, "mainImageUrl", portfolioDrawingFields);
+    }
+
+    @Test
+    @DisplayName("[실패] 잘못된 포트폴리오 상세 조회 - NOT_FOUND_PORTFOLIO 에러 발생")
+    public void givenWrongPortfolioId_whenFindPortfolio_thenNotFoundPortfolioError(){
+        //given
+
+        final long wrongPortfolioId = 999999L;
+        final PortfolioErrorCode errorCode = PortfolioErrorCode.NOT_FOUND_PORTFOLIO;
+
+
+        when(portfolioRepository.findByPortfolioId(anyLong()))
+                .thenReturn(
+                        Optional.empty()
+                );
+        //when 
+        final PortfolioException portfolioException = assertThrows(PortfolioException.class,
+                () -> portfolioService.findPortfolio(wrongPortfolioId)
+        );
+
+        //then
+        assertAll(
+                () -> assertThat(portfolioException.getErrorCode()).isEqualTo(errorCode),
+                () -> assertThat(portfolioException.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
+        );
+
+        verify(portfolioRepository).findByPortfolioId(anyLong());
+    }
+
+    @Test
+    @DisplayName("[실패] 삭제된 포트폴리오 상세 조회 - NOT_FOUND_PORTFOLIO 에러 발생")
+    public void givenDeletedPortfolioId_whenFindPortfolio_thenNotFoundPortfolioError(){
+        //given
+
+        final long deletedPortfolioId = 2L;
+        final PortfolioErrorCode errorCode = PortfolioErrorCode.NOT_FOUND_PORTFOLIO;
+
+
+        when(portfolioRepository.findByPortfolioId(anyLong()))
+                .thenReturn(
+                        Optional.of(
+                                getPortfolioOnPortfolioStatus(PortfolioStatus.DELETED)
+                        )
+                );
+        //when 
+        final PortfolioException portfolioException = assertThrows(PortfolioException.class,
+                () -> portfolioService.findPortfolio(deletedPortfolioId)
+        );
+
+        //then
+        assertAll(
+                () -> assertThat(portfolioException.getErrorCode()).isEqualTo(errorCode),
+                () -> assertThat(portfolioException.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
+        );
+
+        verify(portfolioRepository).findByPortfolioId(anyLong());
+    }
+
+    @Test
+    @DisplayName("[실패] 숨겨진 포트폴리오 상세 조회 - NOT_FOUND_PORTFOLIO 에러 발생")
+    public void givenHiddenPortfolioId_whenFindPortfolio_thenNotFoundPortfolioError(){
+        //given
+
+        final long hiddenPortfolioId = 3L;
+        final PortfolioErrorCode errorCode = PortfolioErrorCode.NOT_FOUND_PORTFOLIO;
+
+
+        when(portfolioRepository.findByPortfolioId(anyLong()))
+                .thenReturn(
+                        Optional.of(
+                                getPortfolioOnPortfolioStatus(PortfolioStatus.DELETED)
+                        )
+                );
+        //when 
+        final PortfolioException portfolioException = assertThrows(PortfolioException.class,
+                () -> portfolioService.findPortfolio(hiddenPortfolioId)
+        );
+
+        //then
+        assertAll(
+                () -> assertThat(portfolioException.getErrorCode()).isEqualTo(errorCode),
+                () -> assertThat(portfolioException.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
+        );
+
+        verify(portfolioRepository).findByPortfolioId(anyLong());
+    }
+
+    @Test
+    @DisplayName("[성공] 임시 저장 포트폴리오 상세 조회 - 조회 수가 증가하지 않고 PortfolioDetailDto 반환")
+    public void givenTempPortfolioId_whenFindPortfolio_thenNotIncreaseViewAndReturnPortfolioDetailDto(){
         //given
         final long givenTempPortfolioId = 1L;
-        final Portfolio tempPortfolio = getPortfolio(true);
+        final Portfolio tempPortfolio = getTempPortfolio();
         final Long beforeView = tempPortfolio.getView();
+        final ArtistUser artistUser = getArtistUser();
 
-        when(portfolioRepository.findByPortfolioIdAndTemporaryAndDeletedIsFalse(anyLong(), eq(true)))
+        when(portfolioRepository.findByPortfolioIdAndArtistUser(anyLong(), any(ArtistUser.class)))
                 .thenReturn(
                         Optional.of(
                                 tempPortfolio
                         )
                 );
-        //when //then
-        final PortfolioDetailDto portfolioDetailDto = portfolioService.findPortfolio(givenTempPortfolioId, true);
+        //when
+        final PortfolioDetailDto portfolioDetailDto = portfolioService.findTempPortfolio(givenTempPortfolioId, artistUser);
+
+        //then
         assertThat(beforeView).isEqualTo(tempPortfolio.getView())
                 .as("임시 저장글 조회 전과 후 조회수 동일");
+
         assertThat(portfolioDetailDto)
                 .hasFieldOrPropertyWithValue("portfolioId", givenTempPortfolioId)
                 .hasFieldOrPropertyWithValue("artistUser", "joon@naver.com")
                 .hasFieldOrPropertyWithValue("title", "제목")
-                .hasFieldOrPropertyWithValue("representative", false)
-                .hasFieldOrPropertyWithValue("temporary", true)
+                .hasFieldOrPropertyWithValue("status", PortfolioStatus.TEMPORARY)
         ;
-        verify(portfolioRepository).findByPortfolioIdAndTemporaryAndDeletedIsFalse(eq(givenTempPortfolioId), eq(true));
+        verify(portfolioRepository).findByPortfolioIdAndArtistUser(eq(givenTempPortfolioId), any(ArtistUser.class));
     }
 
     @Test
-    @DisplayName("[실패] 포트폴리오 상세 조회 - 포트폴리오가 없는 경우")
-    public void givenNotFoundPortfolioId_whenFindPortfolio_thenNotfoundPortfolioError(){
+    @DisplayName("[실패] 존재하지 않는 포트폴리오 상세 조회 - NOT_FOUND_PORTFOLIO 에러 발생")
+    public void givenWrongPortfolioId_whenFindPortfolio_thenNotfoundPortfolioError(){
         //given
-        final long givenTempPortfolioId = 1L;
+        final long wrongPortfolioId = 123456L;
         final PortfolioErrorCode errorCode = PortfolioErrorCode.NOT_FOUND_PORTFOLIO;
 
-        when(portfolioRepository.findByPortfolioIdAndTemporaryAndDeletedIsFalse(anyLong(), eq(false)))
+        when(portfolioRepository.findByPortfolioId(anyLong()))
                 .thenReturn(
                         Optional.empty()
                 );
         //when //then
         final PortfolioException portfolioException = assertThrows(PortfolioException.class,
-                () -> portfolioService.findPortfolio(givenTempPortfolioId, false)
+                () -> portfolioService.findPortfolio(wrongPortfolioId)
         );
         assertAll(
                 () -> assertThat(portfolioException.getErrorCode()).isEqualTo(errorCode),
                 () -> assertThat(portfolioException.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
         );
-        verify(portfolioRepository).findByPortfolioIdAndTemporaryAndDeletedIsFalse(eq(givenTempPortfolioId), eq(false));
+        verify(portfolioRepository).findByPortfolioId(eq(wrongPortfolioId));
     }
 
 
     @Test
     @DisplayName("[성공] 작가 포트폴리오 조회")
-    public void givenUserIdAndTemporary_whenFindAllPortfolioByUserIdAndTemporary_thenPortfolioSimpleDtos(){
+    public void givenUserId_whenFindAllPortfolioByUserId_thenPortfolioSimpleDtos(){
         //given
-        final long givenUserId = 1L;
-        final long portfolioId = 1L;
+        final long userId = 1L;
         final boolean temporary = false;
         final ArtistUser artistUser = getArtistUser();
+        final PageRequest pageRequest = PageRequest.of(0, 3);
+        final List<Portfolio> portfolio = List.of(
+                createPortfolio("제목1", PortfolioStatus.NORMAL),
+                createPortfolio("제목2", PortfolioStatus.NORMAL),
+                createPortfolio("제목3", PortfolioStatus.NORMAL)
+        );
 
-        when(userRepository.findById(givenUserId))
+
+        when(userRepository.findById(userId))
                 .thenReturn(
                         Optional.ofNullable(
                                 artistUser
                         )
                 );
 
-        when(portfolioRepository.findByArtistUserAndTemporaryAndDeletedIsFalse(any(ArtistUser.class), eq(false)))
-                .thenReturn(
-                        List.of(
-                                createPortfolio(artistUser, "제목1", temporary, false),
-                                createPortfolio(artistUser, "제목2", temporary, false),
-                                createPortfolio(artistUser, "제목3", temporary, false)
-                        )
-                );
+
+        when(portfolioRepository.findByArtistUserAndStatusIn(any(ArtistUser.class), any(), any(Pageable.class)))
+                .thenReturn( new PageImpl(portfolio, pageRequest, 3));
         //when
-        final List<PortfolioSimpleDto> portfolioSimpleDtos
-                = portfolioService.findAllPortfolioByUserIdAndTemporary(portfolioId, temporary);
+        final Page<PortfolioSimpleDto> portfolioSimpleDtos
+                = portfolioService.findAllPortfolioByUserId(userId, pageRequest);
 
         //then
-        assertThat(portfolioSimpleDtos.size()).isEqualTo(3);
-        assertThat(portfolioSimpleDtos.get(0))
+        assertThat(portfolioSimpleDtos.getTotalElements()).isEqualTo(3);
+        assertThat(portfolioSimpleDtos.getContent().get(0))
                 .hasFieldOrPropertyWithValue("mainImageUrl", "mainImageUrl")
                 .hasFieldOrPropertyWithValue("title", "제목1")
                 .hasFieldOrPropertyWithValue("view", 0L)
         ;
-        verify(userRepository).findById(eq(givenUserId));
-        verify(portfolioRepository).findByArtistUserAndTemporaryAndDeletedIsFalse(any(ArtistUser.class), eq(temporary));
+        verify(userRepository).findById(eq(userId));
+        verify(portfolioRepository).findByArtistUserAndStatusIn(any(ArtistUser.class), any(), any(Pageable.class));
     }
 
     @Test
-    @DisplayName("[성공] 작가 임시 저장 포트폴리오 조회")
-    public void givenUserIdAndTemporaryIsTrue_whenFindAllPortfolioByUserIdAndTemporary_thenPortfolioSimpleDtos(){
+    @DisplayName("[성공] 작가 임시 저장 포트폴리오 전체 조회")
+    public void giveArtistUser_whenfindTempPortfolioByArtistUser_thenPortfolioSimpleDtos(){
         //given
-        final long givenUserId = 1L;
-        final long portfolioId = 1L;
-        final boolean temporary = true;
         final ArtistUser artistUser = getArtistUser();
-
-        when(userRepository.findById(givenUserId))
+        final PageRequest pageRequest = PageRequest.of(0, 6);
+        final List<Portfolio> portfolio = List.of(
+                createPortfolio("제목1", PortfolioStatus.TEMPORARY),
+                createPortfolio("제목2", PortfolioStatus.TEMPORARY),
+                createPortfolio("제목3", PortfolioStatus.TEMPORARY)
+        );
+        when(portfolioRepository.findPageByArtistUserAndStatus(any(ArtistUser.class), eq(PortfolioStatus.TEMPORARY), any(Pageable.class)))
                 .thenReturn(
-                        Optional.ofNullable(
-                                artistUser
-                        )
-                );
-
-        when(portfolioRepository.findByArtistUserAndTemporaryAndDeletedIsFalse(any(ArtistUser.class), eq(true)))
-                .thenReturn(
-                        List.of(
-                                createPortfolio(artistUser, "제목1", temporary, false),
-                                createPortfolio(artistUser, "제목2", temporary, false),
-                                createPortfolio(artistUser, "제목3", temporary, false)
-                        )
+                        new PageImpl(portfolio, pageRequest, 3)
                 );
         //when
-        final List<PortfolioSimpleDto> portfolioSimpleDtos
-                = portfolioService.findAllPortfolioByUserIdAndTemporary(portfolioId, temporary);
+        final Page<PortfolioSimpleDto> portfolioSimpleDtos
+                = portfolioService.findTempPortfolioByArtistUser(artistUser, pageRequest);
 
         //then
-        assertThat(portfolioSimpleDtos.size()).isEqualTo(3);
-        assertThat(portfolioSimpleDtos.get(0))
+        assertThat(portfolioSimpleDtos.getTotalElements()).isEqualTo(3);
+        assertThat(portfolioSimpleDtos.getContent().get(0))
                 .hasFieldOrPropertyWithValue("mainImageUrl", "mainImageUrl")
                 .hasFieldOrPropertyWithValue("title", "제목1")
                 .hasFieldOrPropertyWithValue("view", 0L)
         ;
-        verify(userRepository).findById(eq(givenUserId));
-        verify(portfolioRepository).findByArtistUserAndTemporaryAndDeletedIsFalse(any(ArtistUser.class), eq(temporary));
+        verify(portfolioRepository).findPageByArtistUserAndStatus(any(ArtistUser.class), eq(PortfolioStatus.TEMPORARY), eq(pageRequest));
     }
 
     @Test
     @DisplayName("[성공] 포트폴리오 삭제하기")
-    public void givenPortfolioId_whenPortfolioRemove_thenSuccess(){
+    public void givenPortfolioIdAndArtistUser_whenRemovePortfolio_thenNothing(){
         //given
         final long portfolioId = 1L;
-        Long userId = 1L;
-        final Portfolio portfolio = getPortfolio(true);
-        final boolean beforeDeleted = portfolio.isDeleted();
-        when(portfolioRepository.findById(anyLong()))
+        final ArtistUser artistUser = getArtistUser();
+        final Portfolio portfolio = getPortfolioOnPortfolioStatus(PortfolioStatus.NORMAL);
+        final PortfolioStatus beforeStatus = portfolio.getStatus();
+        when(portfolioRepository.findByPortfolioIdAndArtistUser(anyLong(), any(ArtistUser.class)))
                 .thenReturn(
                         Optional.of(
                                 portfolio
                         )
                 );
         //when
-        portfolioService.removePortfolio(portfolioId, userId);
+        portfolioService.removePortfolio(portfolioId, artistUser);
 
         //then
         assertAll(
-                () -> assertThat(beforeDeleted).isFalse(),
-                () -> assertThat(portfolio.isDeleted()).isTrue()
+                () -> assertThat(beforeStatus).isNotEqualTo(PortfolioStatus.DELETED),
+                () -> assertThat(portfolio.getStatus()).isEqualTo(PortfolioStatus.DELETED)
         );
 
-        verify(portfolioRepository).findById(eq(portfolioId));
+        verify(portfolioRepository).findByPortfolioIdAndArtistUser(eq(portfolioId), any(ArtistUser.class));
     }
 
     @Test
-    @DisplayName("[실패] 포트폴리오 삭제하기 - 중복으로 삭제요청을 보낸 경우")
-    public void givenPortfolioId_whenDeplicatedPortfolioRemove_thenAlreadyDeletedPortfolioError(){
+    @DisplayName("[실패] 이미 제거한 포트폴리오 포트폴리오 삭제 요청 - ALREADY_DELETED_PORTFOLIO 에러 발생")
+    public void givenDeletedPortfolioId_whenRemovePortfolio_thenAlreadyDeletedPortfolioError(){
         //given
         final long portfolioId = 1L;
-        Long userId = 1L;
+        final ArtistUser artistUser = getArtistUser();
         final PortfolioErrorCode errorCode = PortfolioErrorCode.ALREADY_DELETED_PORTFOLIO;
 
-        when(portfolioRepository.findById(anyLong()))
-                .thenThrow(
-                        new PortfolioException(errorCode)
+        when(portfolioRepository.findByPortfolioIdAndArtistUser(anyLong(), any(ArtistUser.class)))
+                .thenReturn(
+                        Optional.of(
+                                getPortfolioOnPortfolioStatus(PortfolioStatus.DELETED)
+                        )
                 );
         //when
         final PortfolioException portfolioException = assertThrows(PortfolioException.class,
-                () -> portfolioService.removePortfolio(portfolioId, userId)
+                () -> portfolioService.removePortfolio(portfolioId, artistUser)
         );
-
 
         //then
          assertAll(
                  () -> assertThat(portfolioException.getErrorCode()).isEqualTo(errorCode),
                  () -> assertThat(portfolioException.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
          );
-        verify(portfolioRepository).findById(eq(portfolioId));
+        verify(portfolioRepository).findByPortfolioIdAndArtistUser(eq(portfolioId), any(ArtistUser.class));
     }
 
     @Test
-    @DisplayName("[성공] 포트폴리오 대표 설정")
-    public void givenPortfolioId_whenRepresentPortfolio_thenSuccess(){
+    @DisplayName("[실패] 숨겨진 포트폴리오 포트폴리오 삭제 요청 - CAN_NOT_REMOVE_PORTFOLIO 에러 발생")
+    public void givenHiddenPortfolioId_whenRemovePortfolio_thenCanNotRemovePortfolioError(){
         //given
         final long portfolioId = 1L;
-        Long userId = 1L;
-        final Portfolio portfolio = getPortfolio(false);
-        final boolean beforeRepresentative = portfolio.isRepresentative();
-        final List<Portfolio> portfoliosAnyOneRepresentative = getPortfoliosAnyOneRepresentative();
-        final boolean beforeHasRepresentative = portfoliosAnyOneRepresentative.stream().anyMatch(Portfolio::isRepresentative);
-        when(portfolioRepository.findById(anyLong()))
+        final ArtistUser artistUser = getArtistUser();
+        final PortfolioErrorCode errorCode = PortfolioErrorCode.CAN_NOT_REMOVE_PORTFOLIO;
+
+        when(portfolioRepository.findByPortfolioIdAndArtistUser(anyLong(), any(ArtistUser.class)))
+                .thenReturn(
+                        Optional.of(
+                                getPortfolioOnPortfolioStatus(PortfolioStatus.HIDDEN)
+                        )
+                );
+        //when
+        final PortfolioException portfolioException = assertThrows(PortfolioException.class,
+                () -> portfolioService.removePortfolio(portfolioId, artistUser)
+        );
+
+        //then
+        assertAll(
+                () -> assertThat(portfolioException.getErrorCode()).isEqualTo(errorCode),
+                () -> assertThat(portfolioException.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
+        );
+        verify(portfolioRepository).findByPortfolioIdAndArtistUser(eq(portfolioId), any(ArtistUser.class));
+    }
+
+    @Test
+    @DisplayName("[성공] 정상적인 포트폴리오 대표 설정")
+    public void givenPortfolioId_whenRepresentPortfolio_then(){
+        //given
+        final long portfolioId = 1L;
+        final ArtistUser artistUser = getArtistUser();
+        final Portfolio portfolio = getPortfolioOnPortfolioStatus(PortfolioStatus.NORMAL);
+        final List<Portfolio> portfoliosAnyOneRepresentative =
+                List.of(
+                    createPortfolio("제목1", PortfolioStatus.NORMAL),
+                    createPortfolio("제목2", PortfolioStatus.NORMAL),
+                    createPortfolio("대표 포트폴리오", PortfolioStatus.REPRESENTATION),
+                    createPortfolio("제목4", PortfolioStatus.NORMAL),
+                    createPortfolio("제목5", PortfolioStatus.NORMAL)
+        );
+
+        final boolean beforeHasRepresentation = portfoliosAnyOneRepresentative.stream()
+                .anyMatch(p-> p.isStatusEquals(PortfolioStatus.REPRESENTATION));
+
+        when(portfolioRepository.findByPortfolioIdAndArtistUser(anyLong(), any(ArtistUser.class)))
                 .thenReturn(
                         Optional.of(
                                 portfolio
                         )
                 );
 
-        when(portfolioRepository.findByArtistUserAndDeletedIsFalse(any(ArtistUser.class)))
+        when(portfolioRepository.findAllByArtistUserAndStatus(any(ArtistUser.class), eq(PortfolioStatus.REPRESENTATION)))
                 .thenReturn(
                         portfoliosAnyOneRepresentative
                 );
 
         //when
-        portfolioService.representPortfolio(portfolioId, userId);
+        portfolioService.representPortfolio(portfolioId, artistUser);
 
         //then
         assertAll(
-                () -> assertThat(beforeRepresentative).isFalse(),
-                () -> assertThat(portfolio.isRepresentative()).isTrue(),
-                () -> assertThat(beforeHasRepresentative)
+                () -> assertThat(beforeHasRepresentation).isTrue()
+                    .as("대표 포트폴리오 지정 전 기존 포트폴리오에 대표 포트폴리오가 포함되어 있다."),
+                () -> assertThat(portfolio.getStatus()).isEqualTo(PortfolioStatus.REPRESENTATION),
+                () -> assertThat(beforeHasRepresentation)
                         .isTrue().as("사용자 포트폴리오에 메소드 실행전 대표 포트폴리오가 있는 것을 확인"),
                 () -> assertThat(
                         portfoliosAnyOneRepresentative.stream()
-                        .anyMatch(Portfolio::isRepresentative)
+                        .anyMatch(p -> p.isStatusEquals(PortfolioStatus.REPRESENTATION))
                     ).isFalse().as("해당 메소드 실행 수 대표로 지정되었던 포트폴리오가 해제되었음")
         );
-        verify(portfolioRepository).findById(eq(portfolioId));
-        verify(portfolioRepository).findByArtistUserAndDeletedIsFalse(any(ArtistUser.class));
-    }
-
-    private List<Portfolio> getPortfoliosAnyOneRepresentative() {
-        return List.of(
-                createPortfolio(getArtistUser(), "제목1", false, false),
-                createPortfolio(getArtistUser(), "제목2", false, false),
-                createPortfolio(getArtistUser(), "대표 포트폴리오", true, false),
-                createPortfolio(getArtistUser(), "제목4", false, false),
-                createPortfolio(getArtistUser(), "제목5", false, false)
-        );
+        verify(portfolioRepository).findByPortfolioIdAndArtistUser(eq(portfolioId), any(ArtistUser.class));
+        verify(portfolioRepository).findAllByArtistUserAndStatus(any(ArtistUser.class), eq(PortfolioStatus.REPRESENTATION));
     }
 
     @Test
-    @DisplayName("[실패] 포트폴리오 대표 설정 - 해당 포트폴리오가 임시 저장 포트폴리오 인 경우")
-    public void givenTempPortfolioId_whenRepresentPortfolio_thenPortfolioError(){
+    @DisplayName("[실패] 임시 저장 포트폴리오 대표 설정 - NOT_ALLOW_REPRESENTATIVE_TEMP_PORTFOLIO 에러 발생 ")
+    public void givenTempPortfolioId_whenRepresentPortfolio_thenNotAllowRepresentativeTempPortfolioError(){
         //given
         final PortfolioErrorCode errorCode = PortfolioErrorCode.NOT_ALLOW_REPRESENTATIVE_TEMP_PORTFOLIO;
 
         final long portfolioId = 1L;
-        Long userId = 1L;
-        when(portfolioRepository.findById(anyLong()))
+        final ArtistUser artistUser = getArtistUser();
+        when(portfolioRepository.findByPortfolioIdAndArtistUser(anyLong(), any(ArtistUser.class)))
             .thenReturn(
                     Optional.of(
-                            getPortfolio(true)
+                            getPortfolioOnPortfolioStatus(PortfolioStatus.TEMPORARY)
                     )
             );
         //when
         final PortfolioException exception = assertThrows(PortfolioException.class,
-            () -> portfolioService.representPortfolio(portfolioId, userId)
+            () -> portfolioService.representPortfolio(portfolioId, artistUser)
         )
         ;
         //then
@@ -454,26 +647,26 @@ class PortfolioServiceTest {
             () -> assertThat(exception.getErrorCode()).isEqualTo(errorCode),
             () -> assertThat(exception.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
         );
-        verify(portfolioRepository).findById(eq(portfolioId));
-        verify(portfolioRepository, never()).findByArtistUserAndDeletedIsFalse(any(ArtistUser.class));
+        verify(portfolioRepository).findByPortfolioIdAndArtistUser(eq(portfolioId), any(ArtistUser.class));
+        verify(portfolioRepository, never()).findAllByArtistUserAndStatus(any(ArtistUser.class), any(PortfolioStatus.class));
     }
 
     @Test
-    @DisplayName("[실패] 포트폴리오 대표 설정 - 해당 포트폴리오가 이미 대표 포트폴리오로 지정된 경우")
-    public void givenPortfolioId_whenDuplicatedRepresentPortfolio_thenPortfolioError(){
+    @DisplayName("[실패] 이미 대표로 지전된 포트폴리오 대표 설정 - ALREADY_REGISTER_REPRESENTATIVE_PORTFOLIO 에러 발생")
+    public void givenRepresentativePortfolioId_whenRepresentPortfolio_thenAlreadyRegisterRepresentativePortfolioError(){
         //given
         final PortfolioErrorCode errorCode = PortfolioErrorCode.ALREADY_REGISTER_REPRESENTATIVE_PORTFOLIO;
 
-        Long userId = 1L;
+        final ArtistUser artistUser = getArtistUser();
         final long portfolioId = 1L;
 
-        when(portfolioRepository.findById(anyLong()))
+        when(portfolioRepository.findByPortfolioIdAndArtistUser(anyLong(), any(ArtistUser.class)))
                 .thenThrow(
                         new PortfolioException(errorCode)
                 );
         //when
         final PortfolioException exception = assertThrows(PortfolioException.class,
-                () -> portfolioService.representPortfolio(portfolioId, userId)
+                () -> portfolioService.representPortfolio(portfolioId, artistUser)
         )
                 ;
         //then
@@ -481,8 +674,8 @@ class PortfolioServiceTest {
                 () -> assertThat(exception.getErrorCode()).isEqualTo(errorCode),
                 () -> assertThat(exception.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
         );
-        verify(portfolioRepository).findById(eq(portfolioId));
-        verify(portfolioRepository, never()).findByArtistUserAndDeletedIsFalse(any(ArtistUser.class));
+        verify(portfolioRepository).findByPortfolioIdAndArtistUser(eq(portfolioId), any(ArtistUser.class));
+        verify(portfolioRepository, never()).findAllByArtistUserAndStatus(any(ArtistUser.class), any());
     }
 
 }

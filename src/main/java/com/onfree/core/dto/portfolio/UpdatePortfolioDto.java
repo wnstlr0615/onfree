@@ -33,14 +33,14 @@ public class UpdatePortfolioDto {
 
     @ApiModelProperty(value = "태그", notes = "검색용 태그 리스트", dataType = "List", example = "캐릭터")
     @NotNull(message = "포트폴리오 태그가 null 입니다.")
-    private List<String> tags = new ArrayList<>();
+    private List<String> tags;
 
     @ApiModelProperty(value = "내용", notes = "포트폴리오 내용", dataType = "List")
     @NotEmpty(message = "포트폴리오 내용 입력은 필수 입니다.")
-    private List<CreatePortfolioContentDto> contents = new ArrayList<>();
+    private List<CreatePortfolioContentDto> contents;
 
     @ApiModelProperty(value = "포트폴리오 그림 분야", notes = "포트폴리오 그림 분야", dataType = "List")
-    private List<Long> drawingFieldIds = new ArrayList<>();
+    private List<Long> drawingFieldIds;
 
     @ApiModelProperty(value = "임시 저장 유무", notes = "포트폴리오 임시 저장", example = "false")
     @NotNull(message = "임시저장 유무는 필수 입니다.")

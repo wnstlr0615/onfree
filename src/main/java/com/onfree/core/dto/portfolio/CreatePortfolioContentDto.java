@@ -1,11 +1,13 @@
 package com.onfree.core.dto.portfolio;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
+@ApiModel(value = "CreatePortfolioContentDto")
 public class CreatePortfolioContentDto {
 
     @ApiModelProperty(value = "이미지 또는 비디오 타입 url", notes = "이미지 또는 비디오 타입 url", example = "https://www.youtube.com/watch?v=vSY0VEuqeRo&t=146s")

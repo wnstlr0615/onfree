@@ -1,13 +1,17 @@
 package com.onfree.core.dto.portfolio;
 
-import com.onfree.core.entity.Portfolio;
+import com.onfree.core.entity.portfolio.Portfolio;
+import com.onfree.core.entity.portfolio.PortfolioStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 @Getter
 @Builder
-public class PortfolioSimpleDto {
+@Relation(collectionRelation = "items")
+public class PortfolioSimpleDto extends RepresentationModel<PortfolioSimpleDto> {
     @ApiModelProperty(value = "포트폴리오 PK", notes = "포트폴리오 PK", example = "1")
     private final Long portfolioId;
 
@@ -21,15 +25,15 @@ public class PortfolioSimpleDto {
     private final Long view;
 
     @ApiModelProperty(value = "대표 포트폴리오 설정 유무", notes = "대표 포트폴리오 설정 유무", example = "false")
-    private final boolean representative;
+    private final PortfolioStatus status;
 
-    public static PortfolioSimpleDto createPortfolioSimpleDto(long portfolioId, String title, String mainImageUrl, boolean representative){
+    public static PortfolioSimpleDto createPortfolioSimpleDto(long portfolioId, String title, String mainImageUrl, PortfolioStatus status){
         return PortfolioSimpleDto.builder()
                 .portfolioId(portfolioId)
                 .title(title)
                 .mainImageUrl(mainImageUrl)
                 .view(0L)
-                .representative(representative)
+                .status(status)
                 .build();
     }
 
@@ -39,7 +43,7 @@ public class PortfolioSimpleDto {
                 .title(portfolio.getTitle())
                 .mainImageUrl(portfolio.getMainImageUrl())
                 .view(portfolio.getView())
-                .representative(portfolio.isRepresentative())
+                .status(portfolio.getStatus())
                 .build();
     }
 }
