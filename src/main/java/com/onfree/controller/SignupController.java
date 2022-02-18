@@ -27,35 +27,6 @@ import java.util.Locale;
 @Api(tags = "회원가입 인증 컨트롤러")
 public class SignupController {
     private final SignUpService signUpService;
-    private final AwsS3Service awsS3Service;
-
-    /** 프로필 사진 업로드 */
-    @ApiOperation(value = "프로필 사진 업로드 API")
-    @PostMapping("/api/signup/profileImage")
-    public String profileImageUpload(
-            @ApiParam(value = "이미지 파일", allowableValues = "png,jpeg,jpg")
-            @RequestParam MultipartFile file
-    ) {
-        validateFileType(file);
-        return awsS3Service.s3ProfileImageFileUpload(file);
-    }
-
-    private void validateFileType(MultipartFile file) {
-        if(file == null || file.isEmpty()){
-            throw new SignUpException(SignUpErrorCode.FILE_IS_EMPTY);
-        }
-        final List<String> allowFileType = Arrays.asList("jpg", "jpeg", "png");
-        final String ext = extractExt(file);
-        if(!allowFileType.contains(ext)){
-            throw new SignUpException(SignUpErrorCode.NOT_ALLOW_FILE_TYPE);
-        }
-    }
-
-    private String extractExt(@NonNull MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        final int pos = fileName != null ? fileName.lastIndexOf(".") : 0;
-        return fileName != null ? fileName.substring(pos + 1).toLowerCase(Locale.ROOT) : null;
-    }
 
     /** 이메일 인증 */
     @ApiOperation(value = "이메일 인증 API", notes = "이메일 인증 API email 주소로 요청 시 이메일 발송 응답없음(비동기)")

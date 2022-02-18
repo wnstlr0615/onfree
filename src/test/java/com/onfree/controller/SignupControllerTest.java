@@ -34,66 +34,7 @@ class SignupControllerTest extends WebMvcBaseTest {
 
     @MockBean
     SignUpService signUpService;
-    @MockBean
-    AwsS3Service awsS3Service;
 
-    @Test
-    @DisplayName("[성공][POST] 프로필 사진 업로드")
-    public void givenImageMultipartFile_whenProfileImageUpload_thenFileAccessUrl() throws Exception{
-        //given
-        final String fileUrl = "https://s3.ap-northeast-2.amazonaws.com/onfree-store/users/profileImage/8c2ac333-9b9b-4c01-867b-c245b1fa65fd.PNG";
-        final MockMultipartFile file = new MockMultipartFile("file", "aaaa.png","image/png", "test".getBytes(StandardCharsets.UTF_8));
-        when(awsS3Service.s3ProfileImageFileUpload(any()))
-                .thenReturn(fileUrl);
-        //when
-        //then
-        mvc.perform(multipart("/api/signup/profileImage")
-                .file(file)
-        )
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(content().string(fileUrl))
-        ;
-        verify(awsS3Service).s3ProfileImageFileUpload(any());
-    }
-
-    @Test
-    @DisplayName("[실패][POST] 프로필 사진 업로드 - 파일이 비었을 경우")
-    public void givenImageEmptyMultipartFile_whenProfileImageUpload_thenFileIsEmptyError() throws Exception{
-        //given
-        final MockMultipartFile file = new MockMultipartFile("file", "aaaa.png","image/png", (byte[]) null);
-        final SignUpErrorCode errorCode = SignUpErrorCode.FILE_IS_EMPTY;
-
-        //when //then
-        mvc.perform(multipart("/api/signup/profileImage")
-                .file(file)
-        )
-                .andDo(print())
-                .andExpect(status().is(errorCode.getStatus()))
-                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
-                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
-        ;
-        verify(awsS3Service, never()).s3ProfileImageFileUpload(any());
-    }
-
-    @Test
-    @DisplayName("[실패][POST] 프로필 사진 업로드 - 파일 확장자를 지원 하지 않는 경우")
-    public void givenNotAllowMultipartFile_whenProfileImageUpload_thenFileIsEmptyError() throws Exception{
-        //given
-        final MockMultipartFile file = new MockMultipartFile("file", "aaaa.csv","image/png", "test".getBytes(StandardCharsets.UTF_8));
-        final SignUpErrorCode errorCode = SignUpErrorCode.NOT_ALLOW_FILE_TYPE;
-        //when//then
-        mvc.perform(multipart("/api/signup/profileImage")
-                .file(file)
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
-                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
-        ;
-        verify(awsS3Service, never()).s3ProfileImageFileUpload(any());
-
-    }
 
     @Test
     @WithAnonymousUser

@@ -70,20 +70,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         String[] whiteList=new String[]{
-                "/login", "/error", "/logout", "/api/signup/**", "/api/password/reset/**"
+                "/login", "/error", "/logout", "/api/signup/**", "/api/password/reset/**",
         };
-        String[] GETWhiteList = new String[]{
+        String[] getWhiteList = new String[]{
                 "/api/notices/**", "/api/notices/**",
                 "/api/questions/**", "/api/questions/**",
-                "/api/portfolios/**"
+                "/api/portfolios/**", "/api/users/artist/**"
+        };
+        String[] postWhiteList = new String[]{
+                "/api/upload/profile-image",
+        };
+        String[] onlyArtistUrl = new String[]{
+                "/api/users/artist/**",
+                "/api/upload/profile-image", "/api/upload/portfolio-content-image"
         };
         http.authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/api/users/artist", "/api/users/normal").permitAll()
                 .antMatchers(whiteList).permitAll()
-                .antMatchers(HttpMethod.GET,GETWhiteList).permitAll()
+                .antMatchers(HttpMethod.GET, getWhiteList).permitAll()
+                .antMatchers(HttpMethod.POST, postWhiteList).permitAll()
                 .antMatchers(HttpMethod.POST, "/api/notices/**", "/api/questions/**").hasRole("ADMIN")
-                .antMatchers(HttpMethod.GET, "/api/users/artist/**").permitAll()
-                .antMatchers("/api/users/artist/**").hasRole("ARTIST")
+                .antMatchers(onlyArtistUrl).hasRole("ARTIST")
                 .antMatchers("/api/users/normal/**").hasRole("NORMAL")
                 .anyRequest().authenticated();
         http.httpBasic().disable()
