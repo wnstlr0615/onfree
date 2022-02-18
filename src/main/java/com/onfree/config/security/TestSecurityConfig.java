@@ -13,5 +13,6 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.antMatcher("/test/**")
                 .authorizeRequests().anyRequest().permitAll();
+        http.csrf().disable();
     }
 }
