@@ -53,7 +53,7 @@ public class CreatePortfolioDto  {
 
         @ApiModelProperty(value = "내용", notes = "포트폴리오 내용", dataType = "List")
         @NotEmpty(message = "포트폴리오 내용 입력은 필수 입니다.")
-        private List<CreatePortfolioContentDto> contents = new ArrayList<>();
+        private List<CreatePortfolioContentDto> contents;
 
         @ApiModelProperty(value = "임시 저장 유무", notes = "포트폴리오 임시 저장", example = "false")
         private boolean temporary;
@@ -115,14 +115,14 @@ public class CreatePortfolioDto  {
         private String title;
 
         @ApiModelProperty(value = "포트폴리오 그림 분야", notes = "포트폴리오 그림 분야", dataType = "List")
-        private List<String> drawingFields = new ArrayList<>();
+        private List<String> drawingFields;
 
         @ApiModelProperty(value = "태그", notes = "검색용 태그 리스트", dataType = "List", example = "캐릭터")
-        private List<String> tags = new ArrayList<>();
+        private List<String> tags;
 
         @ApiModelProperty(value = "내용", notes = "포트폴리오 내용", dataType = "List")
         @NotEmpty(message = "포트폴리오 내용 입력은 필수 입니다.")
-        private List<PortfolioContentDetailDto> contents = new ArrayList<>();
+        private List<PortfolioContentDetailDto> contents;
 
         @ApiModelProperty(value = "포트폴리오 상태", notes = "포트폴리오 임시 저장", example = "NORMAL")
         private PortfolioStatus status;

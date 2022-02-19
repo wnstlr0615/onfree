@@ -13,5 +13,5 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateDrawingFieldsDto {
-    List<Long> drawingFields = new ArrayList<>();
+    List<Long> drawingFields;
 }
