@@ -25,13 +25,20 @@ public class ArtistUserService {
     /** 회원가입 요청 */
     @Transactional
     public CreateArtistUserDto.Response createArtistUser(CreateArtistUserDto.Request request) {
-        //TODO Redis 를 통한 인증 검사 후 회원가입
+        //이메일 중복 체크
         duplicatedUserEmail(request.getEmail());
-        return CreateArtistUserDto.Response
-                .fromEntity(
-                    saveArtistUser(
-                            bcryptPassword(request.toEntity())
+        return getCreateArtistUserDtoResponse( // Response Dto 로 변환
+                saveArtistUser( // 작가유저 저장
+                    bcryptPassword( // 패스워드 암호화
+                            request.toEntity()
                     )
+            )
+        );
+    }
+
+    private CreateArtistUserDto.Response getCreateArtistUserDtoResponse(ArtistUser entity) {
+        return CreateArtistUserDto.Response.fromEntity(
+                entity
         );
     }
 
@@ -62,8 +69,14 @@ public class ArtistUserService {
     }
     /** 사용자 정보 조회*/
     public ArtistUserDetailDto getUserDetail(Long userId) {
+        return getArtistUserDetailDto( // ArtistUserDetailDto 로 변환
+                getArtistUser(userId) // 사용자 정보 조회
+        );
+    }
+
+    private ArtistUserDetailDto getArtistUserDetailDto(ArtistUser artistUser) {
         return ArtistUserDetailDto.fromEntity(
-                getArtistUser(userId)
+                artistUser // 사용자 조회
         );
     }
 
