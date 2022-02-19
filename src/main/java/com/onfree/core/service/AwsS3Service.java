@@ -26,6 +26,7 @@ import static com.onfree.core.entity.fileitem.FileType.PROFILE_IMAGE_FILE;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class AwsS3Service {
     private final AmazonS3Client s3;
     private final AmazonS3Properties s3Properties;
@@ -73,7 +74,8 @@ public class AwsS3Service {
     /** 이미지 조회 */
     public URL getFile(String filename) {
         final FileItem fileItem = findFileItemByFileName(filename);
-        return s3.getUrl(getImageSavePathInS3(fileItem.getFileType()), filename);
+        final String imageSavePathInS3 = getImageSavePathInS3(fileItem.getFileType());
+        return s3.getUrl(imageSavePathInS3, filename);
     }
 
     private FileItem findFileItemByFileName(String filename) {
