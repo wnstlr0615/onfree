@@ -96,7 +96,7 @@ public class UpdateArtistUserDto {
                     .phoneNumber(entity.getPhoneNumber())
                     .profileImage(entity.getProfileImage())
                     .adultCertification(entity.getAdultCertification())
-                    .portfolioUrl(entity.getPortfolioUrl())
+                    .portfolioUrl(entity.getPortfolioRoom().getPortfolioRoomURL())
                     .build();
         }
     }

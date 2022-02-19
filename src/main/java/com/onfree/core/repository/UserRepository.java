@@ -13,6 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     int countByNickname(String nickName);
 
-    @Query(value = "select count(a) from ArtistUser a where a.portfolioUrl = :personalUrl")
+
+    @Query(value = "select count(a) from ArtistUser a where a.portfolioRoom.portfolioRoomURL = :personalUrl")
     int countByPortfolioUrlOnlyArtist(@Param("personalUrl") String personalUrl);
 }

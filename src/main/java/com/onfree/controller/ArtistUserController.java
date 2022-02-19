@@ -51,7 +51,7 @@ public class ArtistUserController {
     public CreateArtistUserDto.Response createNormalUser(
             @RequestBody @Valid  CreateArtistUserDto.Request request,
             BindingResult errors){
-        return artistUserService.createArtistUser(request);
+        return artistUserService.addArtistUser(request);
     }
 
     @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")

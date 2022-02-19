@@ -40,7 +40,7 @@ class ArtistUserServiceTest {
 
     @Test
     @DisplayName("[성공] 회원가입 요청 - 정상적인 요청 성공")
-    public void givenCreateUserRes_whenCreateUser_thenReturnSuccessfulResponse() {
+    public void givenCreateUserRes_whenAddUser_thenReturnSuccessfulResponse() {
         //given
         final CreateArtistUserDto.Request userReq = givenCreateArtistUserReq();
         when(userRepository.save(any()))
@@ -50,7 +50,7 @@ class ArtistUserServiceTest {
         when(userRepository.countByEmail(any()))
                 .thenReturn(0);
         //when
-        CreateArtistUserDto.Response response = artistUserService.createArtistUser(
+        CreateArtistUserDto.Response response = artistUserService.addArtistUser(
                 userReq
         );
         //then
@@ -77,7 +77,7 @@ class ArtistUserServiceTest {
 
     @Test
     @DisplayName("[실패] 회원가입 요청 - 이메일(아이디) 중복으로 인한 회원가입 실패")
-    public void givenDuplicatedUserEmail_whenCreateUser_thenUserEmailDuplicatedError() {
+    public void givenDuplicatedUserEmail_whenAddUser_thenUserEmailDuplicatedError() {
         //given
         when(userRepository.countByEmail(any()))
                 .thenReturn(1);
@@ -85,7 +85,7 @@ class ArtistUserServiceTest {
 
         //when
         UserException userException = assertThrows(UserException.class,
-                () -> artistUserService.createArtistUser(
+                () -> artistUserService.addArtistUser(
                         givenCreateArtistUserReq()
                 ));
 

@@ -60,7 +60,7 @@ public class ArtistUserDetailDto {
     public static ArtistUserDetailDto fromEntity(ArtistUser entity) {
         return ArtistUserDetailDto.builder()
                 .adultCertification(entity.getAdultCertification())
-                .portfolioUrl(entity.getPortfolioUrl())
+                .portfolioUrl(entity.getPortfolioRoom().getPortfolioRoomURL())
                 .email(entity.getEmail())
                 .gender(entity.getGender().getName())
                 .name(entity.getName())

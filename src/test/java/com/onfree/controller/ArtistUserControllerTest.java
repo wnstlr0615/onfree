@@ -63,7 +63,7 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
         //given
         CreateArtistUserDto.Request request = givenCreateArtistUserReq();
         CreateArtistUserDto.Response response = givenCreateArtistUserRes(request);
-        when(artistUserService.createArtistUser(any()))
+        when(artistUserService.addArtistUser(any()))
                 .thenReturn(response);
 
         //when //then
@@ -94,7 +94,7 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
             .andExpect(jsonPath("$.portfolioUrl").value(request.getPortfolioUrl()))
             
         ;
-        verify(artistUserService, times(1)).createArtistUser(any());
+        verify(artistUserService, times(1)).addArtistUser(any());
     }
     private CreateArtistUserDto.Request givenCreateArtistUserReq() {
         return CreateArtistUserDto.Request
@@ -161,7 +161,7 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
-        verify(artistUserService, never()).createArtistUser(any());
+        verify(artistUserService, never()).addArtistUser(any());
     }
 
     private CreateArtistUserDto.Request givenWrongCreateArtistUserReq() {
@@ -192,7 +192,7 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
         //given
         CreateArtistUserDto.Request request = givenCreateArtistUserReq();
         UserErrorCode errorCode = UserErrorCode.USER_EMAIL_DUPLICATED;
-        when(artistUserService.createArtistUser(any()))
+        when(artistUserService.addArtistUser(any()))
                 .thenThrow( new UserException(errorCode));
         //when //then
         mvc.perform(post("/api/users/artist")
@@ -208,7 +208,7 @@ class ArtistUserControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
-        verify(artistUserService, times(1)).createArtistUser(any());
+        verify(artistUserService, times(1)).addArtistUser(any());
     }
 
     @Test

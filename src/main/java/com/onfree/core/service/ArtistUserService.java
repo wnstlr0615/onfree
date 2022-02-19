@@ -24,16 +24,20 @@ public class ArtistUserService {
 
     /** 회원가입 요청 */
     @Transactional
-    public CreateArtistUserDto.Response createArtistUser(CreateArtistUserDto.Request request) {
+    public CreateArtistUserDto.Response addArtistUser(CreateArtistUserDto.Request request) {
         //이메일 중복 체크
         duplicatedUserEmail(request.getEmail());
         return getCreateArtistUserDtoResponse( // Response Dto 로 변환
                 saveArtistUser( // 작가유저 저장
                     bcryptPassword( // 패스워드 암호화
-                            request.toEntity()
+                            createArtistUser(request)
                     )
             )
         );
+    }
+
+    private ArtistUser createArtistUser(CreateArtistUserDto.Request request) {
+        return request.toEntity();
     }
 
     private CreateArtistUserDto.Response getCreateArtistUserDtoResponse(ArtistUser entity) {

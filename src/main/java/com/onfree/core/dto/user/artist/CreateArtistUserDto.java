@@ -182,7 +182,7 @@ public class CreateArtistUserDto {
                     .policyAgree(entity.getUserAgree().getPolicy())
                     .serviceAgree(entity.getUserAgree().getService())
                     .profileImage(entity.getProfileImage())
-                    .portfolioUrl(entity.getPortfolioUrl())
+                    .portfolioUrl(entity.getPortfolioRoom().getPortfolioRoomURL())
                     .build();
         }
     }
