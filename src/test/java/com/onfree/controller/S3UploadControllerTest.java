@@ -1,7 +1,7 @@
 package com.onfree.controller;
 
 import com.onfree.anotation.WithArtistUser;
-import com.onfree.common.WebMvcBaseTest;
+import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.FileErrorCode;
 import com.onfree.common.error.code.SignUpErrorCode;
 import com.onfree.common.error.exception.FileException;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = S3UploadController.class)
-class S3UploadControllerTest extends WebMvcBaseTest {
+class S3UploadControllerTest extends ControllerBaseTest {
     @MockBean
     AwsS3Service awsS3Service;
 

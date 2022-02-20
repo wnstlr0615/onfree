@@ -1,7 +1,6 @@
 package com.onfree.core.entity.user;
 
 
-import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
 import com.onfree.core.entity.portfolioroom.PortfolioRoom;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +15,7 @@ import javax.persistence.*;
 @DiscriminatorValue(value = "A")
 public class ArtistUser extends User{
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "portfolio_room_id ")
     @Setter
     private PortfolioRoom portfolioRoom;
@@ -37,13 +36,9 @@ public class ArtistUser extends User{
         super.setDeleted();
     }
 
-    public void update(UpdateArtistUserDto.Request request) {
-        final BankInfo bankInfo = BankInfo.builder()
-                .bankName(request.getBankName())
-                .accountNumber(request.getAccountNumber())
-                .build();
-        super.update(bankInfo, request.getAdultCertification(), request.getNickname(), request.getNewsAgency(), request.getPhoneNumber(), request.getProfileImage());
-        portfolioRoom.updatePortfolioRoomUrl(request.getPortfolioUrl());
+    public void update(BankInfo bankInfo, Boolean adultCertification, String nickname, String newsAgency, String phoneNumber, String profileImage, String portfolioUrl) {
+        super.update(bankInfo, adultCertification, nickname, newsAgency, phoneNumber, profileImage);
+        portfolioRoom.updatePortfolioRoomUrl(portfolioUrl);
     }
 
     public void updateStatusMark(String statusMark) {

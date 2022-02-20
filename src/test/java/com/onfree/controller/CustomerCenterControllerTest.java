@@ -1,6 +1,6 @@
 package com.onfree.controller;
 
-import com.onfree.common.WebMvcBaseTest;
+import com.onfree.common.ControllerBaseTest;
 import com.onfree.core.dto.notice.NoticeDetailDto;
 import com.onfree.core.dto.notice.NoticeSimpleDto;
 import com.onfree.core.dto.question.QuestionDetailDto;
@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = CustomerCenterController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-class CustomerCenterControllerTest extends WebMvcBaseTest {
+class CustomerCenterControllerTest extends ControllerBaseTest {
 
     @MockBean
     CustomerCenterService customerCenterService;

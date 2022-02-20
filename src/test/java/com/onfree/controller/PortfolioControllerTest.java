@@ -1,7 +1,7 @@
 package com.onfree.controller;
 
 import com.onfree.anotation.WithArtistUser;
-import com.onfree.common.WebMvcBaseTest;
+import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.ErrorCode;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.code.PortfolioErrorCode;
@@ -12,14 +12,12 @@ import com.onfree.core.dto.portfolio.*;
 import com.onfree.core.entity.portfolio.PortfolioStatus;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.service.PortfolioService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -35,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = PortfolioController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
-class PortfolioControllerTest extends WebMvcBaseTest {
+class PortfolioControllerTest extends ControllerBaseTest {
     @MockBean
     PortfolioService portfolioService;
     @SpyBean

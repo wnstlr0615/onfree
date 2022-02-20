@@ -1,7 +1,7 @@
 package com.onfree.controller.admin;
 
 import com.onfree.anotation.WithAdminUser;
-import com.onfree.common.WebMvcBaseTest;
+import com.onfree.common.ControllerBaseTest;
 import com.onfree.core.dto.notice.CreateNoticeDto;
 import com.onfree.core.dto.notice.UpdateNoticeDto;
 import com.onfree.core.dto.question.CreateQuestionDto;
@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = CustomerCenterAdminController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-class CustomerCenterAdminControllerTest extends WebMvcBaseTest {
+class CustomerCenterAdminControllerTest extends ControllerBaseTest {
     @MockBean
     CustomerCenterService customerCenterService;
 

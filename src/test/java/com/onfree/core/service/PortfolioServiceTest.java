@@ -424,74 +424,7 @@ class PortfolioServiceTest {
     }
 
 
-    @Test
-    @DisplayName("[성공] 작가 포트폴리오 조회")
-    public void givenUserId_whenFindAllPortfolioByUserId_thenPortfolioSimpleDtos(){
-        //given
-        final long userId = 1L;
-        final boolean temporary = false;
-        final ArtistUser artistUser = getArtistUser();
-        final PageRequest pageRequest = PageRequest.of(0, 3);
-        final List<Portfolio> portfolio = List.of(
-                createPortfolio("제목1", PortfolioStatus.NORMAL),
-                createPortfolio("제목2", PortfolioStatus.NORMAL),
-                createPortfolio("제목3", PortfolioStatus.NORMAL)
-        );
 
-
-        when(userRepository.findById(userId))
-                .thenReturn(
-                        Optional.ofNullable(
-                                artistUser
-                        )
-                );
-
-
-        when(portfolioRepository.findByArtistUserAndStatusIn(any(ArtistUser.class), any(), any(Pageable.class)))
-                .thenReturn( new PageImpl(portfolio, pageRequest, 3));
-        //when
-        final Page<PortfolioSimpleDto> portfolioSimpleDtos
-                = portfolioService.findAllPortfolioByUserId(userId, pageRequest);
-
-        //then
-        assertThat(portfolioSimpleDtos.getTotalElements()).isEqualTo(3);
-        assertThat(portfolioSimpleDtos.getContent().get(0))
-                .hasFieldOrPropertyWithValue("mainImageUrl", "mainImageUrl")
-                .hasFieldOrPropertyWithValue("title", "제목1")
-                .hasFieldOrPropertyWithValue("view", 0L)
-        ;
-        verify(userRepository).findById(eq(userId));
-        verify(portfolioRepository).findByArtistUserAndStatusIn(any(ArtistUser.class), any(), any(Pageable.class));
-    }
-
-    @Test
-    @DisplayName("[성공] 작가 임시 저장 포트폴리오 전체 조회")
-    public void giveArtistUser_whenfindTempPortfolioByArtistUser_thenPortfolioSimpleDtos(){
-        //given
-        final ArtistUser artistUser = getArtistUser();
-        final PageRequest pageRequest = PageRequest.of(0, 6);
-        final List<Portfolio> portfolio = List.of(
-                createPortfolio("제목1", PortfolioStatus.TEMPORARY),
-                createPortfolio("제목2", PortfolioStatus.TEMPORARY),
-                createPortfolio("제목3", PortfolioStatus.TEMPORARY)
-        );
-        when(portfolioRepository.findPageByArtistUserAndStatus(any(ArtistUser.class), eq(PortfolioStatus.TEMPORARY), any(Pageable.class)))
-                .thenReturn(
-                        new PageImpl(portfolio, pageRequest, 3)
-                );
-        //when
-        final Page<PortfolioSimpleDto> portfolioSimpleDtos
-                = portfolioService.findAllTempPortfolioByArtistUser(artistUser, pageRequest);
-
-        //then
-        assertThat(portfolioSimpleDtos.getTotalElements()).isEqualTo(3);
-        assertThat(portfolioSimpleDtos.getContent().get(0))
-                .hasFieldOrPropertyWithValue("mainImageUrl", "mainImageUrl")
-                .hasFieldOrPropertyWithValue("title", "제목1")
-                .hasFieldOrPropertyWithValue("view", 0L)
-        ;
-        verify(portfolioRepository).findPageByArtistUserAndStatus(any(ArtistUser.class), eq(PortfolioStatus.TEMPORARY), eq(pageRequest));
-    }
 
     @Test
     @DisplayName("[성공] 포트폴리오 삭제하기")

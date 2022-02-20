@@ -2,7 +2,7 @@ package com.onfree.controller;
 
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
-import com.onfree.common.WebMvcBaseTest;
+import com.onfree.common.ControllerBaseTest;
 import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.normal.CreateNormalUserDto;
 import com.onfree.core.dto.user.normal.NormalUserDetailDto;
@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = NormalUserController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-class NormalUserControllerTest extends WebMvcBaseTest {
+class NormalUserControllerTest extends ControllerBaseTest {
     @MockBean
     NormalUserService normalUserService;
 

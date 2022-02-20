@@ -7,8 +7,8 @@ import com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto;
 import com.onfree.core.entity.DrawingField;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.ArtistUserDrawingFieldRepository;
+import com.onfree.core.repository.ArtistUserRepository;
 import com.onfree.core.repository.DrawingFieldRepository;
-import com.onfree.core.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +33,7 @@ class ArtistUserDrawingFieldServiceTest {
     @Mock
     ArtistUserDrawingFieldRepository artistUserDrawingFieldRepository;
     @Mock
-    UserRepository userRepository;
+    ArtistUserRepository artistUserRepository;
     @Mock
     DrawingFieldRepository drawingFieldRepository;
 
@@ -47,7 +47,7 @@ class ArtistUserDrawingFieldServiceTest {
         final long givenUserId = 1L;
         final UpdateDrawingFieldsDto updateDrawingFieldsDto = givenUpdateDrawingFieldsDto(List.of(1L, 2L, 3L));
 
-        when(userRepository.findById(anyLong()))
+        when(artistUserRepository.findById(anyLong()))
                 .thenReturn(
                         Optional.ofNullable(getArtistUser())
                 );
@@ -67,7 +67,7 @@ class ArtistUserDrawingFieldServiceTest {
 
         //then
 
-        verify(userRepository).findById(eq(givenUserId));
+        verify(artistUserRepository).findById(eq(givenUserId));
         verify(drawingFieldRepository).findAllByDisabledIsFalseAndDrawingFieldIdIn(any());
         verify(artistUserDrawingFieldRepository).deleteAllByArtistUser(any(ArtistUser.class));
         verify(artistUserDrawingFieldRepository).saveAll(any());
@@ -138,7 +138,7 @@ class ArtistUserDrawingFieldServiceTest {
         final List<Long> notRegisterDrawingFieldId = List.of(1L, 99L, 100L);
         final UpdateDrawingFieldsDto wrongUpdateDrawingFieldsDto = givenUpdateDrawingFieldsDto(notRegisterDrawingFieldId);
         final DrawingFieldErrorCode wrongDrawingField = DrawingFieldErrorCode.WRONG_DRAWING_FIELD;
-        when(userRepository.findById(anyLong()))
+        when(artistUserRepository.findById(anyLong()))
                 .thenReturn(
                         Optional.ofNullable(getArtistUser())
                 );
@@ -155,7 +155,7 @@ class ArtistUserDrawingFieldServiceTest {
         assertThat(drawingFieldException.getErrorCode()).isEqualTo(wrongDrawingField);
         assertThat(drawingFieldException.getErrorCode().getDescription()).isEqualTo(wrongDrawingField.getDescription());
 
-        verify(userRepository).findById(eq(givenUserId));
+        verify(artistUserRepository).findById(eq(givenUserId));
         verify(drawingFieldRepository).findAllByDisabledIsFalseAndDrawingFieldIdIn(any());
         verify(artistUserDrawingFieldRepository, never()).deleteAllByArtistUser(any(ArtistUser.class));
         verify(artistUserDrawingFieldRepository, never()).saveAll(any());
@@ -172,7 +172,7 @@ class ArtistUserDrawingFieldServiceTest {
     public void givenUserId_whenGetAllArtistUserUsedDrawingFields_thenUsedDrawingFieldDtoList(){
         //given
         final long givenUserId = 1L;
-        when(userRepository.findById(anyLong()))
+        when(artistUserRepository.findById(anyLong()))
                 .thenReturn(
                         Optional.ofNullable(
                                 getArtistUser()
@@ -220,7 +220,7 @@ class ArtistUserDrawingFieldServiceTest {
     public void givenUserId_whenGetAllArtistUserUsedDrawingFieldsButEmptyHasDrawingField_thenUsedDrawingFieldDtoList(){
         //given
         final long givenUserId = 1L;
-        when(userRepository.findById(anyLong()))
+        when(artistUserRepository.findById(anyLong()))
                 .thenReturn(
                         Optional.ofNullable(
                                 getArtistUser()

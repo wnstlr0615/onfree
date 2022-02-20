@@ -1,7 +1,7 @@
 package com.onfree.controller.admin;
 
 import com.onfree.anotation.WithAdminUser;
-import com.onfree.common.WebMvcBaseTest;
+import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.DrawingFieldErrorCode;
 import com.onfree.common.error.exception.DrawingFieldException;
 import com.onfree.core.dto.drawingfield.CreateDrawingFieldDto;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @WebMvcTest(controllers = DrawingFieldController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
-class DrawingFieldControllerTest extends WebMvcBaseTest {
+class DrawingFieldControllerTest extends ControllerBaseTest {
     @MockBean
     DrawingFieldService drawingFieldService;
 

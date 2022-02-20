@@ -22,139 +22,96 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.http.HttpStatus;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-@Api(tags = "작가유저 기본기능 제공 컨트롤러",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/users/artist",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@Api(tags = "작가유저 기본기능 제공 컨트롤러",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users/artist",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ArtistUserController {
-    public final int PAGESIZE = 6;
+
     private final ArtistUserService artistUserService;
-    private final PortfolioService portfolioService;
 
     private final StatusMarkValidator statusMarkValidator;
-    @ResponseStatus(HttpStatus.CREATED)
+
+    /** 회원 가입*/
     @PreAuthorize(value = "!isAuthenticated()")
     @ApiOperation(value = "작가 유저 회원 가입 요청" , notes = "작가 유저 회원 가입 요청")
     @PostMapping("")
-    public CreateArtistUserDto.Response createNormalUser(
+    public ResponseEntity<CreateArtistUserDto.Response> userAdd(
             @RequestBody @Valid  CreateArtistUserDto.Request request,
             BindingResult errors){
-        return artistUserService.addArtistUser(request);
+
+        return ResponseEntity.created(
+                linkTo(ArtistUserController.class).slash("me").toUri()
+            )
+                .body(artistUserService.addArtistUser(request));
     }
 
-    @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
-    @ApiOperation(value = "작가 유저 사용자 정보 조회", notes = "작가 유저 사용자 정보 조회")
-    @GetMapping("/{userId}")
-    public ArtistUserDetailDto getUserInfo(
-            @ApiParam(value = "사용자 userId ") @PathVariable(name = "userId") Long userId
+    /** 본인 정보 상세 조회*/
+    @PreAuthorize("hasRole('ARTIST')")
+    @ApiOperation(value = "작가 유저 본인 사용자 정보 조회", notes = "작가 유저 본전 사용자 정보 조회")
+    @GetMapping("/me")
+    public ArtistUserDetailDto userDetails(
+            @CurrentArtistUser ArtistUser artistUser
     ){
-        return artistUserService.getUserDetail(userId);
+        final ArtistUserDetailDto response = artistUserService.getUserDetail(artistUser.getUserId());
+        response.add(
+                linkTo(ArtistUserController.class).slash("me").withSelfRel()
+                .withProfile("/swagger-ui/#/작가유저%20기본기능%20제공%20컨트롤러/getUserInfoUsingGET")
+        );
+        return response;
     }
 
-    @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
+    /** 사용자 탈퇴 */
+    @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "작가 유저 사용자 deleted 처리")
-    @DeleteMapping("/{deletedUserId}")
-    public DeletedUserResponse deletedNormalUser(
-            @ApiParam(value = "사용자 userId ") @PathVariable(name = "deletedUserId") Long userId
+    @DeleteMapping("/me")
+    public SimpleResponse userRemove(
+            @CurrentArtistUser ArtistUser artistUser
     ){
-        return artistUserService.deletedArtistUser(userId);
+        artistUserService.removeArtistUser(artistUser.getUserId());
+        return SimpleResponse.success("사용자가 정상적으로 삭제되었습니다.");
     }
 
-    @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
+    /** 사용자 정보 수정*/
+    @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "작가 유저 정보수정")
-    @PutMapping("/{userId}")
-    public UpdateArtistUserDto.Response updateUserInfo(
-            @ApiParam(value = "업데이트 할 사용자 ID") @PathVariable("userId") Long userId,
+    @PutMapping("/me")
+    public SimpleResponse artistUserModify(
+            @CurrentArtistUser ArtistUser artistUser,
             @RequestBody @Valid UpdateArtistUserDto.Request request,
             BindingResult errors
     ){
-        return artistUserService.modifiedUser(userId, request);
+        artistUserService.modifyArtistUser(artistUser.getUserId(), request);
+        return SimpleResponse.success("사용자 정보가 정상적으로 수정 되었습니다.");
     }
 
-
-    @PreAuthorize("hasRole('ARTIST') and @checker.isSelf(#userId)")
+    /** 작가유저 영업마크 설정*/
+    @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "영업마크 설정")
-    @PutMapping("/{userId}/status")
+    @PatchMapping("/me/status")
     public SimpleResponse updateStatusMark(
-            @ApiParam(value = "유저 PK", example = "1")
-            @PathVariable("userId") Long userId,
+            @CurrentArtistUser ArtistUser artistUser,
             @Valid @RequestBody StatusMarkDto statusMarkDto,
             BindingResult errors
     ){
         statusMarkValidator.validate(statusMarkDto, errors);
         validStatusMark(errors);
-        artistUserService.updateStatusMark(userId, statusMarkDto);
+        artistUserService.updateStatusMark(artistUser.getUserId(), statusMarkDto);
         return SimpleResponse.success("영업마크가 성공적으로 변경 되었습니다.");
-    }
-
-    @ApiOperation(value = "작가 포트폴리오 전체 조회 API", notes = "임시 저장 포트폴리오 목록에 경우 작가유저 본인만 접근 가능, 나머지는 누구나 조회 가능")
-    @GetMapping("/{userId}/portfolios")
-    public ResponseEntity portfolioList(
-            @ApiParam("작가유저 PK")
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "0") int page,
-            PagedResourcesAssembler<PortfolioSimpleDto> assembler
-    ){
-        // 서비스 응답
-        final PageRequest pageRequest = PageRequest.of(page, PAGESIZE);
-        final Page<PortfolioSimpleDto> portfolioSimpleDtos
-                = portfolioService.findAllPortfolioByUserId(userId, pageRequest);
-
-        // 링크 추가 작업
-        final var entityModels = assembler.toModel(portfolioSimpleDtos);
-        entityModels.forEach(entityModel -> entityModel.add(
-                linkTo(PortfolioController.class).slash(
-                        entityModel.getContent().getPortfolioId()
-                        ).withRel("detail-portfolio")
-        ));
-
-        return ResponseEntity.ok(entityModels);
-    }
-
-    @ApiOperation(value = "작가 임시 포트폴리오 전체 조회 API", notes = "임시 저장 포트폴리오 목록에 경우 작가유저 본인만 접근 가능, 나머지는 누구나 조회 가능")
-    @PreAuthorize("hasAnyRole('ARTIST')")
-    @GetMapping("/{userId}/portfolios/temp")
-    public ResponseEntity tempPortfolioList(
-            @ApiParam("작가유저 PK")
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "0") int page,
-            @CurrentArtistUser ArtistUser artistUser,
-            PagedResourcesAssembler<PortfolioSimpleDto> assembler
-
-    ){
-        validateAccessUser(userId, artistUser);
-        final PageRequest pageRequest = PageRequest.of(page, PAGESIZE);
-        final Page<PortfolioSimpleDto> portfolioSimpleDtos
-                = portfolioService.findAllTempPortfolioByArtistUser(artistUser, pageRequest);
-
-        // 링크 추가 작업
-        final var entityModels = assembler.toModel(portfolioSimpleDtos);
-        entityModels.forEach(entityModel -> entityModel.add(
-                linkTo(PortfolioController.class).slash(
-                        entityModel.getContent().getPortfolioId()
-                ).slash("temp")
-                        .withRel("detail-portfolio")
-        ));
-
-        return ResponseEntity.ok(entityModels);
-    }
-
-    private void validateAccessUser(Long userId, ArtistUser artistUser) {
-        if(!artistUser.getUserId().equals(userId)){
-            throw new GlobalException(GlobalErrorCode.ACCESS_DENIED);
-        }
     }
 
     private void validStatusMark(BindingResult error) {

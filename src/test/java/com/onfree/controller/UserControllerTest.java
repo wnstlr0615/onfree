@@ -1,7 +1,7 @@
 package com.onfree.controller;
 
 import com.onfree.anotation.WithNormalUser;
-import com.onfree.common.WebMvcBaseTest;
+import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.exception.GlobalException;
 import com.onfree.core.dto.user.UpdateUserNotificationDto;
@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
-class UserControllerTest extends WebMvcBaseTest {
+class UserControllerTest extends ControllerBaseTest {
     @MockBean
     UserService userService;
 

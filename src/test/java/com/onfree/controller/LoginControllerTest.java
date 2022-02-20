@@ -1,6 +1,6 @@
 package com.onfree.controller;
 
-import com.onfree.common.WebMvcBaseTest;
+import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.code.LoginErrorCode;
 import com.onfree.common.error.code.UserErrorCode;
@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = LoginController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
-class LoginControllerTest extends WebMvcBaseTest {
+class LoginControllerTest extends ControllerBaseTest {
 
     @MockBean
     LoginService loginService;

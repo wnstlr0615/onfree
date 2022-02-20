@@ -246,7 +246,7 @@ class ValidateAopTest {
         ErrorCode errorCode=GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when //then
-        mvc.perform(post("/api/users/artist")
+        mvc.perform(post("/api/v1/users/artist")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -288,10 +288,9 @@ class ValidateAopTest {
     @DisplayName("[실패][PUT] 사용자 정보 수정 - 잘못된 데이터 입력 ")
     public void givenWrongUpdateUserInfo_whenModifiedArtistUser_thenNotValidRequestParametersError() throws Exception{
         //given
-        final long userId = 2L;
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when then
-        mvc.perform(put("/api/users/artist/{userId}", userId)
+        mvc.perform(put("/api/v1/users/artist/me")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(

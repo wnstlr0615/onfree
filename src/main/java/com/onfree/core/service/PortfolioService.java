@@ -33,7 +33,6 @@ import static com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto.create
 @RequiredArgsConstructor
 @Service
 public class PortfolioService {
-    private final UserRepository userRepository;
     private final PortfolioRepository portfolioRepository;
     private final DrawingFieldRepository drawingFieldRepository;
     private final PortfolioContentRepository portfolioContentRepository;
@@ -59,7 +58,6 @@ public class PortfolioService {
                 portfolio
         );
     }
-
 
 
     private Portfolio createPortfolio(ArtistUser artistUser, CreatePortfolioDto.Request dto) {
@@ -198,7 +196,6 @@ public class PortfolioService {
     }
 
 
-
     private Portfolio getTempPortfolioByPortfolioIdAndArtistUser(Long portfolioId, ArtistUser artistUser) {
         return portfolioRepository
                 .findByPortfolioIdAndArtistUser(portfolioId, artistUser)
@@ -217,49 +214,6 @@ public class PortfolioService {
         }
         return portfolio;
     }
-
-    /** 작가 포트폴리오 전체 조회 */
-    public Page<PortfolioSimpleDto> findAllPortfolioByUserId(Long userId, PageRequest pageable) {
-        return getPortfolioSimpleDtosByArtistUser(//Portfolio 리스트를  PortfolioSimpleDto 리스트로 변환
-                    getPagingPortfoliosByArtistUser( // 작가유저 포트폴리오 조회
-                        getArtistUser(userId), // 작가 유저 조회,
-                            pageable
-                    )
-            );
-    }
-
-    private ArtistUser getArtistUser(Long userId) {
-        return (ArtistUser) userRepository.findById(userId)
-                .orElseThrow(
-                        () ->  new UserException(UserErrorCode.NOT_FOUND_USERID)
-                );
-    }
-
-    private Page<Portfolio> getPagingPortfoliosByArtistUser(ArtistUser artistUser, Pageable pageable) {
-        final List<PortfolioStatus> readableStatus = List.of(PortfolioStatus.NORMAL, PortfolioStatus.REPRESENTATION);
-        return portfolioRepository.findByArtistUserAndStatusIn(artistUser, readableStatus, pageable);
-    }
-
-
-
-
-    private Page<PortfolioSimpleDto> getPortfolioSimpleDtosByArtistUser(Page<Portfolio> portfolios) {
-        return  portfolios.map(PortfolioSimpleDto::fromEntity);
-    }
-
-    /** 작가 유저 임시 포트폴리오 전체 조회 */
-    public Page<PortfolioSimpleDto> findAllTempPortfolioByArtistUser(ArtistUser artistUser, Pageable pageable) {
-        return getPortfolioSimpleDtosByArtistUser( //Portfolio 리스트를  PortfolioSimpleDto 리스트로 변환
-                    getPagingTempPortfoliosByArtistUser( // 작가유저 임시 저장 포트폴리오 조회
-                        artistUser, pageable
-                    )
-                );
-    }
-
-    private Page<Portfolio> getPagingTempPortfoliosByArtistUser(ArtistUser artistUser, Pageable pageable) {
-        return portfolioRepository.findPageByArtistUserAndStatus(artistUser, PortfolioStatus.TEMPORARY, pageable);
-    }
-
 
     /** 포트폴리오 삭제 */
     @Transactional

@@ -6,6 +6,7 @@ import com.onfree.core.dto.user.artist.ArtistUserDetailDto;
 import com.onfree.core.dto.user.artist.CreateArtistUserDto;
 import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
 import com.onfree.core.entity.user.*;
+import com.onfree.core.repository.ArtistUserRepository;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
@@ -30,8 +31,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 class ArtistUserServiceTest {
+
     @Mock
-    UserRepository userRepository;
+    ArtistUserRepository artistUserRepository;
     @Spy
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -43,11 +45,11 @@ class ArtistUserServiceTest {
     public void givenCreateUserRes_whenAddUser_thenReturnSuccessfulResponse() {
         //given
         final CreateArtistUserDto.Request userReq = givenCreateArtistUserReq();
-        when(userRepository.save(any()))
+        when(artistUserRepository.save(any()))
                 .thenReturn(
                         getArtistUserEntity(userReq)
                 );
-        when(userRepository.countByEmail(any()))
+        when(artistUserRepository.countByEmail(any()))
                 .thenReturn(0);
         //when
         CreateArtistUserDto.Response response = artistUserService.addArtistUser(
@@ -55,7 +57,7 @@ class ArtistUserServiceTest {
         );
         //then
 
-        verify(userRepository, times(1)).save(any());
+        verify(artistUserRepository, times(1)).save(any());
         assertThat(response)
                 .hasFieldOrPropertyWithValue("adultCertification", userReq.getAdultCertification())
                 .hasFieldOrPropertyWithValue("email", userReq.getEmail())
@@ -79,7 +81,7 @@ class ArtistUserServiceTest {
     @DisplayName("[실패] 회원가입 요청 - 이메일(아이디) 중복으로 인한 회원가입 실패")
     public void givenDuplicatedUserEmail_whenAddUser_thenUserEmailDuplicatedError() {
         //given
-        when(userRepository.countByEmail(any()))
+        when(artistUserRepository.countByEmail(any()))
                 .thenReturn(1);
         UserErrorCode errorCode = UserErrorCode.USER_EMAIL_DUPLICATED;
 
@@ -90,7 +92,7 @@ class ArtistUserServiceTest {
                 ));
 
         //then
-        verify(userRepository, never()).save(any());
+        verify(artistUserRepository, never()).save(any());
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", errorCode)
                 .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
@@ -129,7 +131,7 @@ class ArtistUserServiceTest {
         //given
         final long userId = 1L;
         final CreateArtistUserDto.Request request = givenCreateArtistUserReq();
-        when(userRepository.findById(any()))
+        when(artistUserRepository.findById(any()))
                 .thenReturn(
                         Optional.of(
                                 getArtistUserEntity(request)
@@ -138,7 +140,7 @@ class ArtistUserServiceTest {
         //when
         final ArtistUserDetailDto userInfo = artistUserService.getUserDetail(userId);
         //then
-        verify(userRepository, times(1)).findById(any());
+        verify(artistUserRepository, times(1)).findById(any());
         assertThat(userInfo)
                 .hasFieldOrPropertyWithValue("adultCertification", request.getAdultCertification())
                 .hasFieldOrPropertyWithValue("email", request.getEmail())
@@ -165,7 +167,7 @@ class ArtistUserServiceTest {
         final long userId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
 
-        when(userRepository.findById(any()))
+        when(artistUserRepository.findById(any()))
                 .thenReturn(
                         Optional.empty()
                 );
@@ -175,7 +177,7 @@ class ArtistUserServiceTest {
         );
 
         //then
-        verify(userRepository, times(1)).findById(any());
+        verify(artistUserRepository, times(1)).findById(any());
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", errorCode)
                 .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
@@ -185,19 +187,17 @@ class ArtistUserServiceTest {
     public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse(){
         //given
         final long deletedUserId = 1L;
-        when(userRepository.findById(deletedUserId))
+        when(artistUserRepository.findById(deletedUserId))
                 .thenReturn(
                         Optional.of(getArtistUserEntity(
                                 givenCreateArtistUserReq(), deletedUserId
                         ))
                 );
         //when
-        final DeletedUserResponse deletedUserResponse = artistUserService.deletedArtistUser(deletedUserId);
+        artistUserService.removeArtistUser(deletedUserId);
+
         //then
-        assertThat(deletedUserResponse)
-                .hasFieldOrPropertyWithValue("userId", deletedUserId)
-                .hasFieldOrPropertyWithValue("deleted", true);
-        verify(userRepository, times(1)).findById(eq(deletedUserId));
+        verify(artistUserRepository, times(1)).findById(eq(deletedUserId));
     }
 
     private ArtistUser getArtistUserEntity(CreateArtistUserDto.Request request, Long userId) {
@@ -211,18 +211,18 @@ class ArtistUserServiceTest {
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
 
-        when(userRepository.findById(deletedUserId))
+        when(artistUserRepository.findById(deletedUserId))
                 .thenReturn(
                         Optional.empty()
                 );
         //when
         final UserException userException = assertThrows(UserException.class,
-                () -> artistUserService.deletedArtistUser(deletedUserId));
+                () -> artistUserService.removeArtistUser(deletedUserId));
         //then
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", errorCode)
                 .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
-        verify(userRepository, times(1)).findById(eq(deletedUserId));
+        verify(artistUserRepository, times(1)).findById(eq(deletedUserId));
     }
 
     @Test
@@ -233,7 +233,7 @@ class ArtistUserServiceTest {
         final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
         final boolean deleted = true;
 
-        when(userRepository.findById(deletedUserId))
+        when(artistUserRepository.findById(deletedUserId))
                 .thenReturn(
                         Optional.of(
                                 getArtistUserEntity(
@@ -243,12 +243,12 @@ class ArtistUserServiceTest {
                 );
         //when
         final UserException userException = assertThrows(UserException.class,
-                () -> artistUserService.deletedArtistUser(deletedUserId));
+                () -> artistUserService.removeArtistUser(deletedUserId));
         //then
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", errorCode)
                 .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
-        verify(userRepository, times(1)).findById(eq(deletedUserId));
+        verify(artistUserRepository, times(1)).findById(eq(deletedUserId));
     }
     private ArtistUser getArtistUserEntity(CreateArtistUserDto.Request request, Long userId, boolean deleted){
         final BankInfo bankInfo = getBankInfo(request.getBankName(), request.getAccountNumber());
@@ -283,24 +283,25 @@ class ArtistUserServiceTest {
         //given
         final long userId = 1L;
         final UpdateArtistUserDto.Request request = givenUpdateArtistUserReq();
-        when(userRepository.findById(any()))
+        final ArtistUser artistUserEntity = getArtistUserEntity(userId);
+        when(artistUserRepository.findById(any()))
                 .thenReturn(
-                        Optional.of(getArtistUserEntity(userId))
+                        Optional.of(artistUserEntity)
                 );
         //when
-        final UpdateArtistUserDto.Response response = artistUserService.modifiedUser(userId, request);
+        artistUserService.modifyArtistUser(userId, request);
         //then
-        assertThat(response)
+        assertThat(artistUserEntity)
             .hasFieldOrPropertyWithValue("nickname",request.getNickname())
-            .hasFieldOrPropertyWithValue("bankName",request.getBankName())
-            .hasFieldOrPropertyWithValue("accountNumber",request.getAccountNumber())
+            .hasFieldOrPropertyWithValue("bankInfo.bankName",request.getBankName())
+            .hasFieldOrPropertyWithValue("bankInfo.accountNumber",request.getAccountNumber())
             .hasFieldOrPropertyWithValue("newsAgency",request.getNewsAgency())
             .hasFieldOrPropertyWithValue("phoneNumber",request.getPhoneNumber())
             .hasFieldOrPropertyWithValue("adultCertification",request.getAdultCertification())
             .hasFieldOrPropertyWithValue("profileImage",request.getProfileImage())
-            .hasFieldOrPropertyWithValue("portfolioUrl",request.getPortfolioUrl())
+            .hasFieldOrPropertyWithValue("portfolioRoom.portfolioRoomURL",request.getPortfolioUrl())
         ;
-        verify(userRepository, times(1)).findById(eq(userId));
+        verify(artistUserRepository, times(1)).findById(eq(userId));
     }
     public ArtistUser getArtistUserEntity(long userId){
         return ArtistUser.builder()
@@ -357,18 +358,18 @@ class ArtistUserServiceTest {
         //given
         final long wrongUserId = 1L;
         final UpdateArtistUserDto.Request request = givenUpdateArtistUserReq();
-        when(userRepository.findById(any()))
+        when(artistUserRepository.findById(any()))
                 .thenReturn(
                         Optional.empty()
                 );
         //when
-        final UserException userException = assertThrows(UserException.class, () -> artistUserService.modifiedUser(wrongUserId, request));
+        final UserException userException = assertThrows(UserException.class, () -> artistUserService.modifyArtistUser(wrongUserId, request));
         //then
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", UserErrorCode.NOT_FOUND_USERID)
                 .hasFieldOrPropertyWithValue("errorMessage", UserErrorCode.NOT_FOUND_USERID.getDescription())
         ;
-        verify(userRepository, times(1)).findById(eq(wrongUserId));
+        verify(artistUserRepository, times(1)).findById(eq(wrongUserId));
     }
 
     @Test
@@ -378,7 +379,7 @@ class ArtistUserServiceTest {
         final long givenUserId = 1L;
         final StatusMarkDto givenStatusMarkDto = givenStatusMarkDto(StatusMark.REST);
         final ArtistUser artistUser = getArtistUserEntity(givenUserId);
-        when(userRepository.findById(anyLong()))
+        when(artistUserRepository.findById(anyLong()))
                 .thenReturn(
                         Optional.of(
                                 artistUser
@@ -388,7 +389,7 @@ class ArtistUserServiceTest {
         assertThat(artistUser.getStatusMark()).isEqualTo(StatusMark.OPEN);
         artistUserService.updateStatusMark(givenUserId, givenStatusMarkDto);
         assertThat(artistUser.getStatusMark()).isEqualTo(StatusMark.REST);
-        verify(userRepository).findById(eq(givenUserId));
+        verify(artistUserRepository).findById(eq(givenUserId));
     }
 
     private StatusMarkDto givenStatusMarkDto(StatusMark statusMark) {
@@ -403,7 +404,7 @@ class ArtistUserServiceTest {
         //given
         final long wrongUserId = 1L;
         final StatusMarkDto givenStatusMarkDto = givenStatusMarkDto(StatusMark.REST);
-        when(userRepository.findById(any()))
+        when(artistUserRepository.findById(any()))
                 .thenReturn(
                         Optional.empty()
                 );
@@ -414,6 +415,6 @@ class ArtistUserServiceTest {
                 .hasFieldOrPropertyWithValue("errorCode", UserErrorCode.NOT_FOUND_USERID)
                 .hasFieldOrPropertyWithValue("errorMessage", UserErrorCode.NOT_FOUND_USERID.getDescription())
         ;
-        verify(userRepository, times(1)).findById(eq(wrongUserId));
+        verify(artistUserRepository, times(1)).findById(eq(wrongUserId));
     }
 }

@@ -1,13 +1,15 @@
 package com.onfree.core.dto.user.artist;
 
+import com.onfree.core.dto.portfolio.CreatePortfolioDto;
 import com.onfree.core.entity.user.ArtistUser;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.hateoas.RepresentationModel;
 
 @Getter
 @Builder
-public class ArtistUserDetailDto {
+public class ArtistUserDetailDto extends RepresentationModel<ArtistUserDetailDto> {
     @ApiModelProperty(value = "사용자 이름", example = "김모씨")
     private final String name;
 

@@ -56,7 +56,7 @@ public abstract class User extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean deleted;
 
-    @Column()
+    @Column
     private LocalDateTime deletedTime;
 
     @Enumerated(EnumType.STRING)

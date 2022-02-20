@@ -10,8 +10,8 @@ import com.onfree.core.entity.ArtistUserDrawingField;
 import com.onfree.core.entity.DrawingField;
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.repository.ArtistUserDrawingFieldRepository;
+import com.onfree.core.repository.ArtistUserRepository;
 import com.onfree.core.repository.DrawingFieldRepository;
-import com.onfree.core.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,20 +27,20 @@ import static com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto.*;
 @Service
 public class ArtistUserDrawingFieldService {
     private final ArtistUserDrawingFieldRepository artistUserDrawingFieldRepository;
-    private final UserRepository userRepository;
+    private final ArtistUserRepository artistUserRepository;
     private final DrawingFieldRepository drawingFieldRepository;
 
     /** 그림분야 수정*/
     @Transactional
     public void updateDrawingFields(Long userId, UpdateDrawingFieldsDto updateDrawingFieldsDto) {
-        final ArtistUser artistUser = getUser(userId);
+        final ArtistUser artistUser = getArtistUserEntity(userId);
         final List<DrawingField> updateDrawingFieldList = getUpdateDrawingFieldList(updateDrawingFieldsDto);
         deletedAllArtistUserDrawingFieldByArtistUser(artistUser);
         saveAllArtistUserDrawingFieldList(artistUser, updateDrawingFieldList);
     }
 
-    private ArtistUser getUser(Long userId) {
-        return (ArtistUser) userRepository.findById(userId)
+    private ArtistUser getArtistUserEntity(Long userId) {
+        return  artistUserRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND_USERID));
     }
 
@@ -76,7 +76,7 @@ public class ArtistUserDrawingFieldService {
 
     /** 사용중인 그림분야 가져오기 */
     public List<UsedDrawingFieldDto> getAllArtistUserUsedDrawingFields(Long userId) {
-        final ArtistUser artistUser = getUser(userId);
+        final ArtistUser artistUser = getArtistUserEntity(userId);
         return getUsedDrawingFieldDtoList(
                 getAllDrawingFieldList(),
                 getAllArtistUserHasDrawingFieldIdListByArtistUser(artistUser)
