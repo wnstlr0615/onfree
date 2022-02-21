@@ -24,7 +24,6 @@ import java.util.Locale;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-@Api(tags = "이미지 업로드 API")
 @RestController
 @RequiredArgsConstructor
 public class S3UploadController {

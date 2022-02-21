@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-@Api(tags = "그림분야 설정 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users/artist")

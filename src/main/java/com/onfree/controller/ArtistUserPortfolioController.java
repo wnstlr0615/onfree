@@ -22,7 +22,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
 @RequiredArgsConstructor
-@Api(tags = "작가유저와 포트폴리오 관련 API")
 @RequestMapping(value = "/api/v1/users/artist", produces = MediaTypes.HAL_JSON_VALUE)
 public class ArtistUserPortfolioController {
     private final ArtistUserPortfolioService artistUserPortfolioService;

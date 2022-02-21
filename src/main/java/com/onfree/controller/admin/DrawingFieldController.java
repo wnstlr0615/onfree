@@ -20,7 +20,6 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Api(tags = "그림분야 설정", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 @RequestMapping(value = "/admin/api/drawing-fields")
 public class DrawingFieldController {
     private final DrawingFieldService drawingFieldService;

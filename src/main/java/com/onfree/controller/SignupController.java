@@ -24,7 +24,6 @@ import java.util.Locale;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
-@Api(tags = "회원가입 인증 컨트롤러")
 public class SignupController {
     private final SignUpService signUpService;
 

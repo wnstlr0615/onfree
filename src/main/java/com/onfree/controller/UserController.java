@@ -17,7 +17,6 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-@Api(value = "사용자 관련 컨트롤러", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
     private final UserService userService;
 

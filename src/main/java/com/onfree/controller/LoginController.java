@@ -28,7 +28,6 @@ import static com.onfree.common.constant.SecurityConstant.REFRESH_TOKEN;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping( consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(tags = "로그인 컨트롤러", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class LoginController {
     private final LoginService loginService;
 
