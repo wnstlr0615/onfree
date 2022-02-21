@@ -327,7 +327,7 @@ class ValidateAopTest {
 
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
-        mvc.perform(post("/admin/api/notices")
+        mvc.perform(post("/admin/api/v1/notices")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -359,7 +359,7 @@ class ValidateAopTest {
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
-        mvc.perform(put("/admin/api/notices/{noticeId}", noticeId)
+        mvc.perform(put("/admin/api/v1/notices/{noticeId}", noticeId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsBytes(
@@ -391,7 +391,7 @@ class ValidateAopTest {
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
-        mvc.perform(post("/admin/api/questions")
+        mvc.perform(post("/admin/api/v1/questions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -423,7 +423,7 @@ class ValidateAopTest {
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
-        mvc.perform(put("/admin/api/questions/{questionId}", questionId)
+        mvc.perform(put("/admin/api/v1/questions/{questionId}", questionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(

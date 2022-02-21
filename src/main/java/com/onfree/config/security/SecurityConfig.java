@@ -73,8 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/login", "/error", "/logout", "/api/signup/**", "/api/password/reset/**",
         };
         String[] getWhiteList = new String[]{
-                "/api/notices/**", "/api/notices/**",
-                "/api/questions/**", "/api/questions/**",
+                "/api/v1/notices/**",  "/api/v1/questions/**",
                 "/api/portfolios/**", "/api/v1/users/artist/**"
         };
         String[] postWhiteList = new String[]{
@@ -89,7 +88,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(whiteList).permitAll()
                 .antMatchers(HttpMethod.GET, getWhiteList).permitAll()
                 .antMatchers(HttpMethod.POST, postWhiteList).permitAll()
-                .antMatchers(HttpMethod.POST, "/api/notices/**", "/api/questions/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/api/v1/notices/**", "/api/v1/questions/**").hasRole("ADMIN")
                 .antMatchers(onlyArtistUrl).hasRole("ARTIST")
                 .antMatchers("/api/users/normal/**").hasRole("NORMAL")
                 .anyRequest().authenticated();

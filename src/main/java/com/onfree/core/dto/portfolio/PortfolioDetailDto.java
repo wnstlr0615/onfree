@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
-import org.springframework.hateoas.server.core.Relation;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 @Getter
 @Builder
 @ApiModel(description = "포트폴리오 상세 조회 DTO")
-@Relation(collectionRelation = "items")
 public class PortfolioDetailDto extends RepresentationModel<PortfolioDetailDto> {
     @ApiModelProperty(value = "포트폴리오 PK", notes = "포트폴리오 PK ", example = "1")
     private final Long portfolioId;

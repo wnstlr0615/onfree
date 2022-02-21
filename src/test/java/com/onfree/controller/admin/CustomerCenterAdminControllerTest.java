@@ -41,7 +41,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
                         givenCreateNoticeDtoResponse()
                 );
         //when //then
-        mvc.perform(post("/admin/api/notices")
+        mvc.perform(post("/admin/api/v1/notices")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -56,6 +56,8 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$.content").value("내용"))
                 .andExpect(jsonPath("$.top").value(true))
                 .andExpect(jsonPath("$.disabled").value(false))
+                .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+                .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
             ;
         verify(customerCenterService).createNotice(any());
     }
@@ -90,7 +92,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
         //when
 
         //then
-        mvc.perform(put("/admin/api/notices/{noticeId}", noticeId)
+        mvc.perform(put("/admin/api/v1/notices/{noticeId}", noticeId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsBytes(
@@ -100,11 +102,10 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
         )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.noticeId").value(1L))
-                .andExpect(jsonPath("$.title").value("제목"))
-                .andExpect(jsonPath("$.content").value("내용"))
-                .andExpect(jsonPath("$.top").value(true))
-                .andExpect(jsonPath("$.disabled").value(false))
+                .andExpect(jsonPath("$.result").value(true))
+                .andExpect(jsonPath("$.message").value("공지가 성공적으로 수정되었습니다."))
+                .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+                .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
         ;
         verify(customerCenterService).updateNotice(eq(noticeId), any());
     }
@@ -139,7 +140,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
         //when
 
         //then
-        mvc.perform(put("/admin/api/notices/{noticeId}", noticeId)
+        mvc.perform(put("/admin/api/v1/notices/{noticeId}", noticeId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsBytes(
@@ -167,7 +168,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
                 );
         //when
         //then
-        mvc.perform(post("/admin/api/questions")
+        mvc.perform(post("/admin/api/v1/questions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -182,6 +183,8 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$.content").value("내용"))
                 .andExpect(jsonPath("$.top").value(true))
                 .andExpect(jsonPath("$.disabled").value(false))
+                .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+                .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
         ;
         verify(customerCenterService).createQuestion(any());
     }
@@ -217,7 +220,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
         //when
 
         //then
-        mvc.perform(put("/admin/api/questions/{questionId}", questionId)
+        mvc.perform(put("/admin/api/v1/questions/{questionId}", questionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -227,11 +230,10 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
         )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.questionId").value(1L))
-                .andExpect(jsonPath("$.title").value("제목"))
-                .andExpect(jsonPath("$.content").value("내용"))
-                .andExpect(jsonPath("$.top").value(true))
-                .andExpect(jsonPath("$.disabled").value(false))
+                .andExpect(jsonPath("$.result").value(true))
+                .andExpect(jsonPath("$.message").value("질문이 성공적으로 수정되었습니다."))
+                .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+                .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
         ;
         verify(customerCenterService).updateQuestion(eq(questionId), any());
 
@@ -268,7 +270,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
         //when
 
         //then
-        mvc.perform(put("/admin/api/questions/{questionId}", questionId)
+        mvc.perform(put("/admin/api/v1/questions/{questionId}", questionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(

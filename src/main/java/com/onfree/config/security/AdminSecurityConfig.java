@@ -21,10 +21,13 @@ public class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        String[] whiteListOnlyAdmin = {
+                "/admin/api/v1/notices/**",
+                "/admin/api/v1/questions/**"
+        };
         http.antMatcher("/admin/**")
             .authorizeRequests()
-                .antMatchers("/admin/api/notices", "/admin/api/notices/*").hasRole("ADMIN")
-                .antMatchers("/admin/api/questions", "/admin/api/questions/*").hasRole("ADMIN")
+                .antMatchers(whiteListOnlyAdmin).hasRole("ADMIN")
                 .anyRequest().hasRole("ADMIN");
         http
                 .csrf().disable()
