@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PortfolioControllerTest extends ControllerBaseTest {
     @MockBean
     PortfolioService portfolioService;
-    @SpyBean
+    @MockBean
     CurrentArtistUserArgumentResolver currentArtistUserArgumentResolver;
 
     @Test

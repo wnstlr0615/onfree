@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.ResultActions;
@@ -39,7 +38,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
     PortfolioService portfolioService;
     @MockBean
     StatusMarkValidator statusMarkValidator;
-    @SpyBean
+    @MockBean
     CurrentArtistUserArgumentResolver currentArtistUserArgumentResolver;
 
     @Test
@@ -179,10 +178,12 @@ class ArtistUserControllerTest extends ControllerBaseTest {
         final Long userId = 1L;
         final CreateArtistUserDto.Request request = givenCreateArtistUserReq();
 
-        when(artistUserService.getUserDetail(userId))
+        when(artistUserService.getUserDetail(any(ArtistUser.class)))
                 .thenReturn(
                         getArtistUserInfo(request)
                 );
+        when(currentArtistUserArgumentResolver.supportsParameter(any()))
+                .thenReturn(true);
         when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .thenReturn(
                         getArtistUser()
@@ -211,7 +212,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$.statusMark").value(StatusMark.OPEN.toString()))
 
         ;
-        verify(artistUserService, times(1)).getUserDetail(anyLong());
+        verify(artistUserService, times(1)).getUserDetail(any(ArtistUser.class));
     }
 
 
@@ -239,7 +240,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;
-        verify(artistUserService, never()).getUserDetail(anyLong());
+        verify(artistUserService, never()).getUserDetail(any(ArtistUser.class));
     }
 
     @Test
@@ -297,8 +298,10 @@ class ArtistUserControllerTest extends ControllerBaseTest {
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
-        doThrow(new UserException(errorCode)).when(artistUserService)
-                .removeArtistUser(deletedUserId);
+        doThrow(new UserException(errorCode))
+                .when(artistUserService).removeArtistUser(deletedUserId);
+        when(currentArtistUserArgumentResolver.supportsParameter(any()))
+                .thenReturn(true);
         when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .thenReturn(
                         getArtistUser()
@@ -323,6 +326,8 @@ class ArtistUserControllerTest extends ControllerBaseTest {
         final long userId = 1L;
         doNothing().when(artistUserService)
                 .modifyArtistUser(anyLong(), any());
+        when(currentArtistUserArgumentResolver.supportsParameter(any()))
+                .thenReturn(true);
         when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .thenReturn(
                         getArtistUser()
@@ -453,6 +458,8 @@ class ArtistUserControllerTest extends ControllerBaseTest {
                 .validate(any(), any());
         doNothing().when(artistUserService)
                 .updateStatusMark(anyLong(), any(StatusMarkDto.class));
+        when(currentArtistUserArgumentResolver.supportsParameter(any()))
+                .thenReturn(true);
 
         when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .thenReturn(

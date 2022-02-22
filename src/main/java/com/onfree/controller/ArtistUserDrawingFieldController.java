@@ -6,7 +6,6 @@ import com.onfree.core.dto.drawingfield.artist.UpdateDrawingFieldsDto;
 import com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto;
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.service.ArtistUserDrawingFieldService;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;

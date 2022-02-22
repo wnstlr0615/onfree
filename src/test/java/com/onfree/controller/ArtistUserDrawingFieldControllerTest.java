@@ -28,7 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ArtistUserDrawingFieldControllerTest extends ControllerBaseTest {
     @MockBean
     ArtistUserDrawingFieldService artistUserDrawingFieldService;
-    @SpyBean
+
+    @MockBean
     CurrentArtistUserArgumentResolver currentArtistUserArgumentResolver;
 
     @Test
@@ -39,6 +40,8 @@ class ArtistUserDrawingFieldControllerTest extends ControllerBaseTest {
 
         doNothing().when(artistUserDrawingFieldService)
                 .updateDrawingFields(anyLong(), any(UpdateDrawingFieldsDto.class));
+        when(currentArtistUserArgumentResolver.supportsParameter(any()))
+                .thenReturn(true);
         when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .thenReturn(
                         getArtistUser()

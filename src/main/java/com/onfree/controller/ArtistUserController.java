@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,34 +43,41 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 public class ArtistUserController {
 
     private final ArtistUserService artistUserService;
-
     private final StatusMarkValidator statusMarkValidator;
 
     /** 회원 가입*/
     @PreAuthorize(value = "!isAuthenticated()")
     @ApiOperation(value = "작가 유저 회원 가입 요청" , notes = "작가 유저 회원 가입 요청")
     @PostMapping("")
-    public ResponseEntity<CreateArtistUserDto.Response> userAdd(
+    public ResponseEntity<CreateArtistUserDto.Response> artistUserAdd(
             @RequestBody @Valid  CreateArtistUserDto.Request request,
-            BindingResult errors){
+            BindingResult errors
+    ){
+        CreateArtistUserDto.Response response = artistUserService.addArtistUser(request);
+
+        //링크 추가
+        response.add(
+                linkTo(NormalUserController.class).withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/artist-user-controller/artistUserAddUsingPOST").withRel("profile")
+        );
 
         return ResponseEntity.created(
                 linkTo(ArtistUserController.class).slash("me").toUri()
-            )
-                .body(artistUserService.addArtistUser(request));
+            ).body(response);
     }
 
     /** 본인 정보 상세 조회*/
     @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "작가 유저 본인 사용자 정보 조회", notes = "작가 유저 본전 사용자 정보 조회")
     @GetMapping("/me")
-    public ArtistUserDetailDto userDetails(
+    public ArtistUserDetailDto artistUserDetails(
             @CurrentArtistUser ArtistUser artistUser
     ){
-        final ArtistUserDetailDto response = artistUserService.getUserDetail(artistUser.getUserId());
+        ArtistUserDetailDto response = artistUserService.getUserDetail(artistUser);
+        //링크 추가
         response.add(
-                linkTo(ArtistUserController.class).slash("me").withSelfRel()
-                .withProfile("/swagger-ui/#/작가유저%20기본기능%20제공%20컨트롤러/getUserInfoUsingGET")
+                linkTo(ArtistUserController.class).slash("me").withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/artist-user-controller/artistUserDetailsUsingGET").withRel("profile")
         );
         return response;
     }
@@ -78,11 +86,19 @@ public class ArtistUserController {
     @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "작가 유저 사용자 deleted 처리")
     @DeleteMapping("/me")
-    public SimpleResponse userRemove(
+    public SimpleResponse artistUserRemove(
             @CurrentArtistUser ArtistUser artistUser
     ){
         artistUserService.removeArtistUser(artistUser.getUserId());
-        return SimpleResponse.success("사용자가 정상적으로 삭제되었습니다.");
+        SimpleResponse response = SimpleResponse.success("사용자가 정상적으로 삭제되었습니다.");
+
+        //링크 추가
+        response.add(
+                linkTo(ArtistUser.class).slash("me").withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/artist-user-controller/artistUserRemoveUsingDELETE").withProfile("profile")
+        );
+
+        return response;
     }
 
     /** 사용자 정보 수정*/
@@ -95,7 +111,14 @@ public class ArtistUserController {
             BindingResult errors
     ){
         artistUserService.modifyArtistUser(artistUser.getUserId(), request);
-        return SimpleResponse.success("사용자 정보가 정상적으로 수정 되었습니다.");
+        SimpleResponse response = SimpleResponse.success("사용자 정보가 정상적으로 수정 되었습니다.");
+        // 링크 추가
+        response.add(
+                linkTo(ArtistUserController.class).slash("me").withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/artist-user-controller/artistUserModifyUsingPUT").withProfile("profile")
+        );
+
+        return response;
     }
 
     /** 작가유저 영업마크 설정*/
@@ -110,7 +133,13 @@ public class ArtistUserController {
         statusMarkValidator.validate(statusMarkDto, errors);
         validStatusMark(errors);
         artistUserService.updateStatusMark(artistUser.getUserId(), statusMarkDto);
-        return SimpleResponse.success("영업마크가 성공적으로 변경 되었습니다.");
+        SimpleResponse response = SimpleResponse.success("영업마크가 성공적으로 변경 되었습니다.");
+
+        response.add(
+                linkTo(ArtistUserController.class).slash("me").slash("status").withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/artist-user-controller/updateStatusMarkUsingPATCH").withProfile("profile")
+        );
+        return response;
     }
 
     private void validStatusMark(BindingResult error) {

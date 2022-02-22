@@ -79,6 +79,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         };
         String[] postWhiteList = new String[]{
                 "/api/upload/profile-image",
+                "/api/v1/users/artist",
+                "/api/v1/users/normal"
         };
         String[] onlyArtistUrl = new String[]{
                 "/api/v1/users/artist/**",
@@ -86,13 +88,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/api/upload/portfolio-content-image"
         };
         http.authorizeRequests()
-                .antMatchers(HttpMethod.POST,"/api/v1/users/artist", "/api/users/normal").permitAll()
                 .antMatchers(whiteList).permitAll()
                 .antMatchers(HttpMethod.GET, getWhiteList).permitAll()
                 .antMatchers(HttpMethod.POST, postWhiteList).permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/notices/**", "/api/v1/questions/**").hasRole("ADMIN")
                 .antMatchers(onlyArtistUrl).hasRole("ARTIST")
-                .antMatchers("/api/users/normal/**").hasRole("NORMAL")
+                .antMatchers("/api/v1/users/normal/**").hasRole("NORMAL")
                 .anyRequest().authenticated();
         http.httpBasic().disable()
             .csrf().disable()

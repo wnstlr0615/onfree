@@ -7,7 +7,6 @@ import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.entity.user.BankInfo;
 import com.onfree.core.repository.ArtistUserRepository;
-import com.onfree.core.repository.UserRepository;
 import com.onfree.common.error.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +27,7 @@ public class ArtistUserService {
     public CreateArtistUserDto.Response addArtistUser(CreateArtistUserDto.Request request) {
         //이메일 중복 체크
         validateDuplicatedEmail(request.getEmail());
+        
         return getCreateArtistUserDtoResponse( // Response Dto 로 변환
                 saveArtistUser( // 작가유저 저장
                     bcryptPassword( // 패스워드 암호화
@@ -72,13 +72,13 @@ public class ArtistUserService {
     }
 
     /** 사용자 정보 조회 */
-    public ArtistUserDetailDto getUserDetail(Long userId) {
+    public ArtistUserDetailDto getUserDetail(ArtistUser artistUser) {
         return getArtistUserDetailDto( // ArtistUserDetailDto 로 변환
-                getArtistUserEntity(userId) // 사용자 정보 조회
+                artistUser
         );
     }
 
-    private ArtistUser getArtistUserEntity(Long userId) {
+    private ArtistUser getArtistUser(Long userId) {
         return artistUserRepository.findById(userId)
                 .orElseThrow(
                         () -> new UserException(NOT_FOUND_USERID)
@@ -86,25 +86,22 @@ public class ArtistUserService {
     }
 
     private ArtistUserDetailDto getArtistUserDetailDto(ArtistUser artistUser) {
-        return ArtistUserDetailDto.fromEntity(
-                artistUser // 사용자 조회
-        );
+        return ArtistUserDetailDto.fromEntity(artistUser);
     }
 
     /** 사용자 deleted 처리 (수정 & 삭제 예정)  */
     @Transactional
     public void removeArtistUser(Long userId) {
         setArtistUserDeleted(
-                getArtistUserEntity(userId)
+                getArtistUser(userId)
         );
     }
 
-    private ArtistUser setArtistUserDeleted(ArtistUser ArtistUser) {
+    private void setArtistUserDeleted(ArtistUser ArtistUser) {
         if(ArtistUserIsDeleted(ArtistUser)){
             throw new UserException(ALREADY_USER_DELETED);
         }
         ArtistUser.setDeleted();
-        return ArtistUser;
     }
 
     private boolean ArtistUserIsDeleted(ArtistUser ArtistUser) {
@@ -115,8 +112,8 @@ public class ArtistUserService {
 
     @Transactional
     public void modifyArtistUser(Long userId, UpdateArtistUserDto.Request request) {
-        ArtistUser artistUserEntity = getArtistUserEntity(userId);
-        artistUserInfoUpdate(artistUserEntity, request);
+        ArtistUser artistUser = getArtistUser(userId);
+        artistUserInfoUpdate(artistUser, request);
 
     }
 
@@ -130,7 +127,7 @@ public class ArtistUserService {
     /*사용자 영업마크 수정*/
     @Transactional
     public void updateStatusMark(Long userId, StatusMarkDto statusMarkDto) {
-        final ArtistUser artistUser = getArtistUserEntity(userId);
+        final ArtistUser artistUser = getArtistUser(userId);
         artistUser.updateStatusMark(statusMarkDto.getStatusMark());
     }
 

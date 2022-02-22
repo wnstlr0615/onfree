@@ -1,6 +1,8 @@
 package com.onfree.config.webmvc;
 
 import com.onfree.config.webmvc.resolver.CurrentArtistUserArgumentResolver;
+import com.onfree.config.webmvc.resolver.CurrentNormalUserArgumentResolver;
+import com.onfree.config.webmvc.resolver.LoginUserArgumentResolver;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +16,11 @@ import java.util.List;
 public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(getArtistUserArgumentResolver());
+        resolvers.add(currentNormalUserArgumentResolver());
+        resolvers.add(loginUserArgumentResolver());
+        resolvers.add(currentArtistUserArgumentResolver());
     }
+
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -26,7 +31,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public CurrentArtistUserArgumentResolver getArtistUserArgumentResolver() {
+    public CurrentArtistUserArgumentResolver currentArtistUserArgumentResolver() {
         return new CurrentArtistUserArgumentResolver();
+    }
+    @Bean
+    public CurrentNormalUserArgumentResolver currentNormalUserArgumentResolver() {
+        return new CurrentNormalUserArgumentResolver();
+    }
+    @Bean
+    public LoginUserArgumentResolver loginUserArgumentResolver() {
+        return new LoginUserArgumentResolver();
     }
 }

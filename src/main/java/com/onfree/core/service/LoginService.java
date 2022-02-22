@@ -102,7 +102,7 @@ public class LoginService {
     }
 
     private User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndDeletedIsFalse(email)
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND_USER_EMAIL));
     }
 

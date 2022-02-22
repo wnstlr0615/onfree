@@ -49,7 +49,7 @@ class ArtistUserServiceTest {
                 .thenReturn(
                         getArtistUserEntity(userReq)
                 );
-        when(artistUserRepository.countByEmail(any()))
+        when(artistUserRepository.countByEmail(anyString()))
                 .thenReturn(0);
         //when
         CreateArtistUserDto.Response response = artistUserService.addArtistUser(
@@ -130,58 +130,30 @@ class ArtistUserServiceTest {
     public void givenUserId_whenGetUserInfo_thenUserInfo() {
         //given
         final long userId = 1L;
-        final CreateArtistUserDto.Request request = givenCreateArtistUserReq();
-        when(artistUserRepository.findById(any()))
-                .thenReturn(
-                        Optional.of(
-                                getArtistUserEntity(request)
-                        )
-                );
+
         //when
-        final ArtistUserDetailDto userInfo = artistUserService.getUserDetail(userId);
+        ArtistUser artistUserEntity = getArtistUserEntity(userId);
+        final ArtistUserDetailDto userInfo = artistUserService.getUserDetail(artistUserEntity);
         //then
-        verify(artistUserRepository, times(1)).findById(any());
         assertThat(userInfo)
-                .hasFieldOrPropertyWithValue("adultCertification", request.getAdultCertification())
-                .hasFieldOrPropertyWithValue("email", request.getEmail())
-                .hasFieldOrPropertyWithValue("gender", request.getGender().getName())
-                .hasFieldOrPropertyWithValue("name", request.getName())
-                .hasFieldOrPropertyWithValue("nickname", request.getNickname())
-                .hasFieldOrPropertyWithValue("newsAgency", request.getNewsAgency())
-                .hasFieldOrPropertyWithValue("phoneNumber", request.getPhoneNumber())
-                .hasFieldOrPropertyWithValue("bankName", request.getBankName().getBankName())
-                .hasFieldOrPropertyWithValue("accountNumber", request.getAccountNumber())
-                .hasFieldOrPropertyWithValue("advertisementAgree", request.getAdvertisementAgree())
-                .hasFieldOrPropertyWithValue("personalInfoAgree", request.getPersonalInfoAgree())
-                .hasFieldOrPropertyWithValue("policyAgree", request.getPolicyAgree())
-                .hasFieldOrPropertyWithValue("serviceAgree", request.getServiceAgree())
-                .hasFieldOrPropertyWithValue("profileImage", request.getProfileImage())
-                .hasFieldOrPropertyWithValue("portfolioUrl", request.getPortfolioUrl())
+                .hasFieldOrPropertyWithValue("adultCertification", true)
+                .hasFieldOrPropertyWithValue("email", "jun@naver.com")
+                .hasFieldOrPropertyWithValue("gender", Gender.MAN.getName())
+                .hasFieldOrPropertyWithValue("name", "준식")
+                .hasFieldOrPropertyWithValue("nickname", "joon")
+                .hasFieldOrPropertyWithValue("newsAgency", "SKT")
+                .hasFieldOrPropertyWithValue("phoneNumber", "010-8888-9999")
+                .hasFieldOrPropertyWithValue("bankName", "IBK기업은행")
+                .hasFieldOrPropertyWithValue("accountNumber", "010-8888-9999")
+                .hasFieldOrPropertyWithValue("advertisementAgree", true)
+                .hasFieldOrPropertyWithValue("personalInfoAgree", true)
+                .hasFieldOrPropertyWithValue("policyAgree", true)
+                .hasFieldOrPropertyWithValue("serviceAgree", true)
+                .hasFieldOrPropertyWithValue("profileImage", "http://onfree.io/images/123456789")
+                .hasFieldOrPropertyWithValue("portfolioUrl", "http://onfree.io/portfolioUrl/123456789")
         ;
     }
 
-    @Test
-    @DisplayName("[실패] 사용자 정보 조회 - 없는 유저 아이디로 조회")
-    public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserId() {
-        //given
-        final long userId = 1L;
-        final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
-
-        when(artistUserRepository.findById(any()))
-                .thenReturn(
-                        Optional.empty()
-                );
-        //when
-        final UserException userException = assertThrows(UserException.class,
-                () -> artistUserService.getUserDetail(userId)
-        );
-
-        //then
-        verify(artistUserRepository, times(1)).findById(any());
-        assertThat(userException)
-                .hasFieldOrPropertyWithValue("errorCode", errorCode)
-                .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
-    }
     @Test
     @DisplayName("[성공] 사용자 계정 삭제")
     public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse(){
@@ -310,6 +282,7 @@ class ArtistUserServiceTest {
                 .email("jun@naver.com")
                 .password("!Abcderghijk112")
                 .gender(Gender.MAN)
+                .nickname("joon")
                 .name("준식")
                 .newsAgency("SKT")
                 .phoneNumber("010-8888-9999")
@@ -352,25 +325,7 @@ class ArtistUserServiceTest {
                 .accountNumber(accountNumber)
                 .build();
     }
-    @Test
-    @DisplayName("[실패] 사용자 계정 수정 - userId가 존재하지 않는 경우")
-    public void givenWrongUserId_whenModifiedUser_thenNorFoundUserId(){
-        //given
-        final long wrongUserId = 1L;
-        final UpdateArtistUserDto.Request request = givenUpdateArtistUserReq();
-        when(artistUserRepository.findById(any()))
-                .thenReturn(
-                        Optional.empty()
-                );
-        //when
-        final UserException userException = assertThrows(UserException.class, () -> artistUserService.modifyArtistUser(wrongUserId, request));
-        //then
-        assertThat(userException)
-                .hasFieldOrPropertyWithValue("errorCode", UserErrorCode.NOT_FOUND_USERID)
-                .hasFieldOrPropertyWithValue("errorMessage", UserErrorCode.NOT_FOUND_USERID.getDescription())
-        ;
-        verify(artistUserRepository, times(1)).findById(eq(wrongUserId));
-    }
+
 
     @Test
     @DisplayName("[성공] 작가유저 영업마크 변경 ")

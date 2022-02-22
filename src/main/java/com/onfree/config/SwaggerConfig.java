@@ -1,6 +1,8 @@
 package com.onfree.config;
 
 import com.onfree.common.annotation.CurrentArtistUser;
+import com.onfree.common.annotation.CurrentNormalUser;
+import com.onfree.common.annotation.LoginUser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -44,7 +46,7 @@ public class SwaggerConfig {
                                 securityContext()
                         )
                 )
-                .ignoredParameterTypes(CurrentArtistUser.class)
+                .ignoredParameterTypes(CurrentArtistUser.class, CurrentNormalUser.class, LoginUser.class)
                 ;
     }
 

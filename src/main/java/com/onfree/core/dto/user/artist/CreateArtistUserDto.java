@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.*;
 
@@ -117,7 +118,7 @@ public class CreateArtistUserDto {
     @Getter
     @Builder
     @ApiModel(value = "CreateArtistUserDto_Response")
-    public static class Response{
+    public static class Response extends RepresentationModel<Response> {
         @ApiModelProperty(value = "사용자 이름", example = "김모씨")
         private final String name;
 

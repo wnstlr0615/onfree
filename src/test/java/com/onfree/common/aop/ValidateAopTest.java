@@ -165,7 +165,7 @@ class ValidateAopTest {
         CreateNormalUserDto.Request request = givenWrongCreateNormalUserReq();
         final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
-        mvc.perform(post("/api/users/normal")
+        mvc.perform(post("/api/v1/users/normal")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -205,11 +205,10 @@ class ValidateAopTest {
     @DisplayName("[실패][PUT] 사용자 정보 수정 - 잘못된 데이터 입력 ")
     public void givenWrongUpdateUserInfo_whenModifiedNormalUser_thenNotValidRequestParametersError() throws Exception{
         //given
-        final long userId = 1L;
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when then
-        mvc.perform(put("/api/users/normal/{userId}", userId)
+        mvc.perform(put("/api/v1/users/normal/me")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -451,11 +450,10 @@ class ValidateAopTest {
     @DisplayName("[실패][PUT] 사용자 알림설정 변경 - 잘못된 데이터 입력")
     public void givenOtherUserIdAndUpdateUserNotificationDto_whenUpdateUserNotification_thenAccessDeniedError() throws Exception{
         //given
-        final long userId = 1L;
         final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when
         //then
-        mvc.perform(put("/api/users/{userId}/notifications", userId)
+        mvc.perform(put("/api/v1/users/me/notifications")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, BEARER +normalUserAccessToken)
                 .content(

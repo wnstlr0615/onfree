@@ -4,10 +4,11 @@ import com.onfree.core.entity.user.NormalUser;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.hateoas.RepresentationModel;
 
 @Getter
 @Builder
-public class NormalUserDetailDto {
+public class NormalUserDetailDto extends RepresentationModel<NormalUserDetailDto> {
     @ApiModelProperty(value = "사용자 이름", example = "김모씨")
     private final String name;
 

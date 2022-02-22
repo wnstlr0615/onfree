@@ -23,6 +23,7 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.toList;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -35,7 +36,7 @@ class ArtistUserPortfolioControllerTest extends ControllerBaseTest {
     @MockBean
     private ArtistUserPortfolioService artistUserPortfolioService;
 
-    @SpyBean
+    @MockBean(CurrentArtistUserArgumentResolver.class)
     CurrentArtistUserArgumentResolver currentArtistUserArgumentResolver;
 
     @Test
@@ -85,7 +86,7 @@ class ArtistUserPortfolioControllerTest extends ControllerBaseTest {
                         getArtistUser()
                 );
         //when //then
-        mvc.perform(get("/api/v1/users/artist/me/portfolios/temp", userId)
+        mvc.perform(get("/api/v1/users/artist/me/portfolios/temp")
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())

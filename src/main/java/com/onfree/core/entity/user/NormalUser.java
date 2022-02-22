@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
@@ -29,11 +30,7 @@ public class NormalUser extends User{
         super.setDeleted();
     }
 
-    public void update(UpdateNormalUserDto.Request request) {
-        BankInfo bankInfo= BankInfo.builder()
-                .bankName(request.getBankName())
-                .accountNumber(request.getAccountNumber())
-                .build();
-        super.update(bankInfo, request.getAdultCertification(), request.getNickname(), request.getNewsAgency(), request.getPhoneNumber(), request.getProfileImage());
+    public void update(BankInfo bankInfo, Boolean adultCertification, String nickname, String newsAgency, String phoneNumber, String profileImage) {
+        super.update(bankInfo, adultCertification, nickname, newsAgency, phoneNumber, profileImage);
     }
 }
