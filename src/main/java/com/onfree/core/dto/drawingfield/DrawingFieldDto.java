@@ -3,10 +3,13 @@ package com.onfree.core.dto.drawingfield;
 import com.onfree.core.entity.DrawingField;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 @Getter
 @Builder
-public class DrawingFieldDto {
+@Relation(collectionRelation = "items")
+public class DrawingFieldDto extends RepresentationModel<DrawingFieldDto> {
     private Long drawingFieldId;
     private String fieldName;
     private String description;

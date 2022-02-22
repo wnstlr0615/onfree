@@ -23,7 +23,8 @@ public class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         String[] whiteListOnlyAdmin = {
                 "/admin/api/v1/notices/**",
-                "/admin/api/v1/questions/**"
+                "/admin/api/v1/questions/**",
+                "/admin/api/v1/drawing-fields/**"
         };
         http.antMatcher("/admin/**")
             .authorizeRequests()

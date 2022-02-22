@@ -28,6 +28,7 @@ public class DrawingField {
     @Column(nullable = false)
     private Boolean top;
 
+    //== 생성 메서드 ==//
     public static DrawingField createDrawingField(String fieldName, String description, boolean top) {
         return DrawingField.builder()
                 .fieldName(fieldName)
@@ -37,7 +38,7 @@ public class DrawingField {
                 .build();
     }
 
-    public void modifiedDrawingField(DrawingField drawingField) {
+    public void updateDrawingField(DrawingField drawingField) {
         this.fieldName =drawingField.getFieldName();
         this.description =drawingField.getDescription();
         this.disabled =drawingField.getDisabled();

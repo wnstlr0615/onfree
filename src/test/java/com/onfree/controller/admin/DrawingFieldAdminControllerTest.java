@@ -23,26 +23,26 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-@WebMvcTest(controllers = DrawingFieldController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
-class DrawingFieldControllerTest extends ControllerBaseTest {
+@WebMvcTest(controllers = DrawingFieldAdminController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+class DrawingFieldAdminControllerTest extends ControllerBaseTest {
     @MockBean
     DrawingFieldService drawingFieldService;
 
     @Test
     @WithAdminUser
     @DisplayName("[성공][GET] 그림분야 상세 조회 ")
-    public void givenDrawingFieldId_whenGetOneDrawingField_thenDrawingFieldDto() throws Exception{
+    public void givenDrawingFieldId_whenGetOneDrawingField_thenReturnDrawingFieldDto() throws Exception{
         //given
         final long givenDrawingFieldId = 1L;
         final String name = "캐릭터 디자인";
         final String description = "캐릭터 디자인 그림";
-        when(drawingFieldService.getOneDrawField(eq(givenDrawingFieldId)))
+        when(drawingFieldService.findDrawField(eq(givenDrawingFieldId)))
                 .thenReturn(
                         getDrawingFieldDto(name, description)
                 );
         //when
         //then
-        mvc.perform(get("/admin/api/drawing-fields/{drawingFieldId}", givenDrawingFieldId)
+        mvc.perform(get("/admin/api/v1/drawing-fields/{drawingFieldId}", givenDrawingFieldId)
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andDo(print())
@@ -52,7 +52,7 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
             .andExpect(jsonPath("$.top").value(false))
             .andExpect(jsonPath("$.disabled").value(false))
         ;
-        verify(drawingFieldService).getOneDrawField(eq(givenDrawingFieldId));
+        verify(drawingFieldService).findDrawField(eq(givenDrawingFieldId));
     }
 
     private DrawingFieldDto getDrawingFieldDto(String fieldName, String description) {
@@ -71,13 +71,13 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
         //given
         final long givenWrongDrawingFieldId = 999L;
         final DrawingFieldErrorCode errorCode = DrawingFieldErrorCode.NOT_FOUND_DRAWING_FIELD;
-        when(drawingFieldService.getOneDrawField(eq(givenWrongDrawingFieldId)))
+        when(drawingFieldService.findDrawField(eq(givenWrongDrawingFieldId)))
                 .thenThrow(
                         new DrawingFieldException(errorCode)
                 );
         //when
         //then
-        mvc.perform(get("/admin/api/drawing-fields/{drawingFieldId}", givenWrongDrawingFieldId)
+        mvc.perform(get("/admin/api/v1/drawing-fields/{drawingFieldId}", givenWrongDrawingFieldId)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
@@ -86,29 +86,32 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
 
         ;
-        verify(drawingFieldService).getOneDrawField(eq(givenWrongDrawingFieldId));
+        verify(drawingFieldService).findDrawField(eq(givenWrongDrawingFieldId));
     }
 
     @Test
     @WithAdminUser
     @DisplayName("[성공][GET] 그림분야 전체 조회 ")
-    public void givenNothing_whenGetDrawFieldList_thenDrawFieldList() throws Exception{
+    public void givenNothing_whenDrawFieldList_thenReturnDrawingFieldList() throws Exception{
         //given
-        when(drawingFieldService.getDrawFieldDtoList())
+        when(drawingFieldService.findAllDrawingField())
                 .thenReturn(
                         getDrawingFieldDtoList()
                 );
         //when
         //then
-        mvc.perform(get("/admin/api/drawing-fields"))
+        mvc.perform(get("/admin/api/v1/drawing-fields"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.[0]").isNotEmpty())
-            .andExpect(jsonPath("$.[0].fieldName").value("캐릭터 디자인"))
-            .andExpect(jsonPath("$.[1].fieldName").value("버츄얼 디자인"))
-            .andExpect(jsonPath("$.[2].fieldName").value("일러스트"))
+            .andExpect(jsonPath("$._embedded.items[0]").isNotEmpty())
+            .andExpect(jsonPath("$._embedded.items[0]._links.self.href").isNotEmpty())
+            .andExpect(jsonPath("$._embedded.items[0].fieldName").value("캐릭터 디자인"))
+            .andExpect(jsonPath("$._embedded.items[1].fieldName").value("버츄얼 디자인"))
+            .andExpect(jsonPath("$._embedded.items[2].fieldName").value("일러스트"))
+            .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+            .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
         ;
-        verify(drawingFieldService).getDrawFieldDtoList();
+        verify(drawingFieldService).findAllDrawingField();
     }
 
     private List<DrawingFieldDto> getDrawingFieldDtoList() {
@@ -120,6 +123,7 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
     }
     private DrawingFieldDto getDrawingFieldDto(String fieldName) {
         return DrawingFieldDto.builder()
+                .drawingFieldId(1L)
                 .fieldName(fieldName)
                 .description(fieldName)
                 .top(false)
@@ -130,36 +134,40 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
     @Test
     @WithAdminUser
     @DisplayName("[실패][GET] 그림분야 전체 조회 - 그림분야 리스트가 비어 있는 경우")
-    public void givenNothing_whenGetEmptyDrawFieldList_thenEmptyDrawFieldList() throws Exception{
+    public void givenNothing_whenDrawFieldList_thenDrawingFieldEmptyError() throws Exception{
         //given
         final DrawingFieldErrorCode errorCode = DrawingFieldErrorCode.DRAWING_FIELD_EMPTY;
 
-        when(drawingFieldService.getDrawFieldDtoList())
+        when(drawingFieldService.findAllDrawingField())
                 .thenThrow(
                         new DrawingFieldException(errorCode)
                 );
         //when
         //then
-        mvc.perform(get("/admin/api/drawing-fields"))
+        mvc.perform(get("/admin/api/v1/drawing-fields"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
-        verify(drawingFieldService).getDrawFieldDtoList();
+        verify(drawingFieldService).findAllDrawingField();
 
     }
 
     @Test
     @WithAdminUser
     @DisplayName("[성공][POST] 그림분야 등록 ")
-    public void givenCreateDrawingFieldDto_thenCrateDrawingField_thenSimpleResponseSuccess() throws Exception{
+    public void givenCreateDrawingFieldDto_thenDrawingFieldAdd_thenReturnDrawingFieldDto() throws Exception{
         //given
-        final CreateDrawingFieldDto createDrawingFieldDto = givenCreateDrawingFieldDto("캐릭터 디자인", "캐릭터 디자인");
-        doNothing().when(drawingFieldService)
-                .createDrawingField(any(CreateDrawingFieldDto.class));
+        final String fieldName = "캐릭터 디자인";
+        final CreateDrawingFieldDto createDrawingFieldDto = givenCreateDrawingFieldDto(fieldName, fieldName);
+        when(drawingFieldService.addDrawingField(any(CreateDrawingFieldDto.class)))
+            .thenReturn(
+                    getDrawingFieldDto(fieldName)
+            );
+
         //when //then
-        mvc.perform(post("/admin/api/drawing-fields")
+        mvc.perform(post("/admin/api/v1/drawing-fields")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -169,10 +177,15 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
         )
             .andDo(print())
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.result").value(true))
-            .andExpect(jsonPath("$.message").value("성공적으로 그림 분야를 추가하였습니다."))
+            .andExpect(jsonPath("$.drawingFieldId").value(1L))
+            .andExpect(jsonPath("$.fieldName").value(fieldName))
+            .andExpect(jsonPath("$.description").value(fieldName))
+            .andExpect(jsonPath("$.disabled").value(false))
+            .andExpect(jsonPath("$.top").value(false))
+            .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+            .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
         ;
-        verify(drawingFieldService).createDrawingField(any(CreateDrawingFieldDto.class));
+        verify(drawingFieldService).addDrawingField(any(CreateDrawingFieldDto.class));
     }
 
     private CreateDrawingFieldDto givenCreateDrawingFieldDto(String fieldName, String description) {
@@ -185,15 +198,15 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
     @Test
     @WithAdminUser
     @DisplayName("[실패[POST] 그림분야 등록 - 이미 등록된 필드 명이 있을 경우")
-    public void givenDuplicatedDrawingFieldDto_thenCrateDrawingField_thenDuplicatedDrawingFieldNameError() throws Exception{
+    public void givenDuplicatedDrawingFieldDto_thenDrawingFieldAdd_thenDuplicatedDrawingFieldNameError() throws Exception{
         //given
         final CreateDrawingFieldDto createDrawingFieldDto = givenCreateDrawingFieldDto("캐릭터 디자인", "캐릭터 디자인");
         final DrawingFieldErrorCode errorCode = DrawingFieldErrorCode.DUPLICATED_DRAWING_FIELD_NAME;
         doThrow(new DrawingFieldException(errorCode))
-                .when(drawingFieldService).createDrawingField(any(CreateDrawingFieldDto.class));
+                .when(drawingFieldService).addDrawingField(any(CreateDrawingFieldDto.class));
 
         //when //then
-        mvc.perform(post("/admin/api/drawing-fields")
+        mvc.perform(post("/admin/api/v1/drawing-fields")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -206,7 +219,7 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
-        verify(drawingFieldService).createDrawingField(any(CreateDrawingFieldDto.class));
+        verify(drawingFieldService).addDrawingField(any(CreateDrawingFieldDto.class));
 
     }
 
@@ -220,7 +233,7 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
                 .updateDrawingField(eq(givenDrawingFieldId), any(UpdateDrawingFieldDto.class));
         //when
         //then
-        mvc.perform(put("/admin/api/drawing-fields/{drawingFieldId}", givenDrawingFieldId)
+        mvc.perform(put("/admin/api/v1/drawing-fields/{drawingFieldId}", givenDrawingFieldId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -234,6 +247,8 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.result").value(true))
             .andExpect(jsonPath("$.message").value("성공적으로 그림 분야 수정이 완료되었습니다."))
+            .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+            .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
         ;
         verify(drawingFieldService).updateDrawingField(eq(givenDrawingFieldId), any(UpdateDrawingFieldDto.class));
     }
@@ -258,7 +273,7 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
                 .updateDrawingField(eq(givenWrongDrawingFieldId), any(UpdateDrawingFieldDto.class));
         //when
         //then
-        mvc.perform(put("/admin/api/drawing-fields/{drawingFieldId}", givenWrongDrawingFieldId)
+        mvc.perform(put("/admin/api/v1/drawing-fields/{drawingFieldId}", givenWrongDrawingFieldId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -283,18 +298,19 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
         //given
         final long givenDrawingFieldId = 1L;
         doNothing().when(drawingFieldService)
-                .deleteDrawingField(eq(givenDrawingFieldId));
+                .removeDrawingField(eq(givenDrawingFieldId));
         //when
         //then
-        mvc.perform(delete("/admin/api/drawing-fields/{drawingFieldId}", givenDrawingFieldId)
+        mvc.perform(delete("/admin/api/v1/drawing-fields/{drawingFieldId}", givenDrawingFieldId)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value(true))
                 .andExpect(jsonPath("$.message").value("해당 그림분야를 성공적으로 삭제하엿습니다."))
-        ;
-        verify(drawingFieldService).deleteDrawingField(eq(givenDrawingFieldId));
+                .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+                .andExpect(jsonPath("$._links.profile.href").isNotEmpty());
+        verify(drawingFieldService).removeDrawingField(eq(givenDrawingFieldId));
     }
 
     @Test
@@ -305,10 +321,10 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
         final long givenWrongDrawingFieldId = 999L;
         final DrawingFieldErrorCode errorCode = DrawingFieldErrorCode.NOT_FOUND_DRAWING_FIELD;
         doThrow(new DrawingFieldException(errorCode)).when(drawingFieldService)
-                .deleteDrawingField(eq(givenWrongDrawingFieldId));
+                .removeDrawingField(eq(givenWrongDrawingFieldId));
         //when
         //then
-        mvc.perform(delete("/admin/api/drawing-fields/{drawingFieldId}", givenWrongDrawingFieldId)
+        mvc.perform(delete("/admin/api/v1/drawing-fields/{drawingFieldId}", givenWrongDrawingFieldId)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
@@ -316,6 +332,6 @@ class DrawingFieldControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
-        verify(drawingFieldService).deleteDrawingField(eq(givenWrongDrawingFieldId));
+        verify(drawingFieldService).removeDrawingField(eq(givenWrongDrawingFieldId));
     }
 }

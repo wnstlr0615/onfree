@@ -36,55 +36,82 @@ public class DrawingFieldService {
     }
 
     private void saveDrawingField(String fieldName, String description) {
-        drawingFieldRepository.save(
+        saveDrawingField(
                 createDrawingField(fieldName, description)
         );
     }
 
     private DrawingField createDrawingField(String fieldName, String description) {
-        return DrawingField.builder()
-                .fieldName(fieldName)
-                .description(description)
-                .top(false)
-                .disabled(false)
-                .build();
-    }
-    /** 그림분야 조회 */
-    public List<DrawingFieldDto> getDrawFieldDtoList() {
-        return getAllDrawingFieldDtoList();
+        return DrawingField.createDrawingField(fieldName,description, false);
     }
 
-    private List<DrawingFieldDto> getAllDrawingFieldDtoList() {
-        final List<DrawingField> getDrawingFieldList = drawingFieldRepository.findAllByOrderByTopDesc();
-        if(getDrawingFieldList.isEmpty()){
-            throw new DrawingFieldException(DrawingFieldErrorCode.DRAWING_FIELD_EMPTY);
-        }
+    /** 그림 분야 상세 조회*/
+    public DrawingFieldDto findDrawField(Long drawingFieldId) {
+        return getDrawingFieldDto( // DrawingFieldDto로 변환
+                getDrawingField(drawingFieldId)// 그림분야 조회
+        );
+    }
+
+    /** 그림분야 전체 조회 */
+    public List<DrawingFieldDto> findAllDrawingField() {
+        return getDrawingFieldDtos( // DrawingFieldDto로 변환
+                getDrawingFields() // DrawingFields 조회
+        );
+    }
+
+    private List<DrawingFieldDto> getDrawingFieldDtos(List<DrawingField> getDrawingFieldList) {
         return getDrawingFieldList
                 .stream()
                 .map(DrawingFieldDto::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    private List<DrawingField> getDrawingFields() {
+        final List<DrawingField> getDrawingFieldList = drawingFieldRepository.findAllByOrderByTopDesc();
+        if(getDrawingFieldList.isEmpty()){
+            throw new DrawingFieldException(DrawingFieldErrorCode.DRAWING_FIELD_EMPTY);
+        }
+        return getDrawingFieldList;
+    }
+
     /**그림 분야 추가*/
     @Transactional
     @CacheEvict(value = "drawingFieldAll", allEntries = true)
-    public void createDrawingField(CreateDrawingFieldDto createDrawingFieldDto) {
-        final DrawingField drawingField = createDrawingFieldDto.toEntity();
-        validDuplicatedDrawinFieldName(drawingField);
-        drawingFieldRepository.save(drawingField);
+    public DrawingFieldDto addDrawingField(CreateDrawingFieldDto createDrawingFieldDto) {
+        return getDrawingFieldDto( // DrawingFieldDto로 변환
+                saveDrawingField( // DrawingField 저장
+                    validDuplicatedDrawinFieldName( // 중복 검사
+                            createDrawingFieldFromDto(createDrawingFieldDto) //DTO로 부터 DrawingField 생성
+                    )
+                )
+        );
+    }
+    private DrawingField createDrawingFieldFromDto(CreateDrawingFieldDto createDrawingFieldDto) {
+        return createDrawingFieldDto.toEntity();
     }
 
-    private void validDuplicatedDrawinFieldName(DrawingField drawingField) {
+    private DrawingField validDuplicatedDrawinFieldName(DrawingField drawingField) {
         final Optional<DrawingField> optionalDrawingField = drawingFieldRepository
                 .findByFieldName(drawingField.getFieldName());
         if(optionalDrawingField.isPresent()){
             throw new DrawingFieldException(DrawingFieldErrorCode.DUPLICATED_DRAWING_FIELD_NAME);
         }
+        return drawingField;
     }
+
+    private DrawingField saveDrawingField(DrawingField drawingField) {
+        return drawingFieldRepository.save(drawingField);
+    }
+
+    private DrawingFieldDto getDrawingFieldDto(DrawingField drawingField) {
+        return DrawingFieldDto.fromEntity(drawingField);
+    }
+
     /** 그림 분야 수정*/
     @Transactional
     public void updateDrawingField(Long drawingFieldId, UpdateDrawingFieldDto updateDrawingFieldDto) {
         final DrawingField drawingField = getDrawingField(drawingFieldId);
-        drawingField.modifiedDrawingField(updateDrawingFieldDto.toEntity());
+        drawingField.updateDrawingField(updateDrawingFieldDto.toEntity());
     }
 
     private DrawingField getDrawingField(Long drawingFieldId) {
@@ -95,18 +122,18 @@ public class DrawingFieldService {
 
     /** 그림 분야 삭제*/
     @Transactional
-    public void deleteDrawingField(Long drawingFieldId) {
-        final DrawingField drawingField = getDrawingField(drawingFieldId);
-        drawingFieldRepository.delete(drawingField);
+    public void removeDrawingField(Long drawingFieldId) {
+        deleteDrawingField( // 그림분야 제거
+                getDrawingField(drawingFieldId) // 그림분야 조회
+        );
     }
 
-    public DrawingFieldDto getOneDrawField(Long drawingFieldId) {
-        return getDrawFieldDto(
-                getDrawingField(drawingFieldId)
-                );
+    private void deleteDrawingField(DrawingField drawingField) {
+        drawingFieldRepository.delete(
+                drawingField
+        );
     }
 
-    private DrawingFieldDto getDrawFieldDto(DrawingField drawingField) {
-        return DrawingFieldDto.fromEntity(drawingField);
-    }
+
+
 }

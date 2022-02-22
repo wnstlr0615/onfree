@@ -41,7 +41,7 @@ class DrawingFieldServiceTest {
                     getDrawingFieldList()
             );
         //when
-        final List<DrawingFieldDto> drawFieldDtoList = drawingFieldService.getDrawFieldDtoList();
+        final List<DrawingFieldDto> drawFieldDtoList = drawingFieldService.findAllDrawingField();
 
         //then
         assertAll(
@@ -85,7 +85,7 @@ class DrawingFieldServiceTest {
 
         //then
         final DrawingFieldException drawingFieldException = assertThrows(DrawingFieldException.class,
-                () -> drawingFieldService.getDrawFieldDtoList()
+                () -> drawingFieldService.findAllDrawingField()
         );
         assertAll(
                 () -> assertThat(drawingFieldException.getErrorCode()).isEqualTo(errorCode),
@@ -108,7 +108,7 @@ class DrawingFieldServiceTest {
         final long drawingFieldId = 1L;
 
         //when
-        final DrawingFieldDto drawingFieldDto = drawingFieldService.getOneDrawField(drawingFieldId);
+        final DrawingFieldDto drawingFieldDto = drawingFieldService.findDrawField(drawingFieldId);
 
         //then
         assertAll(
@@ -135,7 +135,7 @@ class DrawingFieldServiceTest {
 
         //then
         final DrawingFieldException drawingFieldException = assertThrows(DrawingFieldException.class,
-                () -> drawingFieldService.getOneDrawField(wrongDrawingFieldId)
+                () -> drawingFieldService.findDrawField(wrongDrawingFieldId)
         );
         assertAll(
                 () -> assertThat(drawingFieldException.getErrorCode()).isEqualTo(errorCode),
@@ -159,7 +159,7 @@ class DrawingFieldServiceTest {
             );
 
         //when
-        drawingFieldService.createDrawingField(
+        drawingFieldService.addDrawingField(
                 givenDrawingFieldDto(fieldName, fieldName)
         );
 
@@ -190,7 +190,7 @@ class DrawingFieldServiceTest {
 
         //when
         final DrawingFieldException drawingFieldException = assertThrows(DrawingFieldException.class,
-                () -> drawingFieldService.createDrawingField(
+                () -> drawingFieldService.addDrawingField(
                         givenDrawingFieldDto(duplicatedFieldName, duplicatedFieldName)
                 )
         );
@@ -287,7 +287,7 @@ class DrawingFieldServiceTest {
             );
 
         //when
-        drawingFieldService.deleteDrawingField(
+        drawingFieldService.removeDrawingField(
                 drawingFieldId
         );
 
@@ -310,7 +310,7 @@ class DrawingFieldServiceTest {
 
         //when
         final DrawingFieldException drawingFieldException = assertThrows(DrawingFieldException.class,
-                () -> drawingFieldService.deleteDrawingField(
+                () -> drawingFieldService.removeDrawingField(
                         wrongDrawingFieldId
                 )
         );
