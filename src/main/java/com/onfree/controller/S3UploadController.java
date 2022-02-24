@@ -26,13 +26,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class S3UploadController {
 
     private final AwsS3Service awsS3Service;
 
     /** 프로필 사진 업로드 */
     @ApiOperation(value = "프로필 사진 업로드 API")
-    @PostMapping("/api/upload/profile-image")
+    @PostMapping("/upload/profile-image")
     public String profileImageUpload(
             @ApiParam(value = "이미지 파일", allowableValues = "png,jpeg,jpg")
             @RequestParam MultipartFile file
@@ -63,7 +64,7 @@ public class S3UploadController {
 
     @ApiOperation(value = "포트폴리오 내용 사진 업로드 API")
     @PreAuthorize("hasRole('ARTIST')")
-    @PostMapping("/api/upload/portfolio-content-image")
+    @PostMapping("/upload/portfolio-content-image")
     public String portfolioContentImageUpload(
             @ApiParam(value = "이미지 파일", allowableValues = "png,jpeg,jpg")
             @RequestParam MultipartFile file){
@@ -76,7 +77,7 @@ public class S3UploadController {
 
     @ApiOperation(value = "포트폴리오 메인 이미지 업로드 API")
     @PreAuthorize("hasRole('ARTIST')")
-    @PostMapping("/api/upload/portfolio-main-image")
+    @PostMapping("/upload/portfolio-main-image")
     public String portfolioMainImageUpload(
             @ApiParam(value = "이미지 파일", allowableValues = "png,jpeg,jpg")
             @RequestParam MultipartFile file

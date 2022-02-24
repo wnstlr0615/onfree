@@ -75,17 +75,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         String[] getWhiteList = new String[]{
                 "/api/v1/notices/**",  "/api/v1/questions/**",
                 "/api/portfolios/**", "/api/v1/users/artist/**",
+                "/api/v1/images/**"
 
         };
         String[] postWhiteList = new String[]{
-                "/api/upload/profile-image",
+                "/api/v1/upload/profile-image",
                 "/api/v1/users/artist",
                 "/api/v1/users/normal"
         };
         String[] onlyArtistUrl = new String[]{
                 "/api/v1/users/artist/**",
-                "/api/upload/profile-image",
-                "/api/upload/portfolio-content-image"
+                "/api/v1/upload/profile-image",
+                "/api/v1/upload/portfolio-content-image"
         };
         http.authorizeRequests()
                 .antMatchers(whiteList).permitAll()

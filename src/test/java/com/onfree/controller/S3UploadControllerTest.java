@@ -40,7 +40,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
                 .thenReturn(storeFilename);
         //when
         //then
-        mvc.perform(multipart("/api/upload/profile-image")
+        mvc.perform(multipart("/api/v1/upload/profile-image")
                 .file(file)
         )
                 .andDo(print())
@@ -58,7 +58,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
         final SignUpErrorCode errorCode = SignUpErrorCode.FILE_IS_EMPTY;
 
         //when //then
-        mvc.perform(multipart("/api/upload/profile-image")
+        mvc.perform(multipart("/api/v1/upload/profile-image")
                 .file(file)
         )
                 .andDo(print())
@@ -76,7 +76,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
         final MockMultipartFile file = new MockMultipartFile("file", "aaaa.csv","image/png", "test".getBytes(StandardCharsets.UTF_8));
         final FileErrorCode errorCode = FileErrorCode.NOT_ALLOW_UPLOAD_FILETYPE;
         //when//then
-        mvc.perform(multipart("/api/upload/profile-image")
+        mvc.perform(multipart("/api/v1/upload/profile-image")
                 .file(file)
         )
                 .andDo(print())
@@ -100,7 +100,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
                 .thenReturn(storeFilename);
         //when
         //then
-        mvc.perform(multipart("/api/upload/portfolio-content-image")
+        mvc.perform(multipart("/api/v1/upload/portfolio-content-image")
                 .file(file)
         )
                 .andDo(print())
@@ -122,7 +122,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
                 .thenReturn(storeFilename);
         //when
         //then
-        mvc.perform(multipart("/api/upload/portfolio-main-image")
+        mvc.perform(multipart("/api/v1/upload/portfolio-main-image")
                 .file(file)
         )
                 .andDo(print())
@@ -145,7 +145,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
                         new URL(imageUrl)
                 );
         //when //then
-        mvc.perform(get("/images/{filename}", storeFilename)
+        mvc.perform(get("/api/v1/images/{filename}", storeFilename)
             .contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk())
@@ -162,7 +162,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
         when(awsS3Service.getFile(anyString()))
                 .thenThrow(new FileException(errorCode));
         //when //then
-        mvc.perform(get("/images/{filename}", storeFilename)
+        mvc.perform(get("/api/v1//images/{filename}", storeFilename)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
