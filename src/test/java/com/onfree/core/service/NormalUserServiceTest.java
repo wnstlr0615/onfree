@@ -1,16 +1,18 @@
 package com.onfree.core.service;
 
-import com.onfree.core.dto.user.normal.NormalUserDetailDto;
+import com.onfree.common.error.code.UserErrorCode;
+import com.onfree.common.error.exception.UserException;
 import com.onfree.core.dto.user.normal.CreateNormalUserDto;
+import com.onfree.core.dto.user.normal.NormalUserDetailDto;
 import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
-import com.onfree.common.error.code.UserErrorCode;
-import com.onfree.common.error.exception.UserException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -111,8 +113,9 @@ class NormalUserServiceTest {
                 .profileImage("http://onfree.io/images/123456789")
                 .build();
     }
-    private NormalUser getNormalUserEntity(CreateNormalUserDto.Request request){
-        return  getNormalUserEntity(request, 1L);
+
+    private NormalUser getNormalUserEntity(CreateNormalUserDto.Request request) {
+        return getNormalUserEntity(request, 1L);
     }
 
 
@@ -121,9 +124,12 @@ class NormalUserServiceTest {
     public void givenUserId_whenGetUserInfo_thenUserInfo() {
         //given
         final long userId = 1L;
+        when(userRepository.findById(anyLong()))
+                .thenReturn(
+                        Optional.of(getNormalUserEntity(userId))
+                );
         //when
-        NormalUser normalUserEntity = getNormalUserEntity(userId);
-        final NormalUserDetailDto userInfo = normalUserService.getUserDetail(normalUserEntity);
+        final NormalUserDetailDto userInfo = normalUserService.getUserDetail(anyLong());
         //then
         assertThat(userInfo)
                 .hasFieldOrPropertyWithValue("adultCertification", true)
@@ -140,12 +146,12 @@ class NormalUserServiceTest {
                 .hasFieldOrPropertyWithValue("policyAgree", true)
                 .hasFieldOrPropertyWithValue("serviceAgree", true)
                 .hasFieldOrPropertyWithValue("profileImage", "http://onfree.io/images/123456789")
-            ;
+        ;
     }
 
     @Test
     @DisplayName("[성공] 사용자 계정 삭제")
-    public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse(){
+    public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse() {
         //given
         final long deletedUserId = 1L;
         when(userRepository.findById(deletedUserId))
@@ -167,7 +173,7 @@ class NormalUserServiceTest {
 
     @Test
     @DisplayName("[실패] 사용자 계정 삭제 - userId가 없는 경우")
-    public void givenWrongDeletedUserId_whenDeletedUser_thenNotFoundUserId(){
+    public void givenWrongDeletedUserId_whenDeletedUser_thenNotFoundUserId() {
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
@@ -188,7 +194,7 @@ class NormalUserServiceTest {
 
     @Test
     @DisplayName("[실패] 사용자 계정 삭제 - 이미 삭제된 계정인 경우")
-    public void givenAlreadyDeletedUserId_whenDeletedUser_thenAlreadyUserDeleted(){
+    public void givenAlreadyDeletedUserId_whenDeletedUser_thenAlreadyUserDeleted() {
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
@@ -211,7 +217,8 @@ class NormalUserServiceTest {
                 .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
         verify(userRepository, times(1)).findById(eq(deletedUserId));
     }
-    private NormalUser getNormalUserEntity(CreateNormalUserDto.Request request, Long userId, boolean deleted){
+
+    private NormalUser getNormalUserEntity(CreateNormalUserDto.Request request, Long userId, boolean deleted) {
         final BankInfo bankInfo = getBankInfo(request.getBankName(), request.getAccountNumber());
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(request.getAdvertisementAgree())
@@ -237,9 +244,10 @@ class NormalUserServiceTest {
                 .role(Role.NORMAL)
                 .build();
     }
+
     @Test
     @DisplayName("[성공] 사용자 계정 수정 ")
-    public void givenUpdateNormalUserReq_whenModifiedUser_thenReturnUpdateNormalUserResponse(){
+    public void givenUpdateNormalUserReq_whenModifiedUser_thenReturnUpdateNormalUserResponse() {
         //given
         final long userId = 1L;
         final UpdateNormalUserDto.Request request = givenUpdateNormalUserReq();
@@ -253,7 +261,8 @@ class NormalUserServiceTest {
 
         verify(userRepository, times(1)).findById(eq(userId));
     }
-    public NormalUser getNormalUserEntity(long userId){
+
+    public NormalUser getNormalUserEntity(long userId) {
         return NormalUser.builder()
                 .userId(userId)
                 .adultCertification(Boolean.TRUE)
@@ -283,6 +292,7 @@ class NormalUserServiceTest {
                 .personalInfo(true)
                 .build();
     }
+
     private UpdateNormalUserDto.Request givenUpdateNormalUserReq() {
         return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")

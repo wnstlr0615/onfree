@@ -73,9 +73,9 @@ public class NormalUserService {
     /**
      * 사용자 정보 조회
      */
-    public NormalUserDetailDto getUserDetail(NormalUser normalUser) {
+    public NormalUserDetailDto getUserDetail(Long userId) {
         return getNormalUserDetailDto( //NormalUserDetailDto 로 변환
-                normalUser
+                getNormalUser(userId)
         );
     }
 

@@ -35,7 +35,6 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
                 return (NormalUser) principal;
             }
         }
-        log.error("authentication is null");
-        throw new GlobalException(GlobalErrorCode.INTERNAL_SERVER_ERROR);
+        throw new GlobalException(GlobalErrorCode.ACCESS_DENIED);
     }
 }

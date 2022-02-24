@@ -130,10 +130,14 @@ class ArtistUserServiceTest {
     public void givenUserId_whenGetUserInfo_thenUserInfo() {
         //given
         final long userId = 1L;
-
+        when(artistUserRepository.findById(anyLong()))
+                .thenReturn(
+                        Optional.ofNullable(
+                                getArtistUserEntity(userId)
+                        )
+                );
         //when
-        ArtistUser artistUserEntity = getArtistUserEntity(userId);
-        final ArtistUserDetailDto userInfo = artistUserService.getUserDetail(artistUserEntity);
+        final ArtistUserDetailDto userInfo = artistUserService.getUserDetail(userId);
         //then
         assertThat(userInfo)
                 .hasFieldOrPropertyWithValue("adultCertification", true)

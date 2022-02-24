@@ -22,7 +22,7 @@ public class ArtistUserDrawingFieldController {
 
     @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "그림분야 변경")
-    @PatchMapping("/me/drawing-fields")
+    @PutMapping("/me/drawing-fields")
     public SimpleResponse updateDrawingFields(
             @CurrentArtistUser ArtistUser artistUser,
             @Valid @RequestBody UpdateDrawingFieldsDto updateDrawingFieldsDto

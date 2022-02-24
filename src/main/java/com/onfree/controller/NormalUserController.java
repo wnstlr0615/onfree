@@ -53,7 +53,7 @@ public class NormalUserController {
     public NormalUserDetailDto normalUserDetails(
             @CurrentNormalUser NormalUser normalUser
     ){
-        NormalUserDetailDto response = normalUserService.getUserDetail(normalUser);
+        NormalUserDetailDto response = normalUserService.getUserDetail(normalUser.getUserId());
         //링크 추가
         response.add(
                 linkTo(NormalUserController.class).slash("me").withSelfRel(),

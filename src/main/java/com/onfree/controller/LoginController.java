@@ -27,7 +27,7 @@ import static com.onfree.common.constant.SecurityConstant.REFRESH_TOKEN;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping( consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class LoginController {
     private final LoginService loginService;
 
@@ -39,7 +39,7 @@ public class LoginController {
 
     @ApiOperation(value = "로그아웃", notes = "로그인 사용자가 로그아웃 요청")
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/api/logout")
+    @PostMapping("/logout")
     public SimpleResponse logout(HttpServletResponse response){
         final User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         deleteTokenCookie(response);
@@ -57,21 +57,24 @@ public class LoginController {
         response.addCookie(refreshCookie);
 
     }
+
     @ApiOperation(value = "비밀번호 인증용 메일 전송 API", notes = "메일인증을 통하여 패스워드 초기화 링크 전송")
-    @GetMapping("/api/password/reset")
+    @GetMapping("/password/reset")
     public SimpleResponse passwordResetSendMail(@RequestParam String email){
         validatedEmail(email);
         loginService.passwordReset(email);
         return SimpleResponse.success("패스워드 초기화 인증 메일을 전송하였습니다.");
     }
+
     private void validatedEmail(String email) {
         String emailReg = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$";
         if(!StringUtils.hasText(email) || !email.matches(emailReg)){
             throw new GlobalException(GlobalErrorCode.NOT_VALIDATED_REQUEST);
         }
     }
+
     @ApiOperation(value = "메일을 통한 인증 후 비밀번호 재설정 API", notes = "메일 인증후 패스워드 변경")
-    @PostMapping("/api/password/reset")
+    @PostMapping("/password/reset")
     public SimpleResponse updatePassword(
             @Valid @RequestBody UpdatePasswordDto updatePasswordDto,
             BindingResult errors
@@ -80,6 +83,9 @@ public class LoginController {
         return SimpleResponse.success("비밀번호 변경이 완료되었습니다.");
     }
 
-
+    @GetMapping("/password/uuid/{uuid}")
+    public String certificationLink(@PathVariable String uuid){
+        return "반환 uuid 와 새로운 비밀번호 입력 페이지 만들어서 링크 알려주시면 해당 링크로 변경해드릴게요.";
+    }
 
 }

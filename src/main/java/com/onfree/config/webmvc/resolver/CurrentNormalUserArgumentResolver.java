@@ -29,7 +29,7 @@ public class CurrentNormalUserArgumentResolver implements HandlerMethodArgumentR
         if(authentication != null && authentication.getPrincipal() instanceof NormalUser){
             return (NormalUser) authentication.getPrincipal();
         }
-        log.error("authentication is null");
-        throw new GlobalException(GlobalErrorCode.INTERNAL_SERVER_ERROR);
+        log.error("authentication is not normal user");
+        throw new GlobalException(GlobalErrorCode.ACCESS_DENIED);
     }
 }

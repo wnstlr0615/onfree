@@ -35,16 +35,17 @@ class LoginControllerTest extends ControllerBaseTest {
     public void givenEmail_whenPasswordResetSendMail_thenSuccess() throws Exception{
         //given
         final String email = "wnstlr0615@naver.com";
-        Mockito.doNothing().when(loginService).passwordReset(eq(email));
+        Mockito.doNothing()
+                .when(loginService).passwordReset(eq(email));
         //when //then
-        mvc.perform(get("/api/password/reset")
+        mvc.perform(get("/api/v1/password/reset")
                 .queryParam("email", email)
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andDo(print())
             .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(true))
-                .andExpect(jsonPath("$.message").value("패스워드 초기화 인증 메일을 전송하였습니다."))
+            .andExpect(jsonPath("$.result").value(true))
+            .andExpect(jsonPath("$.message").value("패스워드 초기화 인증 메일을 전송하였습니다."))
         ;
         verify(loginService).passwordReset(eq(email));
     }
@@ -56,7 +57,7 @@ class LoginControllerTest extends ControllerBaseTest {
         final String email = "";
         final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
-        mvc.perform(get("/api/password/reset")
+        mvc.perform(get("/api/v1/password/reset")
                 .queryParam("email", email)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -75,7 +76,7 @@ class LoginControllerTest extends ControllerBaseTest {
         final String email = "wnstlr0615@naver.c";
         final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
-        mvc.perform(get("/api/password/reset")
+        mvc.perform(get("/api/v1/password/reset")
                 .queryParam("email", email)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -95,7 +96,7 @@ class LoginControllerTest extends ControllerBaseTest {
         doThrow(new UserException(errorCode))
                 .when(loginService).passwordReset(eq(email));
         //when //then
-        mvc.perform(get("/api/password/reset")
+        mvc.perform(get("/api/v1/password/reset")
                 .queryParam("email", email)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -116,7 +117,7 @@ class LoginControllerTest extends ControllerBaseTest {
         doNothing().when(loginService).updatePassword(any(UpdatePasswordDto.class));
 
         //when//then
-        mvc.perform(post("/api/password/reset")
+        mvc.perform(post("/api/v1/password/reset")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -147,7 +148,7 @@ class LoginControllerTest extends ControllerBaseTest {
                 .updatePassword(any(UpdatePasswordDto.class));
 
         //when//then
-        mvc.perform(post("/api/password/reset")
+        mvc.perform(post("/api/v1/password/reset")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -173,7 +174,7 @@ class LoginControllerTest extends ControllerBaseTest {
                 .updatePassword(any(UpdatePasswordDto.class));
 
         //when//then
-        mvc.perform(post("/api/password/reset")
+        mvc.perform(post("/api/v1/password/reset")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(

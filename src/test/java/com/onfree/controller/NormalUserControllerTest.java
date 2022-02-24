@@ -170,7 +170,7 @@ class NormalUserControllerTest extends ControllerBaseTest {
     public void givenUserId_whenGetUserInfo_thenReturnUserInfo() throws Exception {
         //given
         final Long userId = 1L;
-        when(normalUserService.getUserDetail(any(NormalUser.class)))
+        when(normalUserService.getUserDetail(anyLong()))
                 .thenReturn(
                         getNormalUserInfo()
                 );
@@ -238,7 +238,7 @@ class NormalUserControllerTest extends ControllerBaseTest {
     public void givenUserId_whenGetUserInfoWithArtistUser_thenReturnUserInfo() throws Exception {
         //given
         final Long userId = 1L;
-        when(normalUserService.getUserDetail(any(NormalUser.class)))
+        when(normalUserService.getUserDetail(anyLong()))
                 .thenReturn(
                         getNormalUserInfo()
                 );

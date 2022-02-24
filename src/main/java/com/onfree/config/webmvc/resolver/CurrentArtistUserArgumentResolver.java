@@ -13,6 +13,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+
 @Slf4j
 public class CurrentArtistUserArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
@@ -27,7 +28,7 @@ public class CurrentArtistUserArgumentResolver implements HandlerMethodArgumentR
         if(authentication != null && authentication.getPrincipal() instanceof ArtistUser){
             return (ArtistUser) authentication.getPrincipal();
         }
-        log.error("authentication is null");
-        throw new GlobalException(GlobalErrorCode.INTERNAL_SERVER_ERROR);
+        log.error("authentication is not artist user");
+        throw new GlobalException(GlobalErrorCode.ACCESS_DENIED);
     }
 }

@@ -73,7 +73,7 @@ public class ArtistUserController {
     public ArtistUserDetailDto artistUserDetails(
             @CurrentArtistUser ArtistUser artistUser
     ){
-        ArtistUserDetailDto response = artistUserService.getUserDetail(artistUser);
+        ArtistUserDetailDto response = artistUserService.getUserDetail(artistUser.getUserId());
         //링크 추가
         response.add(
                 linkTo(ArtistUserController.class).slash("me").withSelfRel(),

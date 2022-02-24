@@ -178,7 +178,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
         final Long userId = 1L;
         final CreateArtistUserDto.Request request = givenCreateArtistUserReq();
 
-        when(artistUserService.getUserDetail(any(ArtistUser.class)))
+        when(artistUserService.getUserDetail(anyLong()))
                 .thenReturn(
                         getArtistUserInfo(request)
                 );
@@ -212,7 +212,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$.statusMark").value(StatusMark.OPEN.toString()))
 
         ;
-        verify(artistUserService, times(1)).getUserDetail(any(ArtistUser.class));
+        verify(artistUserService, times(1)).getUserDetail(eq(userId));
     }
 
 
@@ -240,7 +240,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;
-        verify(artistUserService, never()).getUserDetail(any(ArtistUser.class));
+        verify(artistUserService, never()).getUserDetail(anyLong());
     }
 
     @Test

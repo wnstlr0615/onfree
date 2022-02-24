@@ -48,7 +48,7 @@ class ArtistUserDrawingFieldControllerTest extends ControllerBaseTest {
                 );
         //when
         //then
-        mvc.perform(patch("/api/v1/users/artist/me/drawing-fields")
+        mvc.perform(put("/api/v1/users/artist/me/drawing-fields")
             .contentType(MediaType.APPLICATION_JSON)
             .content(
                     mapper.writeValueAsString(

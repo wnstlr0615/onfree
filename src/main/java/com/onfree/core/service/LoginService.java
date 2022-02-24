@@ -7,6 +7,7 @@ import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.LoginException;
 import com.onfree.common.error.exception.MailSenderException;
 import com.onfree.common.error.exception.UserException;
+import com.onfree.controller.LoginController;
 import com.onfree.core.dto.user.UpdatePasswordDto;
 import com.onfree.core.entity.MailTemplate;
 import com.onfree.core.entity.user.User;
@@ -16,16 +17,20 @@ import com.onfree.utils.MailComponent;
 import com.onfree.utils.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.UUID;
 
 import static com.onfree.common.constant.MailConstant.PASSWORD_RESET_TEMPLATE;
 import static com.onfree.common.constant.RedisConstant.PASSWORD_RESET;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
 @Service
@@ -61,7 +66,8 @@ public class LoginService {
 
     private String getContent(MailTemplate mailTemplate, String uuid) {
         //TODO 링크 MailTemplate에 같이 적용하기
-        return mailTemplate.getContent().replace("<URL>", "http://localhost:8080/api/password/reset/"+uuid);
+        URI uri = linkTo(LoginController.class).slash("password").slash("uuid").slash(uuid).toUri();
+        return mailTemplate.getContent().replace("<URL>", uri.toString());
     }
 
     private void savePasswordResetRedis(String email, String uuid) {

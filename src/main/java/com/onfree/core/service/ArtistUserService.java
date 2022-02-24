@@ -72,9 +72,9 @@ public class ArtistUserService {
     }
 
     /** 사용자 정보 조회 */
-    public ArtistUserDetailDto getUserDetail(ArtistUser artistUser) {
+    public ArtistUserDetailDto getUserDetail(Long userId) {
         return getArtistUserDetailDto( // ArtistUserDetailDto 로 변환
-                artistUser
+                getArtistUser(userId)
         );
     }
 
