@@ -26,7 +26,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/portfolios")
+@RequestMapping("/api/v1/portfolios")
 public class PortfolioController {
     private final PortfolioService portfolioService;
 

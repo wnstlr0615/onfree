@@ -74,7 +74,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         };
         String[] getWhiteList = new String[]{
                 "/api/v1/notices/**",  "/api/v1/questions/**",
-                "/api/portfolios/**", "/api/v1/users/artist/**",
+                "/api/v1/portfolios/**", "/api/v1/users/artist/**",
                 "/api/v1/images/**"
 
         };

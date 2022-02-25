@@ -56,7 +56,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
         when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .thenReturn(getArtistUser());
         //when //then
-        mvc.perform(post("/api/portfolios")
+        mvc.perform(post("/api/v1/portfolios")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -156,7 +156,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
         when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .thenReturn(getArtistUser());
         //when //then
-        mvc.perform(post("/api/portfolios")
+        mvc.perform(post("/api/v1/portfolios")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -233,7 +233,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
         //when
 
         //then
-        mvc.perform(get("/api/portfolios/{portfolioId}", givenPortfolioId))
+        mvc.perform(get("/api/v1/portfolios/{portfolioId}", givenPortfolioId))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.portfolioId").value(givenPortfolioId))
@@ -281,7 +281,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
         //when
 
         //then
-        mvc.perform(get("/api/portfolios/{portfolioId}", givenPortfolioId))
+        mvc.perform(get("/api/v1/portfolios/{portfolioId}", givenPortfolioId))
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
@@ -310,7 +310,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
                 .thenReturn(getArtistUser());
 
         //when //then
-        mvc.perform(get("/api/portfolios/{portfolioId}/temp", givenTempPortfolioId)
+        mvc.perform(get("/api/v1/portfolios/{portfolioId}/temp", givenTempPortfolioId)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -344,7 +344,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
         );
 
         //when //then
-        mvc.perform(get("/api/portfolios/{portfolioId}/temp", givenTempPortfolioId)
+        mvc.perform(get("/api/v1/portfolios/{portfolioId}/temp", givenTempPortfolioId)
                 .queryParam("userId", String.valueOf(userId))
         )
                 .andDo(print())
@@ -384,7 +384,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
                 .thenReturn(getArtistUser());
         //when
         //then
-        mvc.perform(delete("/api/portfolios/{portfolioId}", givenPortfolioId)
+        mvc.perform(delete("/api/v1/portfolios/{portfolioId}", givenPortfolioId)
         )
             .andDo(print())
             .andExpect(status().isOk())
@@ -408,7 +408,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
                 .thenReturn(getArtistUser());
         //when
         //then
-        mvc.perform(delete("/api/portfolios/{portfolioId}", givenPortfolioId)
+        mvc.perform(delete("/api/v1/portfolios/{portfolioId}", givenPortfolioId)
         )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -431,7 +431,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
                 .thenReturn(getArtistUser());
 
         //when //then
-        mvc.perform(put("/api/portfolios/{portfolioId}/representative", portfolioId)
+        mvc.perform(put("/api/v1/portfolios/{portfolioId}/representative", portfolioId)
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andDo(print())
@@ -457,7 +457,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
         when(currentArtistUserArgumentResolver.resolveArgument(any(),any(),any(),any()))
                 .thenReturn(getArtistUser());
         //when //then
-        mvc.perform(put("/api/portfolios/{portfolioId}/representative", tempPortfolioId)
+        mvc.perform(put("/api/v1/portfolios/{portfolioId}/representative", tempPortfolioId)
             .contentType(MediaType.APPLICATION_JSON)
 
         )
@@ -483,7 +483,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
         when(currentArtistUserArgumentResolver.resolveArgument(any(),any(),any(),any()))
                 .thenReturn(getArtistUser());
         //when //then
-        mvc.perform(put("/api/portfolios/{portfolioId}/representative", tempPortfolioId)
+        mvc.perform(put("/api/v1/portfolios/{portfolioId}/representative", tempPortfolioId)
                 .contentType(MediaType.APPLICATION_JSON)
 
         )
@@ -510,7 +510,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
 
         //when //then
 
-        mvc.perform(put("/api/portfolios/{portfolioId}", portfolioId)
+        mvc.perform(put("/api/v1/portfolios/{portfolioId}", portfolioId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(
                     mapper.writeValueAsString(
