@@ -54,7 +54,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             if (verify.isResult()) { //accessToken 이 유효한 경우
                 try {
                     oldRefreshToken = getCookieValue(request, REFRESH_TOKEN);
-                    if(isEmptyRefreshToken(username, oldRefreshToken)){// refreshToken 이 없는 경우 (로그아웃 )
+                    if(isWrongRefreshToken(username, oldRefreshToken)){// refreshToken 이 없거나 변저된 경우경우 (로그아웃 )
                         log.info("refresh token empty - username : {} ", username);
                         clearToken(response, username);
                         filterChain.doFilter(request,response);
@@ -74,7 +74,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
                 try {
                     log.info("accessToken expired - usernaem : {}", username);
                     oldRefreshToken = getCookieValue(request, REFRESH_TOKEN);
-                    if(isEmptyRefreshToken(username, oldRefreshToken) || tokenIsExpired(oldRefreshToken)){ //DB에 토큰이 없거나 토큰이 유효성이 지난 경우
+                    if(isWrongRefreshToken(username, oldRefreshToken) || tokenIsExpired(oldRefreshToken)){ //DB에 토큰이 없거나 토큰이 유효성이 지난 경우
                         log.info("accessToken expired && refreshToken empty  - username : {}", username);
                         clearToken(response, username);
                         filterChain.doFilter(request,response);
@@ -97,8 +97,9 @@ public class JwtCheckFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isEmptyRefreshToken(String username, String oldRefreshToken) {
-        return loginService.isEmptyRefreshToken(username, oldRefreshToken);
+    private boolean isWrongRefreshToken(String username, String oldRefreshToken) {
+        return loginService.isWrongRefreshToken(username, oldRefreshToken);
+
     }
 
     private void accessTokenReissue(HttpServletResponse response, User user) {

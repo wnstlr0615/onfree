@@ -47,13 +47,13 @@ public class Portfolio extends BaseEntity {
     private String title; //제목
 
     @OneToMany(mappedBy = "portFolio", cascade = CascadeType.ALL)
-    private List<PortfolioContent > portfolioContents = new ArrayList<>();
+    private List<PortfolioContent > portfolioContents;
     private Long view; // 조회 수
 
     private String tags;  // 검색용 태그
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "portfolio", cascade = CascadeType.ALL)
-    private List<PortfolioDrawingField> portfolioDrawingFields = new ArrayList<>(); // 그림 분야
+    private List<PortfolioDrawingField> portfolioDrawingFields; // 그림 분야
 
     @Enumerated(EnumType.STRING)
     private PortfolioStatus status; //포트폴리오 상태

@@ -1,13 +1,12 @@
 package com.onfree.core.service;
 
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.dto.user.artist.status.StatusMarkDto;
-import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.artist.ArtistUserDetailDto;
 import com.onfree.core.dto.user.artist.CreateArtistUserDto;
 import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.ArtistUserRepository;
-import com.onfree.core.repository.UserRepository;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
 import org.junit.jupiter.api.DisplayName;
@@ -61,12 +60,12 @@ class ArtistUserServiceTest {
         assertThat(response)
                 .hasFieldOrPropertyWithValue("adultCertification", userReq.getAdultCertification())
                 .hasFieldOrPropertyWithValue("email", userReq.getEmail())
-                .hasFieldOrPropertyWithValue("gender", userReq.getGender().getName())
+                .hasFieldOrPropertyWithValue("gender", userReq.getGender())
                 .hasFieldOrPropertyWithValue("name", userReq.getName())
                 .hasFieldOrPropertyWithValue("nickname", userReq.getNickname())
-                .hasFieldOrPropertyWithValue("newsAgency", userReq.getNewsAgency())
+                .hasFieldOrPropertyWithValue("mobileCarrier", userReq.getMobileCarrier())
                 .hasFieldOrPropertyWithValue("phoneNumber", userReq.getPhoneNumber())
-                .hasFieldOrPropertyWithValue("bankName", userReq.getBankName().getBankName())
+                .hasFieldOrPropertyWithValue("bankName", userReq.getBankName())
                 .hasFieldOrPropertyWithValue("accountNumber", userReq.getAccountNumber())
                 .hasFieldOrPropertyWithValue("advertisementAgree", userReq.getAdvertisementAgree())
                 .hasFieldOrPropertyWithValue("personalInfoAgree", userReq.getPersonalInfoAgree())
@@ -108,7 +107,7 @@ class ArtistUserServiceTest {
                 .gender(Gender.MAN)
                 .name("준식")
                 .nickname("온프리프리")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.KT)
                 .phoneNumber("010-8888-9999")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-8888-9999")
@@ -142,12 +141,12 @@ class ArtistUserServiceTest {
         assertThat(userInfo)
                 .hasFieldOrPropertyWithValue("adultCertification", true)
                 .hasFieldOrPropertyWithValue("email", "jun@naver.com")
-                .hasFieldOrPropertyWithValue("gender", Gender.MAN.getName())
+                .hasFieldOrPropertyWithValue("gender", Gender.MAN)
                 .hasFieldOrPropertyWithValue("name", "준식")
                 .hasFieldOrPropertyWithValue("nickname", "joon")
-                .hasFieldOrPropertyWithValue("newsAgency", "SKT")
+                .hasFieldOrPropertyWithValue("mobileCarrier", MobileCarrier.SKT)
                 .hasFieldOrPropertyWithValue("phoneNumber", "010-8888-9999")
-                .hasFieldOrPropertyWithValue("bankName", "IBK기업은행")
+                .hasFieldOrPropertyWithValue("bankName", BankName.IBK_BANK)
                 .hasFieldOrPropertyWithValue("accountNumber", "010-8888-9999")
                 .hasFieldOrPropertyWithValue("advertisementAgree", true)
                 .hasFieldOrPropertyWithValue("personalInfoAgree", true)
@@ -242,7 +241,7 @@ class ArtistUserServiceTest {
                 .password(request.getPassword())
                 .gender(request.getGender())
                 .name(request.getName())
-                .newsAgency(request.getNewsAgency())
+                .mobileCarrier(request.getMobileCarrier())
                 .phoneNumber(request.getPhoneNumber())
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)
@@ -271,7 +270,7 @@ class ArtistUserServiceTest {
             .hasFieldOrPropertyWithValue("nickname",request.getNickname())
             .hasFieldOrPropertyWithValue("bankInfo.bankName",request.getBankName())
             .hasFieldOrPropertyWithValue("bankInfo.accountNumber",request.getAccountNumber())
-            .hasFieldOrPropertyWithValue("newsAgency",request.getNewsAgency())
+            .hasFieldOrPropertyWithValue("mobileCarrier",request.getMobileCarrier())
             .hasFieldOrPropertyWithValue("phoneNumber",request.getPhoneNumber())
             .hasFieldOrPropertyWithValue("adultCertification",request.getAdultCertification())
             .hasFieldOrPropertyWithValue("profileImage",request.getProfileImage())
@@ -288,7 +287,7 @@ class ArtistUserServiceTest {
                 .gender(Gender.MAN)
                 .nickname("joon")
                 .name("준식")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .portfolioUrl("http://onfree.io/portfolioUrl/123456789")
                 .bankInfo(
@@ -315,7 +314,7 @@ class ArtistUserServiceTest {
                 .nickname("온프리프리")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-0000-0000")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
                 .profileImage("http://onfree.io/images/aaa123")

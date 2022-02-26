@@ -9,6 +9,7 @@ import com.onfree.common.error.exception.PortfolioException;
 import com.onfree.config.webmvc.resolver.CurrentArtistUserArgumentResolver;
 import com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto;
 import com.onfree.core.dto.portfolio.*;
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.portfolio.PortfolioStatus;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.service.PortfolioService;
@@ -95,7 +96,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
                 .password("{bcrypt}onfree")
                 .gender(Gender.MAN)
                 .name("joon")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)

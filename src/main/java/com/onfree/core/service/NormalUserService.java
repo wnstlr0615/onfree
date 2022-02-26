@@ -124,6 +124,6 @@ public class NormalUserService {
 
     private void normalUserInfoUpdate(NormalUser normalUser, UpdateNormalUserDto.Request request) {
         BankInfo bankInfo = BankInfo.createBankInfo(request.getBankName(), request.getAccountNumber());
-        normalUser.update(bankInfo, request.getAdultCertification(), request.getNickname(), request.getNewsAgency(),request.getPhoneNumber(), request.getProfileImage());
+        normalUser.update(bankInfo, request.getAdultCertification(), request.getNickname(), request.getMobileCarrier(),request.getPhoneNumber(), request.getProfileImage());
     }
 }

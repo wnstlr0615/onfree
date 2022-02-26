@@ -1,6 +1,7 @@
 package com.onfree.core.entity.user;
 
 
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.portfolioroom.PortfolioRoom;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,8 +25,8 @@ public class ArtistUser extends User{
     private StatusMark statusMark;
 
     @Builder
-    public ArtistUser(Long userId, String name, String nickname, String email, String password, String newsAgency, String phoneNumber, BankInfo bankInfo, UserAgree userAgree, Boolean adultCertification, Gender gender, String profileImage, Boolean deleted, Role role, String portfolioUrl) {
-        super(userId, name, nickname, email, password, newsAgency, phoneNumber, bankInfo, userAgree, adultCertification, gender, profileImage, deleted, role);
+    public ArtistUser(Long userId, String name, String nickname, String email, String password, MobileCarrier mobileCarrier, String phoneNumber, BankInfo bankInfo, UserAgree userAgree, Boolean adultCertification, Gender gender, String profileImage, Boolean deleted, Role role, String portfolioUrl) {
+        super(userId, name, nickname, email, password, mobileCarrier, phoneNumber, bankInfo, userAgree, adultCertification, gender, profileImage, deleted, role);
 
         this.statusMark = StatusMark.OPEN;
         this.portfolioRoom = PortfolioRoom.createPortfolioRoom(this, portfolioUrl);
@@ -36,8 +37,8 @@ public class ArtistUser extends User{
         super.setDeleted();
     }
 
-    public void update(BankInfo bankInfo, Boolean adultCertification, String nickname, String newsAgency, String phoneNumber, String profileImage, String portfolioUrl) {
-        super.update(bankInfo, adultCertification, nickname, newsAgency, phoneNumber, profileImage);
+    public void update(BankInfo bankInfo, Boolean adultCertification, String nickname, MobileCarrier mobileCarrier, String phoneNumber, String profileImage, String portfolioUrl) {
+        super.update(bankInfo, adultCertification, nickname, mobileCarrier, phoneNumber, profileImage);
         portfolioRoom.updatePortfolioRoomUrl(portfolioUrl);
     }
 

@@ -1,5 +1,6 @@
 package com.onfree.core.dto.user.normal;
 
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.NormalUser;
 import io.swagger.annotations.ApiModel;
@@ -19,8 +20,8 @@ public class UpdateNormalUserDto {
         private final String nickname;
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
-        @NotBlank(message = "통신사는 공백일 수 없습니다.")
-        private final String newsAgency; //통신사
+        @NotNull(message = "통신사는 공백일 수 없습니다.")
+        private final MobileCarrier mobileCarrier; //통신사
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
@@ -54,7 +55,7 @@ public class UpdateNormalUserDto {
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
         @NotBlank(message = "통신사는 공백일 수 없습니다.")
-        private final String newsAgency; //통신사
+        private final MobileCarrier mobileCarrier; //통신사
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
@@ -78,11 +79,11 @@ public class UpdateNormalUserDto {
         private final String profileImage;
 
         public static UpdateNormalUserDto.Response fromEntity(NormalUser entity){
-            return UpdateNormalUserDto.Response.builder()
+            return Response.builder()
                     .nickname(entity.getNickname())
                     .bankName(entity.getBankInfo().getBankName())
                     .accountNumber(entity.getBankInfo().getAccountNumber())
-                    .newsAgency(entity.getNewsAgency())
+                    .mobileCarrier(entity.getMobileCarrier())
                     .phoneNumber(entity.getPhoneNumber())
                     .profileImage(entity.getProfileImage())
                     .adultCertification(entity.getAdultCertification())

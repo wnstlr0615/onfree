@@ -2,6 +2,7 @@ package com.onfree.core.service;
 
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.dto.user.normal.CreateNormalUserDto;
 import com.onfree.core.dto.user.normal.NormalUserDetailDto;
 import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
@@ -57,12 +58,12 @@ class NormalUserServiceTest {
         assertThat(response)
                 .hasFieldOrPropertyWithValue("adultCertification", userReq.getAdultCertification())
                 .hasFieldOrPropertyWithValue("email", userReq.getEmail())
-                .hasFieldOrPropertyWithValue("gender", userReq.getGender().getName())
+                .hasFieldOrPropertyWithValue("gender", userReq.getGender())
                 .hasFieldOrPropertyWithValue("name", userReq.getName())
                 .hasFieldOrPropertyWithValue("nickname", userReq.getNickname())
-                .hasFieldOrPropertyWithValue("newsAgency", userReq.getNewsAgency())
+                .hasFieldOrPropertyWithValue("mobileCarrier", userReq.getMobileCarrier())
                 .hasFieldOrPropertyWithValue("phoneNumber", userReq.getPhoneNumber())
-                .hasFieldOrPropertyWithValue("bankName", userReq.getBankName().getBankName())
+                .hasFieldOrPropertyWithValue("bankName", userReq.getBankName())
                 .hasFieldOrPropertyWithValue("accountNumber", userReq.getAccountNumber())
                 .hasFieldOrPropertyWithValue("advertisementAgree", userReq.getAdvertisementAgree())
                 .hasFieldOrPropertyWithValue("personalInfoAgree", userReq.getPersonalInfoAgree())
@@ -102,7 +103,7 @@ class NormalUserServiceTest {
                 .gender(Gender.MAN)
                 .name("준식")
                 .nickname("온프리프리")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-8888-9999")
@@ -134,12 +135,12 @@ class NormalUserServiceTest {
         assertThat(userInfo)
                 .hasFieldOrPropertyWithValue("adultCertification", true)
                 .hasFieldOrPropertyWithValue("email", "jun@naver.com")
-                .hasFieldOrPropertyWithValue("gender", Gender.MAN.getName())
+                .hasFieldOrPropertyWithValue("gender", Gender.MAN)
                 .hasFieldOrPropertyWithValue("name", "준식")
                 .hasFieldOrPropertyWithValue("nickname", "joon")
-                .hasFieldOrPropertyWithValue("newsAgency", "SKT")
+                .hasFieldOrPropertyWithValue("mobileCarrier", MobileCarrier.SKT)
                 .hasFieldOrPropertyWithValue("phoneNumber", "010-8888-9999")
-                .hasFieldOrPropertyWithValue("bankName", "IBK기업은행")
+                .hasFieldOrPropertyWithValue("bankName", BankName.IBK_BANK)
                 .hasFieldOrPropertyWithValue("accountNumber", "010-8888-9999")
                 .hasFieldOrPropertyWithValue("advertisementAgree", true)
                 .hasFieldOrPropertyWithValue("personalInfoAgree", true)
@@ -234,7 +235,7 @@ class NormalUserServiceTest {
                 .password(request.getPassword())
                 .gender(request.getGender())
                 .name(request.getName())
-                .newsAgency(request.getNewsAgency())
+                .mobileCarrier(request.getMobileCarrier())
                 .phoneNumber(request.getPhoneNumber())
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)
@@ -271,7 +272,7 @@ class NormalUserServiceTest {
                 .gender(Gender.MAN)
                 .name("준식")
                 .nickname("joon")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
                         getBankInfo(BankName.IBK_BANK, "010-8888-9999")
@@ -298,7 +299,7 @@ class NormalUserServiceTest {
                 .nickname("온프리프리")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-0000-0000")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
                 .profileImage("http://onfree.io/images/aaa123")

@@ -21,8 +21,8 @@ public class UpdateArtistUserDto {
         private final String nickname;
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
-        @NotBlank(message = "통신사는 공백일 수 없습니다.")
-        private final String newsAgency; //통신사
+        @NotNull(message = "통신사는 공백일 수 없습니다.")
+        private final MobileCarrier mobileCarrier; //통신사
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
@@ -60,7 +60,7 @@ public class UpdateArtistUserDto {
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
         @NotBlank(message = "통신사는 공백일 수 없습니다.")
-        private final String newsAgency; //통신사
+        private final MobileCarrier mobileCarrier; //통신사
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
@@ -88,11 +88,11 @@ public class UpdateArtistUserDto {
         private final String portfolioUrl;
 
         public static UpdateArtistUserDto.Response fromEntity(ArtistUser entity){
-            return UpdateArtistUserDto.Response.builder()
+            return Response.builder()
                     .nickname(entity.getNickname())
                     .bankName(entity.getBankInfo().getBankName())
                     .accountNumber(entity.getBankInfo().getAccountNumber())
-                    .newsAgency(entity.getNewsAgency())
+                    .mobileCarrier(entity.getMobileCarrier())
                     .phoneNumber(entity.getPhoneNumber())
                     .profileImage(entity.getProfileImage())
                     .adultCertification(entity.getAdultCertification())

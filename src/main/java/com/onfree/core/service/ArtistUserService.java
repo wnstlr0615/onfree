@@ -119,7 +119,7 @@ public class ArtistUserService {
 
     private ArtistUser artistUserInfoUpdate(ArtistUser artistUser, UpdateArtistUserDto.Request request) {
         BankInfo bankInfo = BankInfo.createBankInfo(request.getBankName(), request.getAccountNumber());
-        artistUser.update(bankInfo, request.getAdultCertification(), request.getNickname(), request.getNewsAgency(), request.getPhoneNumber(), request.getProfileImage(), request.getPortfolioUrl());
+        artistUser.update(bankInfo, request.getAdultCertification(), request.getNickname(), request.getMobileCarrier(), request.getPhoneNumber(), request.getProfileImage(), request.getPortfolioUrl());
         return artistUser;
     }
 

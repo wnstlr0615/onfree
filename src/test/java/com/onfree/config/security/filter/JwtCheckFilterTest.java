@@ -3,6 +3,7 @@ package com.onfree.config.security.filter;
 import com.onfree.common.properties.JWTProperties;
 import com.onfree.config.security.CustomUserDetail;
 import com.onfree.config.security.CustomUserDetailService;
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.user.Gender;
 import com.onfree.core.entity.user.NormalUser;
 import com.onfree.core.entity.user.Role;
@@ -71,7 +72,7 @@ class JwtCheckFilterTest {
         //given
         final User normalUser = createNormalUser();
 
-        when(loginService.isEmptyRefreshToken(anyString(), anyString())).thenReturn(false);
+        when(loginService.isWrongRefreshToken(anyString(), anyString())).thenReturn(false);
         when(jwtProperties.getAccessTokenExpiredTime()).thenReturn(Duration.ofMinutes(30));
         when(jwtProperties.getRefreshTokenExpiredTime()).thenReturn(Duration.ofDays(7));
         when(jwtProperties.getSecretKey()).thenReturn("aaaaa");
@@ -87,7 +88,7 @@ class JwtCheckFilterTest {
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 
         verify(userDetailsService).loadUserByUsername(anyString());
-        verify(loginService).isEmptyRefreshToken(anyString(), anyString());
+        verify(loginService).isWrongRefreshToken(anyString(), anyString());
         verify(loginService, never()).saveRefreshToken(anyString(), anyString());
 
     }
@@ -100,7 +101,7 @@ class JwtCheckFilterTest {
                 .gender(Gender.MAN)
                 .nickname("온프리짱짱")
                 .name("준식")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .profileImage("http://onfree.io/images/123456789")
                 .role(Role.NORMAL)
@@ -119,7 +120,7 @@ class JwtCheckFilterTest {
     public void givenACTokenNotValidRFToken_whenCheckFilter_thenRFTokenReissueAndSuccess() throws Exception {
         //given
         final User normalUser = createNormalUser();
-        when(loginService.isEmptyRefreshToken(anyString(), anyString())).thenReturn(false);
+        when(loginService.isWrongRefreshToken(anyString(), anyString())).thenReturn(false);
         when(jwtProperties.getAccessTokenExpiredTime()).thenReturn(Duration.ofHours(1));
         when(jwtProperties.getRefreshTokenExpiredTime()).thenReturn(Duration.ofSeconds(-1));
         when(jwtProperties.getSecretKey()).thenReturn("aaaaa");
@@ -137,7 +138,7 @@ class JwtCheckFilterTest {
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 
         verify(userDetailsService).loadUserByUsername(anyString());
-        verify(loginService).isEmptyRefreshToken(anyString(), anyString());
+        verify(loginService).isWrongRefreshToken(anyString(), anyString());
         verify(loginService).saveRefreshToken(anyString(), anyString());
     }
 
@@ -146,7 +147,7 @@ class JwtCheckFilterTest {
     public void givenACTokenNotFoundRFTokenInDB_whenCheckFilter_thenLogout() throws Exception {
         //given
         final User normalUser = createNormalUser();
-        when(loginService.isEmptyRefreshToken(anyString(), anyString())).thenReturn(true);
+        when(loginService.isWrongRefreshToken(anyString(), anyString())).thenReturn(true);
         when(jwtProperties.getAccessTokenExpiredTime()).thenReturn(Duration.ofHours(1));
         when(jwtProperties.getRefreshTokenExpiredTime()).thenReturn(Duration.ofDays(7));
         when(jwtProperties.getSecretKey()).thenReturn("aaaaa");
@@ -165,7 +166,7 @@ class JwtCheckFilterTest {
         assertThat(response.getCookie(REFRESH_TOKEN).getValue()).isEqualTo("");
 
         verify(userDetailsService).loadUserByUsername(anyString());
-        verify(loginService).isEmptyRefreshToken(anyString(), anyString());
+        verify(loginService).isWrongRefreshToken(anyString(), anyString());
         verify(loginService, never()).saveRefreshToken(anyString(), anyString());
         verify(jwtUtil, never()).verify(eq(refreshToken));
     }
@@ -202,7 +203,7 @@ class JwtCheckFilterTest {
         assertThat(response.getCookie(REFRESH_TOKEN).getValue()).isNotBlank();
 
         verify(userDetailsService).loadUserByUsername(anyString());
-        verify(loginService, never()).isEmptyRefreshToken(anyString(), anyString());
+        verify(loginService, never()).isWrongRefreshToken(anyString(), anyString());
         verify(loginService).saveRefreshToken(anyString(), anyString());
         verify(jwtUtil, never()).verify(eq(""));
     }
@@ -212,7 +213,7 @@ class JwtCheckFilterTest {
     public void givenExpiredACTokenRFToken_whenCheckFilter_thenACTokenReissueAndSuccess() throws Exception {
         //given
         final User normalUser = createNormalUser();
-        when(loginService.isEmptyRefreshToken(anyString(), anyString()))
+        when(loginService.isWrongRefreshToken(anyString(), anyString()))
                 .thenReturn(false);
         when(jwtProperties.getAccessTokenExpiredTime())
                 .thenReturn(Duration.ofSeconds(-1));
@@ -241,7 +242,7 @@ class JwtCheckFilterTest {
     public void givenExpiredACTokenAndRFToken_whenCheckFilter_thenLogout() throws Exception {
         //given
         final User normalUser = createNormalUser();
-        when(loginService.isEmptyRefreshToken(anyString(), anyString())).thenReturn(false);
+        when(loginService.isWrongRefreshToken(anyString(), anyString())).thenReturn(false);
         when(jwtProperties.getAccessTokenExpiredTime()).thenReturn(Duration.ofHours(-1));
         when(jwtProperties.getRefreshTokenExpiredTime()).thenReturn(Duration.ofSeconds(-1));
         when(jwtProperties.getSecretKey()).thenReturn("aaaaa");
@@ -268,7 +269,7 @@ class JwtCheckFilterTest {
     public void givenExpiredACTokenNotFoundRFToken_whenCheckFilter_thenLogout() throws Exception {
         //given
         final User normalUser = createNormalUser();
-        when(loginService.isEmptyRefreshToken(anyString(), anyString())).thenReturn(true);
+        when(loginService.isWrongRefreshToken(anyString(), anyString())).thenReturn(true);
         when(jwtProperties.getAccessTokenExpiredTime()).thenReturn(Duration.ofHours(-1));
         when(jwtProperties.getRefreshTokenExpiredTime()).thenReturn(Duration.ofDays(7));
         when(jwtProperties.getSecretKey()).thenReturn("aaaaa");

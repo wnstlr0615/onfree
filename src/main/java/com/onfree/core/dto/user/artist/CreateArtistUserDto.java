@@ -1,5 +1,6 @@
 package com.onfree.core.dto.user.artist;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.onfree.core.entity.user.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,6 +15,11 @@ public class CreateArtistUserDto {
     @Builder
     @ApiModel(value = "CreateArtistUserDto_Request")
     public static class Request {
+        @ApiModelProperty(value = "이메일주소(사용자 아이디)", example = "jun@naver.com")
+        @Email(message = "이메일 형식이 올바르지 않습니다.")
+        @NotBlank(message = "이메일은 공백일 수 없습니다.")
+        private final String email;
+
         @ApiModelProperty(value = "사용자 이름", example = "김모씨")
         @NotBlank(message = "이름은 공백일수 없습니다.")
         private final String name;
@@ -22,18 +28,13 @@ public class CreateArtistUserDto {
         @NotBlank(message = "닉네임은 공백일수 없습니다.")
         private final String nickname;
 
-        @ApiModelProperty(value = "이메일주소(사용자 아이디)", example = "jun@naver.com")
-        @Email(message = "이메일 형식이 올바르지 않습니다.")
-        @NotBlank(message = "이메일은 공백일 수 없습니다.")
-        private final String email;
-
         @ApiModelProperty(value = "사용자 비밀번호", example = "!abcdefghijk123")
         @NotBlank(message = "비밀번호는 공백일 수 없습니다.")
         private final String password;
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
-        @NotBlank(message = "통신사는 공백일 수 없습니다.")
-        private final String newsAgency; //통신사
+        @NotNull(message = "통신사는 공백일 수 없습니다.")
+        private final MobileCarrier mobileCarrier; //통신사
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
@@ -102,7 +103,7 @@ public class CreateArtistUserDto {
                     .password(password)
                     .gender(gender)
                     .name(name)
-                    .newsAgency(newsAgency)
+                    .mobileCarrier(mobileCarrier)
                     .phoneNumber(phoneNumber)
                     .bankInfo(bankInfo)
                     .userAgree(userAgree)
@@ -130,14 +131,14 @@ public class CreateArtistUserDto {
         private final String email;
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
-        private final String newsAgency; //통신사
+        private final MobileCarrier mobileCarrier; //통신사
 
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         private final String phoneNumber;
 
         @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = "${BankName.joinString()}" )
-        private final String bankName;
+        private final BankName bankName;
 
         @ApiModelProperty(value = "계좌번호", example = "123456-456789-12")
         private final String accountNumber;
@@ -158,7 +159,7 @@ public class CreateArtistUserDto {
         private final Boolean adultCertification;
 
         @ApiModelProperty(value = "성별", example = "${Gender.joinString()}")
-        private final String gender;
+        private final Gender gender;
 
         @ApiModelProperty(value = "프로필 URL", example = "http://onfree.io/images/546456498")
         private final String profileImage;
@@ -171,12 +172,12 @@ public class CreateArtistUserDto {
             return Response.builder()
                     .adultCertification(entity.getAdultCertification())
                     .email(entity.getEmail())
-                    .gender(entity.getGender().getName())
+                    .gender(entity.getGender())
                     .name(entity.getName())
                     .nickname(entity.getNickname())
-                    .newsAgency(entity.getNewsAgency())
+                    .mobileCarrier(entity.getMobileCarrier())
                     .phoneNumber(entity.getPhoneNumber())
-                    .bankName(entity.getBankInfo().getBankName().getBankName())
+                    .bankName(entity.getBankInfo().getBankName())
                     .accountNumber(entity.getBankInfo().getAccountNumber())
                     .advertisementAgree(entity.getUserAgree().getAdvertisement())
                     .personalInfoAgree(entity.getUserAgree().getPersonalInfo())

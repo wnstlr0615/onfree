@@ -1,5 +1,6 @@
 package com.onfree.utils;
 
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.user.*;
 import com.onfree.common.model.VerifyResult;
 import com.onfree.common.properties.JWTProperties;
@@ -60,7 +61,7 @@ class JWTUtilTest {
                 .password("!Abcderghijk112")
                 .gender(Gender.MAN)
                 .name("준식")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)

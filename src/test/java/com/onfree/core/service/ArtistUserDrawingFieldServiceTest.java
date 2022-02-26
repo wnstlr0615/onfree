@@ -4,6 +4,7 @@ import com.onfree.common.error.code.DrawingFieldErrorCode;
 import com.onfree.common.error.exception.DrawingFieldException;
 import com.onfree.core.dto.drawingfield.artist.UpdateDrawingFieldsDto;
 import com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto;
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.DrawingField;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.ArtistUserDrawingFieldRepository;
@@ -91,7 +92,7 @@ class ArtistUserDrawingFieldServiceTest {
                 .password("{bcrypt}onfree")
                 .gender(Gender.MAN)
                 .name("joon")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)

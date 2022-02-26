@@ -1,5 +1,6 @@
 package com.onfree.core.dto.user.normal;
 
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.user.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -33,8 +34,8 @@ public class CreateNormalUserDto {
         private final String password;
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
-        @NotBlank(message = "통신사는 공백일 수 없습니다.")
-        private final String newsAgency; //통신사
+        @NotNull(message = "통신사는 공백일 수 없습니다.")
+        private final MobileCarrier mobileCarrier; //통신사
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
@@ -98,7 +99,7 @@ public class CreateNormalUserDto {
                     .password(password)
                     .gender(gender)
                     .name(name)
-                    .newsAgency(newsAgency)
+                    .mobileCarrier(mobileCarrier)
                     .phoneNumber(phoneNumber)
                     .bankInfo(bankInfo)
                     .userAgree(userAgree)
@@ -125,14 +126,14 @@ public class CreateNormalUserDto {
         private final String email;
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
-        private final String newsAgency; //통신사
+        private final MobileCarrier mobileCarrier; //통신사
 
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         private final String phoneNumber;
 
         @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = "${BankName.joinString()}" )
-        private final String bankName;
+        private final BankName bankName;
 
         @ApiModelProperty(value = "계좌번호", example = "123456-456789-12")
         private final String accountNumber;
@@ -153,7 +154,7 @@ public class CreateNormalUserDto {
         private final Boolean adultCertification;
 
         @ApiModelProperty(value = "성별", example = "${Gender.joinString()}")
-        private final String gender;
+        private final Gender gender;
 
         @ApiModelProperty(value = "프로필 URL", example = "http://onfree.io/images/546456498")
         private final String profileImage;
@@ -162,12 +163,12 @@ public class CreateNormalUserDto {
             return Response.builder()
                     .adultCertification(entity.getAdultCertification())
                     .email(entity.getEmail())
-                    .gender(entity.getGender().getName())
+                    .gender(entity.getGender())
                     .name(entity.getName())
                     .nickname(entity.getNickname())
-                    .newsAgency(entity.getNewsAgency())
+                    .mobileCarrier(entity.getMobileCarrier())
                     .phoneNumber(entity.getPhoneNumber())
-                    .bankName(entity.getBankInfo().getBankName().getBankName())
+                    .bankName(entity.getBankInfo().getBankName())
                     .accountNumber(entity.getBankInfo().getAccountNumber())
                     .advertisementAgree(entity.getUserAgree().getAdvertisement())
                     .personalInfoAgree(entity.getUserAgree().getPersonalInfo())

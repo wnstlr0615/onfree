@@ -1,6 +1,7 @@
 package com.onfree.core.entity.user;
 
 import com.onfree.common.model.BaseTimeEntity;
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import lombok.*;
 
 import javax.persistence.*;
@@ -29,7 +30,8 @@ public class User extends BaseTimeEntity {
     private String password; //비밀번호
 
     @Column(nullable = false, length = 10)
-    private String newsAgency; //통신사
+    @Enumerated(EnumType.STRING)
+    private MobileCarrier mobileCarrier; //통신사
 
     @Column(nullable = false, length = 14)
     private String phoneNumber; // 핸드폰번호
@@ -65,13 +67,13 @@ public class User extends BaseTimeEntity {
 
 
 
-    public User(Long userId, String name, String nickname, String email, String password, String newsAgency, String phoneNumber, BankInfo bankInfo, UserAgree userAgree, Boolean adultCertification, Gender gender, String profileImage, Boolean deleted, Role role) {
+    public User(Long userId, String name, String nickname, String email, String password, MobileCarrier mobileCarrier, String phoneNumber, BankInfo bankInfo, UserAgree userAgree, Boolean adultCertification, Gender gender, String profileImage, Boolean deleted, Role role) {
         this.userId = userId;
         this.name = name;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
-        this.newsAgency = newsAgency;
+        this.mobileCarrier = mobileCarrier;
         this.phoneNumber = phoneNumber;
         this.bankInfo = bankInfo;
         this.userAgree = userAgree;
@@ -92,11 +94,11 @@ public class User extends BaseTimeEntity {
         this.deletedTime=LocalDateTime.now();
     }
 
-    protected void update(BankInfo bankInfo, boolean adultCertification, String nickname, String newsAgency, String phoneNumber, String profileImage) {
+    protected void update(BankInfo bankInfo, boolean adultCertification, String nickname, MobileCarrier mobileCarrier, String phoneNumber, String profileImage) {
         this.bankInfo= bankInfo;
         this.adultCertification=adultCertification;
         this.nickname= nickname;
-        this.newsAgency= newsAgency;
+        this.mobileCarrier= mobileCarrier;
         this.phoneNumber= phoneNumber;
         this.profileImage= profileImage;
     }

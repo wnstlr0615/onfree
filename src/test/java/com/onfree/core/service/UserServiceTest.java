@@ -4,6 +4,7 @@ package com.onfree.core.service;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
 import com.onfree.core.dto.user.UpdateUserNotificationDto;
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -81,7 +82,7 @@ class UserServiceTest {
                 .gender(Gender.MAN)
                 .name("준식")
                 .nickname("온프리프리")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
                         getBankInfo(BankName.IBK_BANK, "010-0000-0000")

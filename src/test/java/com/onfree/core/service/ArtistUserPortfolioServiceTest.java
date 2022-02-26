@@ -1,6 +1,7 @@
 package com.onfree.core.service;
 
 import com.onfree.core.dto.portfolio.PortfolioSimpleDto;
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.DrawingField;
 import com.onfree.core.entity.PortfolioDrawingField;
 import com.onfree.core.entity.portfolio.Portfolio;
@@ -103,7 +104,7 @@ class ArtistUserPortfolioServiceTest {
                 .password("{bcrypt}onfree")
                 .gender(Gender.MAN)
                 .name("joon")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)

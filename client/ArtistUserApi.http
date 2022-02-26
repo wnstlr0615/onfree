@@ -1,5 +1,5 @@
 #작가유저 회원가입  정상 요청
-POST {{host}}/api/users/artist
+POST {{host}}/api/v1/users/artist
 Content-Type: application/json
 
 {
@@ -22,7 +22,7 @@ Content-Type: application/json
 }
 
 ### 작가유저 회원가입 데이터 누락
-POST {{host}}/api/users/artist
+POST {{host}}/api/v1/users/artist
 Content-Type: application/json
 
 {
@@ -44,16 +44,16 @@ Content-Type: application/json
 }
 
 ### 회원 정보 조회
-GET {{host}}/api/users/artist/1
+GET {{host}}/api/v1/users/artist/1
 Content-Type: application/json
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJqb29uQG5hdmVyLmNvbSIsInVpZCI6MSwiaXNzIjoib25mcmVlLmNvbSIsImV4cCI6MTYzOTkyMzM5OH0.D7yAeff3TXO11a58yWZXeXllrzkG-YRPP5jUe0nTWTPxjCf4G-QeZQBiNXatilJmG8Cldb1BNYIINc7ETBVKOw
 
 ### 회원 제거
-DELETE {{host}}/api/users/artist/1
+DELETE {{host}}/api/v1/users/artist/1
 Content-Type: application/json
 
 ### 회원정보 수정
-PUT {{host}}/api/users/artist/1
+PUT {{host}}/api/v1/users/artist/1
 Content-Type: application/json
 
 {

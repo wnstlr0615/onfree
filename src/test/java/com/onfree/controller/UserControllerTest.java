@@ -7,6 +7,7 @@ import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.exception.GlobalException;
 import com.onfree.config.webmvc.resolver.LoginUserArgumentResolver;
 import com.onfree.core.dto.user.UpdateUserNotificationDto;
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.service.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +16,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -49,6 +51,7 @@ class UserControllerTest extends ControllerBaseTest {
         //when //then
         mvc.perform(put("/api/v1/users/me/notifications", userId)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
                 .content(
                         mapper.writeValueAsString(
                                 givenUpdateUserNotificationDto()
@@ -71,7 +74,7 @@ class UserControllerTest extends ControllerBaseTest {
                 .password("!Abcderghijk112")
                 .gender(Gender.MAN)
                 .name("준식")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
                         BankInfo.createBankInfo(BankName.IBK_BANK, "010-8888-9999")
@@ -132,7 +135,7 @@ class UserControllerTest extends ControllerBaseTest {
                 .password("{bcrypt}onfree")
                 .gender(Gender.MAN)
                 .name("joon")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .bankInfo(BankInfo.createBankInfo(BankName.IBK_BANK, "010-0000-0000"))
                 .userAgree(UserAgree.createUserAgree(true, true, true, true))

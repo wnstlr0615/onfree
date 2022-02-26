@@ -17,7 +17,6 @@ import com.onfree.utils.MailComponent;
 import com.onfree.utils.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +29,6 @@ import java.util.UUID;
 import static com.onfree.common.constant.MailConstant.PASSWORD_RESET_TEMPLATE;
 import static com.onfree.common.constant.RedisConstant.PASSWORD_RESET;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
 @Service
@@ -117,19 +115,25 @@ public class LoginService {
         user.resetPassword(bcryptPassword);
     }
 
+
+    /** 리플래쉬 토큰 저장*/
     public void saveRefreshToken(String username, String refreshToken) {
         final String key = RedisConstant.USER_REFRESH_TOKEN + username;
         final Duration timeout = Duration.ofDays(7);
         redisUtil.addData(key, refreshToken, timeout);
     }
 
-    public boolean isEmptyRefreshToken(String username, String oldRefreshToken) {
+    public boolean isWrongRefreshToken(String username, String oldRefreshToken) {
         final String refreshToken = redisUtil.getData(RedisConstant.USER_REFRESH_TOKEN + username);
-        return !StringUtils.hasText(refreshToken) || !oldRefreshToken.equals(refreshToken);
+        return !StringUtils.hasText(refreshToken) || isNotMatchRefreshToken(refreshToken, oldRefreshToken);
     }
 
     public void deleteRefreshTokenByUsername(String username) {
         final String key = RedisConstant.USER_REFRESH_TOKEN + username;
         redisUtil.deleteData(key);
+    }
+
+    public boolean isNotMatchRefreshToken(String curRefreshToken, String oldRefreshToken) {
+        return !curRefreshToken.equals(oldRefreshToken);
     }
 }

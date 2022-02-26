@@ -13,6 +13,7 @@ import com.onfree.core.dto.notice.UpdateNoticeDto;
 import com.onfree.core.dto.question.CreateQuestionDto;
 import com.onfree.core.dto.question.UpdateQuestionDto;
 import com.onfree.core.dto.user.artist.CreateArtistUserDto;
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
 import com.onfree.core.dto.user.normal.CreateNormalUserDto;
 import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
@@ -113,7 +114,7 @@ class ValidateAopTest {
                 .password("{bcrypt}onfree")
                 .gender(Gender.MAN)
                 .name("joon")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)
@@ -142,7 +143,7 @@ class ValidateAopTest {
                 .password("{bcrypt}onfree")
                 .gender(Gender.MAN)
                 .name("joon")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)
@@ -188,7 +189,7 @@ class ValidateAopTest {
                 .gender(Gender.MAN)
                 .nickname("")
                 .name("")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-8888-9999")
@@ -228,7 +229,7 @@ class ValidateAopTest {
         return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")
                 .accountNumber("010-0000-0000")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
                 .profileImage("http://onfree.io/images/aaa123")
@@ -269,7 +270,7 @@ class ValidateAopTest {
                 .password("!Abcderghijk112")
                 .gender(Gender.MAN)
                 .name("")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankName(null)
                 .accountNumber("010-8888-9999")
@@ -309,7 +310,7 @@ class ValidateAopTest {
         return UpdateArtistUserDto.Request.builder()
                 .nickname("온프리프리")
                 .accountNumber("010-0000-0000")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
                 .profileImage("http://onfree.io/images/aaa123")
