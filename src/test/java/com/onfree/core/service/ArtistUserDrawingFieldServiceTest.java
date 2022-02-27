@@ -5,7 +5,8 @@ import com.onfree.common.error.exception.DrawingFieldException;
 import com.onfree.core.dto.drawingfield.artist.UpdateDrawingFieldsDto;
 import com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto;
 import com.onfree.core.dto.user.artist.MobileCarrier;
-import com.onfree.core.entity.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingFieldStatus;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.ArtistUserDrawingFieldRepository;
 import com.onfree.core.repository.ArtistUserRepository;
@@ -52,7 +53,7 @@ class ArtistUserDrawingFieldServiceTest {
                 .thenReturn(
                         Optional.ofNullable(getArtistUser())
                 );
-        when(drawingFieldRepository.findAllByDisabledIsFalseAndDrawingFieldIdIn(updateDrawingFieldsDto.getDrawingFields()))
+        when(drawingFieldRepository.findAllByStatusNotDisabledAndTempDrawingFieldIdIn(updateDrawingFieldsDto.getDrawingFields()))
                 .thenReturn(
                        getDrawingFieldList()
                 );
@@ -69,7 +70,7 @@ class ArtistUserDrawingFieldServiceTest {
         //then
 
         verify(artistUserRepository).findById(eq(givenUserId));
-        verify(drawingFieldRepository).findAllByDisabledIsFalseAndDrawingFieldIdIn(any());
+        verify(drawingFieldRepository).findAllByStatusNotDisabledAndTempDrawingFieldIdIn(any());
         verify(artistUserDrawingFieldRepository).deleteAllByArtistUser(any(ArtistUser.class));
         verify(artistUserDrawingFieldRepository).saveAll(any());
     }
@@ -126,8 +127,7 @@ class ArtistUserDrawingFieldServiceTest {
                 .drawingFieldId(drawingFieldId)
                 .fieldName(fieldName)
                 .description(fieldName)
-                .top(false)
-                .disabled(false)
+                .status(DrawingFieldStatus.USED)
                 .build();
     }
 
@@ -143,7 +143,7 @@ class ArtistUserDrawingFieldServiceTest {
                 .thenReturn(
                         Optional.ofNullable(getArtistUser())
                 );
-        when(drawingFieldRepository.findAllByDisabledIsFalseAndDrawingFieldIdIn(wrongUpdateDrawingFieldsDto.getDrawingFields()))
+        when(drawingFieldRepository.findAllByStatusNotDisabledAndTempDrawingFieldIdIn(wrongUpdateDrawingFieldsDto.getDrawingFields()))
                 .thenReturn(
                         getMissedDrawingFieldList()
                 );
@@ -157,7 +157,7 @@ class ArtistUserDrawingFieldServiceTest {
         assertThat(drawingFieldException.getErrorCode().getDescription()).isEqualTo(wrongDrawingField.getDescription());
 
         verify(artistUserRepository).findById(eq(givenUserId));
-        verify(drawingFieldRepository).findAllByDisabledIsFalseAndDrawingFieldIdIn(any());
+        verify(drawingFieldRepository).findAllByStatusNotDisabledAndTempDrawingFieldIdIn(any());
         verify(artistUserDrawingFieldRepository, never()).deleteAllByArtistUser(any(ArtistUser.class));
         verify(artistUserDrawingFieldRepository, never()).saveAll(any());
     }
@@ -179,7 +179,7 @@ class ArtistUserDrawingFieldServiceTest {
                                 getArtistUser()
                         )
                 );
-        when(drawingFieldRepository.findAllByDisabledIsFalseOrderByTopDesc())
+        when(drawingFieldRepository.findAllByStatusNotDisabledAndTempOrderByTopDesc())
                 .thenReturn(
                         getDrawingFieldList()
                 );
@@ -209,7 +209,7 @@ class ArtistUserDrawingFieldServiceTest {
         );
 
         verify(artistUserDrawingFieldRepository).findAllArtistuserDrawingFieldIdByArtistUser(any(ArtistUser.class));
-        verify(drawingFieldRepository).findAllByDisabledIsFalseOrderByTopDesc();
+        verify(drawingFieldRepository).findAllByStatusNotDisabledAndTempOrderByTopDesc();
     }
 
     private List<Long> getArtistUserDrawingFieldIdList() {
@@ -227,7 +227,7 @@ class ArtistUserDrawingFieldServiceTest {
                                 getArtistUser()
                         )
                 );
-        when(drawingFieldRepository.findAllByDisabledIsFalseOrderByTopDesc())
+        when(drawingFieldRepository.findAllByStatusNotDisabledAndTempOrderByTopDesc())
                 .thenReturn(
                         getDrawingFieldList()
                 );
@@ -257,7 +257,7 @@ class ArtistUserDrawingFieldServiceTest {
         );
 
         verify(artistUserDrawingFieldRepository).findAllArtistuserDrawingFieldIdByArtistUser(any(ArtistUser.class));
-        verify(drawingFieldRepository).findAllByDisabledIsFalseOrderByTopDesc();
+        verify(drawingFieldRepository).findAllByStatusNotDisabledAndTempOrderByTopDesc();
     }
 }
 

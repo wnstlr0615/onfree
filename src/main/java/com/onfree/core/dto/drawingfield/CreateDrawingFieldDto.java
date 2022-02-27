@@ -1,6 +1,7 @@
 package com.onfree.core.dto.drawingfield;
 
-import com.onfree.core.entity.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingFieldStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +26,7 @@ public class CreateDrawingFieldDto {
         return DrawingField.builder()
                 .fieldName(fieldName)
                 .description(description)
-                .disabled(false)
-                .top(false)
+                .status(DrawingFieldStatus.TEMP)
                 .build();
     }
 }

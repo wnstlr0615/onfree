@@ -8,6 +8,7 @@ import com.onfree.common.error.exception.LoginException;
 import com.onfree.common.error.exception.UserException;
 import com.onfree.core.dto.user.UpdatePasswordDto;
 import com.onfree.core.service.LoginService;
+import com.onfree.utils.CookieUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,6 +30,8 @@ class LoginControllerTest extends ControllerBaseTest {
 
     @MockBean
     LoginService loginService;
+    @MockBean
+    CookieUtil cookieUtil;
 
     @Test
     @DisplayName("[성공][GET] 비밀번호 인증용 메일 전송 ")

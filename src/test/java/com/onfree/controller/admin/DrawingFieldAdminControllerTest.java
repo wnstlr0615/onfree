@@ -7,6 +7,7 @@ import com.onfree.common.error.exception.DrawingFieldException;
 import com.onfree.core.dto.drawingfield.CreateDrawingFieldDto;
 import com.onfree.core.dto.drawingfield.DrawingFieldDto;
 import com.onfree.core.dto.drawingfield.UpdateDrawingFieldDto;
+import com.onfree.core.entity.drawingfield.DrawingFieldStatus;
 import com.onfree.core.service.DrawingFieldService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,8 +50,7 @@ class DrawingFieldAdminControllerTest extends ControllerBaseTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.fieldName").value(name))
             .andExpect(jsonPath("$.description").value(description))
-            .andExpect(jsonPath("$.top").value(false))
-            .andExpect(jsonPath("$.disabled").value(false))
+            .andExpect(jsonPath("$.status").value(DrawingFieldStatus.USED.name()))
         ;
         verify(drawingFieldService).findDrawField(eq(givenDrawingFieldId));
     }
@@ -59,8 +59,7 @@ class DrawingFieldAdminControllerTest extends ControllerBaseTest {
         return DrawingFieldDto.builder()
                 .fieldName(fieldName)
                 .description(description)
-                .top(false)
-                .disabled(false)
+                .status(DrawingFieldStatus.USED)
                 .build();
     }
 
@@ -126,8 +125,7 @@ class DrawingFieldAdminControllerTest extends ControllerBaseTest {
                 .drawingFieldId(1L)
                 .fieldName(fieldName)
                 .description(fieldName)
-                .top(false)
-                .disabled(false)
+                .status(DrawingFieldStatus.TEMP)
                 .build();
     }
 
@@ -180,8 +178,7 @@ class DrawingFieldAdminControllerTest extends ControllerBaseTest {
             .andExpect(jsonPath("$.drawingFieldId").value(1L))
             .andExpect(jsonPath("$.fieldName").value(fieldName))
             .andExpect(jsonPath("$.description").value(fieldName))
-            .andExpect(jsonPath("$.disabled").value(false))
-            .andExpect(jsonPath("$.top").value(false))
+            .andExpect(jsonPath("$.status").value(DrawingFieldStatus.TEMP.name()))
             .andExpect(jsonPath("$._links.self.href").isNotEmpty())
             .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
         ;
@@ -238,7 +235,7 @@ class DrawingFieldAdminControllerTest extends ControllerBaseTest {
                 .content(
                         mapper.writeValueAsString(
                                 givenUpdateDrawingFieldDto(
-                                        "캐릭터 디자인", "캐릭터 디자인", true, true
+                                        "캐릭터 디자인", "캐릭터 디자인", DrawingFieldStatus.DISABLED
                                 )
                         )
                 )
@@ -253,12 +250,11 @@ class DrawingFieldAdminControllerTest extends ControllerBaseTest {
         verify(drawingFieldService).updateDrawingField(eq(givenDrawingFieldId), any(UpdateDrawingFieldDto.class));
     }
 
-    private UpdateDrawingFieldDto givenUpdateDrawingFieldDto(String fieldName, String description, boolean disabled, boolean top) {
+    private UpdateDrawingFieldDto givenUpdateDrawingFieldDto(String fieldName, String description, DrawingFieldStatus status) {
         return UpdateDrawingFieldDto.builder()
                 .fieldName(fieldName)
                 .description(description)
-                .disabled(disabled)
-                .top(top)
+                .status(status)
                 .build();
     }
 
@@ -278,7 +274,7 @@ class DrawingFieldAdminControllerTest extends ControllerBaseTest {
                 .content(
                         mapper.writeValueAsString(
                                 givenUpdateDrawingFieldDto(
-                                        "캐릭터 디자인", "캐릭터 디자인", true, true
+                                        "캐릭터 디자인", "캐릭터 디자인", DrawingFieldStatus.DISABLED
                                 )
                         )
                 )

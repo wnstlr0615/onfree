@@ -7,7 +7,7 @@ import com.onfree.common.error.exception.UserException;
 import com.onfree.core.dto.drawingfield.artist.UpdateDrawingFieldsDto;
 import com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto;
 import com.onfree.core.entity.ArtistUserDrawingField;
-import com.onfree.core.entity.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingField;
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.repository.ArtistUserDrawingFieldRepository;
 import com.onfree.core.repository.ArtistUserRepository;
@@ -45,7 +45,7 @@ public class ArtistUserDrawingFieldService {
     }
 
     private List<DrawingField> getUpdateDrawingFieldList(UpdateDrawingFieldsDto updateDrawingFieldsDto) {
-        final List<DrawingField> updateDrawingFieldList = drawingFieldRepository.findAllByDisabledIsFalseAndDrawingFieldIdIn(
+        final List<DrawingField> updateDrawingFieldList = drawingFieldRepository.findAllByStatusNotDisabledAndTempDrawingFieldIdIn(
                 updateDrawingFieldsDto.getDrawingFields()
         );
         if(isNotValidUpdateDrawingFieldIdList(updateDrawingFieldsDto, updateDrawingFieldList)){
@@ -84,7 +84,7 @@ public class ArtistUserDrawingFieldService {
     }
 
     private List<DrawingField> getAllDrawingFieldList() {
-        return drawingFieldRepository.findAllByDisabledIsFalseOrderByTopDesc();
+        return drawingFieldRepository.findAllByStatusNotDisabledAndTempOrderByTopDesc();
     }
 
     private List<Long> getAllArtistUserHasDrawingFieldIdListByArtistUser(ArtistUser artistUser) {

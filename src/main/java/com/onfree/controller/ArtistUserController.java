@@ -39,7 +39,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/users/artist",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users/artist",  consumes = MediaType.APPLICATION_JSON_VALUE)
 public class ArtistUserController {
 
     private final ArtistUserService artistUserService;
@@ -95,7 +95,7 @@ public class ArtistUserController {
         //링크 추가
         response.add(
                 linkTo(ArtistUser.class).slash("me").withSelfRel(),
-                Link.of(linkTo(SwaggerController.class) + "/#/artist-user-controller/artistUserRemoveUsingDELETE").withProfile("profile")
+                Link.of(linkTo(SwaggerController.class) + "/#/artist-user-controller/artistUserRemoveUsingDELETE").withRel("profile")
         );
 
         return response;
@@ -137,7 +137,7 @@ public class ArtistUserController {
 
         response.add(
                 linkTo(ArtistUserController.class).slash("me").slash("status").withSelfRel(),
-                Link.of(linkTo(SwaggerController.class) + "/#/artist-user-controller/updateStatusMarkUsingPATCH").withProfile("profile")
+                Link.of(linkTo(SwaggerController.class) + "/#/artist-user-controller/updateStatusMarkUsingPATCH").withRel("profile")
         );
         return response;
     }

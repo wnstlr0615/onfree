@@ -57,7 +57,7 @@ public class NormalUserController {
         //링크 추가
         response.add(
                 linkTo(NormalUserController.class).slash("me").withSelfRel(),
-                Link.of(linkTo(SwaggerController.class) + "/#/normal-user-controller/normalUserDetailsUsingGET").withProfile("profile")
+                Link.of(linkTo(SwaggerController.class) + "/#/normal-user-controller/normalUserDetailsUsingGET").withRel("profile")
         );
         return response;
     }
@@ -74,7 +74,7 @@ public class NormalUserController {
         //링크 추가
         response.add(
                 linkTo(NormalUserController.class).slash("me").withSelfRel(),
-                Link.of(linkTo(SwaggerController.class) + "/#/normal-user-controller/normalUserRemoveUsingDELETE").withProfile("profile")
+                Link.of(linkTo(SwaggerController.class) + "/#/normal-user-controller/normalUserRemoveUsingDELETE").withRel("profile")
         );
         return response;
     }
@@ -93,7 +93,7 @@ public class NormalUserController {
         // 링크 추가
         response.add(
                 linkTo(NormalUserController.class).slash("me").withSelfRel(),
-                Link.of(linkTo(SwaggerController.class) + "/#/normal-user-controller/normalUserModifyUsingPUT").withProfile("profile")
+                Link.of(linkTo(SwaggerController.class) + "/#/normal-user-controller/normalUserModifyUsingPUT").withRel("profile")
         );
 
         return response;

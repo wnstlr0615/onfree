@@ -1,4 +1,4 @@
-package com.onfree.core.entity;
+package com.onfree.core.entity.drawingfield;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,26 +22,25 @@ public class DrawingField {
 
     private String description;
 
-    @Column(nullable = false)
-    private Boolean disabled;
-
-    @Column(nullable = false)
-    private Boolean top;
+    @Enumerated(EnumType.STRING)
+    private DrawingFieldStatus status;
 
     //== 생성 메서드 ==//
-    public static DrawingField createDrawingField(String fieldName, String description, boolean top) {
+    public static DrawingField createDrawingField(String fieldName, String description, DrawingFieldStatus status) {
         return DrawingField.builder()
                 .fieldName(fieldName)
                 .description(description)
-                .disabled(false)
-                .top(top)
+                .status(status)
                 .build();
     }
 
     public void updateDrawingField(DrawingField drawingField) {
         this.fieldName =drawingField.getFieldName();
         this.description =drawingField.getDescription();
-        this.disabled =drawingField.getDisabled();
-        this.top =drawingField.getTop();
+        this.status =drawingField.getStatus();
+    }
+
+    public void delete() {
+        this.status = DrawingFieldStatus.DISABLED;
     }
 }

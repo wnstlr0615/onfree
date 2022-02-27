@@ -6,7 +6,8 @@ import com.onfree.common.error.exception.DrawingFieldException;
 import com.onfree.core.dto.drawingfield.CreateDrawingFieldDto;
 import com.onfree.core.dto.drawingfield.DrawingFieldDto;
 import com.onfree.core.dto.drawingfield.UpdateDrawingFieldDto;
-import com.onfree.core.entity.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingFieldStatus;
 import com.onfree.core.repository.DrawingFieldRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.*;
 class DrawingFieldServiceTest {
     @Mock
     DrawingFieldRepository drawingFieldRepository;
+
     @InjectMocks
     DrawingFieldService drawingFieldService;
 
@@ -36,7 +38,7 @@ class DrawingFieldServiceTest {
     @DisplayName("[성공] 그림 분야 전체 조회")
     public void givenNothing_whenGetDrawFieldDtoList_thenDrawingFieldDtoList(){
         //given
-        when(drawingFieldRepository.findAllByOrderByTopDesc())
+        when(drawingFieldRepository.findAllByStatusNot(eq(DrawingFieldStatus.DISABLED)))
             .thenReturn(
                     getDrawingFieldList()
             );
@@ -49,10 +51,9 @@ class DrawingFieldServiceTest {
                 () ->         assertThat(drawFieldDtoList.get(0).getFieldName()).isEqualTo("캐릭터 디자인"),
                 () ->         assertThat(drawFieldDtoList.get(1).getFieldName()).isEqualTo("일러스트"),
                 () ->         assertThat(drawFieldDtoList.get(1).getDescription()).isEqualTo("일러스트"),
-                () ->         assertThat(drawFieldDtoList.get(1).getDisabled()).isFalse(),
-                () ->         assertThat(drawFieldDtoList.get(1).getTop()).isFalse()
+                () ->         assertThat(drawFieldDtoList.get(1).getStatus()).isNotNull()
         );
-        verify(drawingFieldRepository).findAllByOrderByTopDesc();
+        verify(drawingFieldRepository).findAllByStatusNot(eq(DrawingFieldStatus.DISABLED));
     }
 
     private List<DrawingField> getDrawingFieldList() {
@@ -67,8 +68,7 @@ class DrawingFieldServiceTest {
         return DrawingField.builder()
                 .fieldName(fieldName)
                 .description(fieldName)
-                .top(false)
-                .disabled(false)
+                .status(DrawingFieldStatus.USED)
                 .build();
     }
 
@@ -77,7 +77,7 @@ class DrawingFieldServiceTest {
     public void givenNothing_whenGetEmptyDrawFieldDtoList_thenDrawingFieldEmptyError(){
         //given
         ErrorCode errorCode = DrawingFieldErrorCode.DRAWING_FIELD_EMPTY;
-        when(drawingFieldRepository.findAllByOrderByTopDesc())
+        when(drawingFieldRepository.findAllByStatusNot(eq(DrawingFieldStatus.DISABLED)))
                 .thenReturn(
                         List.of()
                 );
@@ -91,7 +91,7 @@ class DrawingFieldServiceTest {
                 () -> assertThat(drawingFieldException.getErrorCode()).isEqualTo(errorCode),
                 () -> assertThat(drawingFieldException.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
         );
-        verify(drawingFieldRepository).findAllByOrderByTopDesc();
+        verify(drawingFieldRepository).findAllByStatusNot(eq(DrawingFieldStatus.DISABLED));
     }
 
     @Test
@@ -99,7 +99,7 @@ class DrawingFieldServiceTest {
     public void givenDrawingFieldId_whenGetOneDrawingFieldDto_thenDrawingFieldDto(){
         //given
         final String fieldName = "캐릭터 디자인";
-        when(drawingFieldRepository.findById(anyLong()))
+        when(drawingFieldRepository.findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED)))
                 .thenReturn(
                         Optional.ofNullable(
                                 getDrawingField(fieldName)
@@ -114,10 +114,9 @@ class DrawingFieldServiceTest {
         assertAll(
                 () ->         assertThat(drawingFieldDto.getFieldName()).isEqualTo(fieldName),
                 () ->         assertThat(drawingFieldDto.getDescription()).isEqualTo(fieldName),
-                () ->         assertThat(drawingFieldDto.getTop()).isFalse(),
-                () ->         assertThat(drawingFieldDto.getDisabled()).isFalse()
+                () ->         assertThat(drawingFieldDto.getStatus()).isEqualTo(DrawingFieldStatus.USED)
         );
-        verify(drawingFieldRepository).findById(eq(drawingFieldId));
+        verify(drawingFieldRepository).findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED));
     }
 
     @Test
@@ -127,7 +126,7 @@ class DrawingFieldServiceTest {
         ErrorCode errorCode = DrawingFieldErrorCode.NOT_FOUND_DRAWING_FIELD;
         final long wrongDrawingFieldId = 999L;
 
-        when(drawingFieldRepository.findById(anyLong()))
+        when(drawingFieldRepository.findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED)))
                 .thenReturn(
                         Optional.empty()
                 );
@@ -141,7 +140,7 @@ class DrawingFieldServiceTest {
                 () -> assertThat(drawingFieldException.getErrorCode()).isEqualTo(errorCode),
                 () -> assertThat(drawingFieldException.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
         );
-        verify(drawingFieldRepository).findById(eq(wrongDrawingFieldId));
+        verify(drawingFieldRepository).findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED));
     }
 
     @Test
@@ -213,7 +212,7 @@ class DrawingFieldServiceTest {
         final long drawingFieldId = 1L;
 
         final DrawingField drawingField = getDrawingField(fieldName);
-        when(drawingFieldRepository.findById(anyLong()))
+        when(drawingFieldRepository.findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED)))
                 .thenReturn(
                         Optional.ofNullable(
                                 drawingField
@@ -223,25 +222,23 @@ class DrawingFieldServiceTest {
         //when
         drawingFieldService.updateDrawingField(
                 drawingFieldId,
-                givenUpdateDrawingFieldDto("일러스트", "일러스트 설명", true, true)
+                givenUpdateDrawingFieldDto("일러스트", "일러스트 설명", DrawingFieldStatus.DISABLED)
         );
 
         //then
         assertThat(drawingField)
                 .hasFieldOrPropertyWithValue("fieldName", "일러스트")
                 .hasFieldOrPropertyWithValue("description", "일러스트 설명")
-                .hasFieldOrPropertyWithValue("top", true)
-                .hasFieldOrPropertyWithValue("disabled", true)
+                .hasFieldOrPropertyWithValue("status", DrawingFieldStatus.DISABLED)
         ;
-        verify(drawingFieldRepository).findById(anyLong());
+        verify(drawingFieldRepository).findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED));
     }
 
-    private UpdateDrawingFieldDto givenUpdateDrawingFieldDto(String fieldName, String description, boolean top, boolean disabled) {
+    private UpdateDrawingFieldDto givenUpdateDrawingFieldDto(String fieldName, String description, DrawingFieldStatus status) {
         return  UpdateDrawingFieldDto.builder()
                 .fieldName(fieldName)
                 .description(description)
-                .top(top)
-                .disabled(disabled)
+                .status(status)
                 .build();
     }
 
@@ -252,7 +249,7 @@ class DrawingFieldServiceTest {
         final long wrongDrawingFieldId = 999L;
         final DrawingFieldErrorCode errorCode = DrawingFieldErrorCode.NOT_FOUND_DRAWING_FIELD;
 
-        when(drawingFieldRepository.findById(anyLong()))
+        when(drawingFieldRepository.findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED)))
                 .thenReturn(
                         Optional.empty()
                 );
@@ -260,7 +257,7 @@ class DrawingFieldServiceTest {
         //when
         final DrawingFieldException drawingFieldException = assertThrows(DrawingFieldException.class,
                 () -> drawingFieldService.updateDrawingField(
-                        wrongDrawingFieldId, givenUpdateDrawingFieldDto("일러스트", "일러스트 설명", true, true)
+                        wrongDrawingFieldId, givenUpdateDrawingFieldDto("일러스트", "일러스트 설명", DrawingFieldStatus.DISABLED)
                 )
         );
 
@@ -269,7 +266,7 @@ class DrawingFieldServiceTest {
                 () -> assertThat(drawingFieldException.getErrorCode()).isEqualTo(errorCode),
                 () -> assertThat(drawingFieldException.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
         );
-        verify(drawingFieldRepository).findById(anyLong());
+        verify(drawingFieldRepository).findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED));
     }
 
     @Test
@@ -279,10 +276,12 @@ class DrawingFieldServiceTest {
         final String fieldName = "캐릭터 디자인";
         final long drawingFieldId = 1L;
 
-        when(drawingFieldRepository.findById(anyLong()))
+        DrawingField drawingField = getDrawingField(fieldName);
+        DrawingFieldStatus beforeStatus = drawingField.getStatus();
+        when(drawingFieldRepository.findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED)))
                 .thenReturn(
                         Optional.ofNullable(
-                                getDrawingField(fieldName)
+                                drawingField
                         )
             );
 
@@ -292,8 +291,11 @@ class DrawingFieldServiceTest {
         );
 
         //then
-        verify(drawingFieldRepository).findById(anyLong());
-        verify(drawingFieldRepository).delete(any(DrawingField.class));
+        assertAll(
+                () -> assertThat(beforeStatus).isEqualTo(DrawingFieldStatus.USED),
+                () -> assertThat(drawingField.getStatus()).isEqualTo(DrawingFieldStatus.DISABLED)
+        );
+        verify(drawingFieldRepository).findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED));
     }
 
     @Test
@@ -303,7 +305,7 @@ class DrawingFieldServiceTest {
         final long wrongDrawingFieldId = 999L;
         final DrawingFieldErrorCode errorCode = DrawingFieldErrorCode.NOT_FOUND_DRAWING_FIELD;
 
-        when(drawingFieldRepository.findById(anyLong()))
+        when(drawingFieldRepository.findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED)))
                 .thenReturn(
                         Optional.empty()
                 );
@@ -320,7 +322,7 @@ class DrawingFieldServiceTest {
                 () -> assertThat(drawingFieldException.getErrorCode()).isEqualTo(errorCode),
                 () -> assertThat(drawingFieldException.getErrorCode().getDescription()).isEqualTo(errorCode.getDescription())
         );
-        verify(drawingFieldRepository).findById(anyLong());
+        verify(drawingFieldRepository).findByDrawingFieldIdAndStatusNot(anyLong(), eq(DrawingFieldStatus.DISABLED));
         verify(drawingFieldRepository, never()).delete(any(DrawingField.class));
     }
 

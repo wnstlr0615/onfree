@@ -229,7 +229,7 @@ class SignupControllerTest extends ControllerBaseTest {
         );
         //when
         //then
-        mvc.perform(get("/api/v1/signup/verify/personal_url/{personal_url}", personalUrl)
+        mvc.perform(get("/api/v1/signup/verify/personal-url/{personal-url}", personalUrl)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -247,7 +247,7 @@ class SignupControllerTest extends ControllerBaseTest {
         final SignUpErrorCode errorCode = SignUpErrorCode.PERSONAL_URL_IS_BLANK;
         //when
         //then
-        mvc.perform(get("/api/v1/signup/verify/personal_url/{personal_url}", personalUrl).param("personalUrl", personalUrl)
+        mvc.perform(get("/api/v1/signup/verify/personal-url/{personal-url}", personalUrl).param("personalUrl", personalUrl)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -270,7 +270,7 @@ class SignupControllerTest extends ControllerBaseTest {
 
         //when
         //then
-        mvc.perform(get("/api/v1/signup/verify/personal_url/{personal_url}", personalUrl)
+        mvc.perform(get("/api/v1/signup/verify/personal-url/{personal-url}", personalUrl)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))

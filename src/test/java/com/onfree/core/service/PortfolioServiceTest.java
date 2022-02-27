@@ -5,10 +5,10 @@ import com.onfree.common.error.exception.PortfolioException;
 import com.onfree.core.dto.portfolio.CreatePortfolioContentDto;
 import com.onfree.core.dto.portfolio.CreatePortfolioDto;
 import com.onfree.core.dto.portfolio.PortfolioDetailDto;
-import com.onfree.core.dto.portfolio.PortfolioSimpleDto;
 import com.onfree.core.dto.user.artist.MobileCarrier;
-import com.onfree.core.entity.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingField;
 import com.onfree.core.entity.PortfolioDrawingField;
+import com.onfree.core.entity.drawingfield.DrawingFieldStatus;
 import com.onfree.core.entity.portfolio.Portfolio;
 import com.onfree.core.entity.portfolio.PortfolioStatus;
 import com.onfree.core.entity.portfoliocontent.ImageContent;
@@ -25,10 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +54,7 @@ class PortfolioServiceTest {
         //given
         final boolean temporary = false;
 
-        when(drawingFieldRepository.findAllByDisabledIsFalseAndDrawingFieldIdIn(any()))
+        when(drawingFieldRepository.findAllByStatusNotDisabledAndTempDrawingFieldIdIn(any()))
                 .thenReturn(
                         getDrawingFields()
                 );
@@ -84,15 +80,15 @@ class PortfolioServiceTest {
             () -> assertThat(response.getDrawingFields()).isNotEmpty(),
             () -> assertThat(response.getTags()).isNotEmpty()
         );
-        verify(drawingFieldRepository).findAllByDisabledIsFalseAndDrawingFieldIdIn(any());
+        verify(drawingFieldRepository).findAllByStatusNotDisabledAndTempDrawingFieldIdIn(any());
         verify(portfolioRepository).save(any(Portfolio.class));
     }
 
     private List<DrawingField> getDrawingFields() {
         return List.of(
-                DrawingField.createDrawingField("캐릭터 디자인", "캐릭터 디자인", false),
-                DrawingField.createDrawingField("일러스트", "일러스트", false),
-                DrawingField.createDrawingField("메타버스", "메타버스", false)
+                DrawingField.createDrawingField("캐릭터 디자인", "캐릭터 디자인", DrawingFieldStatus.USED),
+                DrawingField.createDrawingField("일러스트", "일러스트", DrawingFieldStatus.USED),
+                DrawingField.createDrawingField("메타버스", "메타버스", DrawingFieldStatus.USED)
         );
     }
 
@@ -172,7 +168,7 @@ class PortfolioServiceTest {
 
     private PortfolioDrawingField createPortfolioDrawingField(String fieldName, String description, boolean top) {
         return PortfolioDrawingField.createPortfolioDrawingField(
-                DrawingField.createDrawingField(fieldName, description, top)
+                DrawingField.createDrawingField(fieldName, description, DrawingFieldStatus.USED)
         );
     }
 

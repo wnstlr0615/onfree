@@ -1,6 +1,7 @@
 package com.onfree.core.dto.drawingfield;
 
-import com.onfree.core.entity.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingFieldStatus;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.hateoas.RepresentationModel;
@@ -13,16 +14,15 @@ public class DrawingFieldDto extends RepresentationModel<DrawingFieldDto> {
     private Long drawingFieldId;
     private String fieldName;
     private String description;
-    private Boolean disabled;
-    private Boolean top;
+    private DrawingFieldStatus status;
+
 
     public static DrawingFieldDto fromEntity(DrawingField drawingField){
         return DrawingFieldDto.builder()
                 .drawingFieldId(drawingField.getDrawingFieldId())
                 .fieldName(drawingField.getFieldName())
                 .description(drawingField.getDescription())
-                .disabled(drawingField.getDisabled())
-                .top(drawingField.getTop())
+                .status(drawingField.getStatus())
                 .build();
     }
 }

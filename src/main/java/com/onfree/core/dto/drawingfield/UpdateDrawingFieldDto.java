@@ -1,6 +1,7 @@
 package com.onfree.core.dto.drawingfield;
 
-import com.onfree.core.entity.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingFieldStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,20 +24,15 @@ public class UpdateDrawingFieldDto {
     @NotBlank(message = "필드명은 필수입니다.")
     private String description;
 
-    @ApiModelProperty(value = "숨김 설정", example = "false", notes = "true 일 경우 보여지지 않음", allowableValues = "true,false")
+    @ApiModelProperty(value = "상태 설정", example = "false", notes = "true 일 경우 보여지지 않음", allowableValues = "TEMP, TOP, USED")
     @NotNull(message = "표시 설정은 필수입니다.")
-    private Boolean disabled;
-
-    @ApiModelProperty(value = "상단 고정 설정", example = "false", notes = "true 일 경우 다른 그림분야보다 상단에 노출", allowableValues = "true,false")
-    @NotNull(message = "상단 고정 설정은 필수입니다.")
-    private Boolean top;
+    private DrawingFieldStatus status;
 
     public DrawingField toEntity(){
         return DrawingField.builder()
                 .fieldName(fieldName)
                 .description(description)
-                .disabled(disabled)
-                .top(top)
+                .status(status)
                 .build();
     }
 }

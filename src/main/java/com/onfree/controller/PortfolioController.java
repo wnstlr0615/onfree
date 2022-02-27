@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.Link;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,8 +44,8 @@ public class PortfolioController {
         final CreatePortfolioDto.Response response
                 = portfolioService.addPortfolio(artistUser, dto);
         response.add(
-                linkTo(PortfolioController.class).withSelfRel()
-                .withProfile("/swagger-ui/#/포트폴리오%20API/portfolioAddUsingPOST")
+                linkTo(PortfolioController.class).withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) +"/#/portfolio-controller/portfolioAddUsingPOST").withRel("profile")
         );
         return ResponseEntity
                 .created(
@@ -66,8 +67,8 @@ public class PortfolioController {
     ){
         final PortfolioDetailDto portfolio = portfolioService.findPortfolio(portfolioId);
         portfolio.add(
-                linkTo(PortfolioController.class).slash(portfolio.getPortfolioId()).withSelfRel()
-                .withProfile("/swagger-ui/#/포트폴리오%20API/portfolioDetailsUsingGET")
+                linkTo(PortfolioController.class).slash(portfolio.getPortfolioId()).withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/portfolio-controller/portfolioDetailsUsingGET").withRel("profile")
         );
         return portfolio;
     }
@@ -83,8 +84,8 @@ public class PortfolioController {
     ){
         final PortfolioDetailDto tempPortfolio = portfolioService.findTempPortfolio(portfolioId, artistUser);
         tempPortfolio.add(
-                linkTo(PortfolioController.class).slash(tempPortfolio.getPortfolioId()).withSelfRel()
-                .withProfile("/swagger-ui/#/포트폴리오%20API/tempPortfolioDetailsUsingGET"),
+                linkTo(PortfolioController.class).slash(tempPortfolio.getPortfolioId()).withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/portfolio-controller/tempPortfolioDetailsUsingGET").withRel("profile"),
                 linkTo(PortfolioController.class).slash(portfolioId).withRel("update-portfolio")
         );
         return tempPortfolio;
@@ -103,8 +104,8 @@ public class PortfolioController {
         portfolioService.removePortfolio(portfolioId, artistUser);
         final SimpleResponse success = success("포트폴리오를 성공적으로 삭제하였습니다.");
         success.add(
-          linkTo(PortfolioController.class).slash(portfolioId).withSelfRel()
-                .withProfile("/swagger-ui/#/포트폴리오%20API/portfolioRemoveUsingDELETE")
+          linkTo(PortfolioController.class).slash(portfolioId).withSelfRel(),
+          Link.of(linkTo(SwaggerController.class) + "/#/portfolio-controller/portfolioRemoveUsingDELETE").withRel("profile")
         );
         return success;
     }
@@ -121,8 +122,8 @@ public class PortfolioController {
         portfolioService.representPortfolio(portfolioId, artistUser);
         final SimpleResponse success = success("해당 포트폴리오를 대표설정하였습니다.");
         success.add(
-                linkTo(PortfolioController.class).slash(portfolioId).slash("representative").withSelfRel()
-                .withProfile("/swagger-ui/#/포트폴리오%20API/portfolioRepresentUsingPUT")
+                linkTo(PortfolioController.class).slash(portfolioId).slash("representative").withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/portfolio-controller/portfolioRepresentUsingPUT").withRel("profile")
         );
         return success;
 
@@ -141,8 +142,8 @@ public class PortfolioController {
         portfolioService.updatePortfolio(portfolioId, artistUser, updatePortfolioDto);
         final SimpleResponse success = success("포트폴리오 수정을 완료 하였습니다.");
         success.add(
-                linkTo(PortfolioController.class).slash(portfolioId).withSelfRel()
-                        .withProfile("/swagger-ui/#/포트폴리오%20API/portfolioUpdateUsingPUT")
+                linkTo(PortfolioController.class).slash(portfolioId).withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/portfolio-controller/portfolioUpdateUsingPUT").withRel("profile")
         );
 
         return success;

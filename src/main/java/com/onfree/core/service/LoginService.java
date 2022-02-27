@@ -54,6 +54,13 @@ public class LoginService {
             throw new UserException(UserErrorCode.NOT_FOUND_USER_EMAIL);
         }
     }
+    private void savePasswordResetRedis(String email, String uuid) {
+        final String key = PASSWORD_RESET + uuid;
+        final Duration timeout = Duration.ofSeconds(300);
+        redisUtil.addData(key, email, timeout);
+        log.info("save PasswordReset  - uuid :  {}, email : {}", uuid, email);
+    }
+
 
     private void sendPasswordResetMail(String email, String uuid) {
         MailTemplate mailTemplate = getMailTemplate(PASSWORD_RESET_TEMPLATE);
@@ -68,12 +75,7 @@ public class LoginService {
         return mailTemplate.getContent().replace("<URL>", uri.toString());
     }
 
-    private void savePasswordResetRedis(String email, String uuid) {
-        final String key = PASSWORD_RESET + uuid;
-        final Duration timeout = Duration.ofSeconds(300);
-        redisUtil.addData(key, email, timeout);
-        log.info("save PasswordReset  - uuid :  {}, email : {}", uuid, email);
-    }
+
 
     private MailTemplate getMailTemplate(String templateName) {
         return mailTemplateRepository.findByMailTemplateName(templateName)
@@ -86,9 +88,9 @@ public class LoginService {
     /** 패스워드 메일 인증 후 패스워드 업데이트*/
     @Transactional
     public void updatePassword(UpdatePasswordDto updatePasswordDto) {
-        userPasswordReset(
-            getUserByEmail(
-                    getEmailByPasswordResetUUID(updatePasswordDto.getUuid())
+        userPasswordReset( // 패스워드 재설정
+            getUserByEmail( // 사용자 조회
+                    getEmailByPasswordResetUUID(updatePasswordDto.getUuid()) //  해당 uuid를 가지는 회원 id를 레디스에서 조회
             ),
                 updatePasswordDto.getNewPassword()
         );

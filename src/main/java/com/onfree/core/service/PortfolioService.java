@@ -1,25 +1,22 @@
 package com.onfree.core.service;
 
 import com.onfree.common.error.code.PortfolioErrorCode;
-import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.PortfolioException;
-import com.onfree.common.error.exception.UserException;
 import com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto;
 import com.onfree.core.dto.portfolio.CreatePortfolioDto;
 import com.onfree.core.dto.portfolio.PortfolioDetailDto;
-import com.onfree.core.dto.portfolio.PortfolioSimpleDto;
 import com.onfree.core.dto.portfolio.UpdatePortfolioDto;
-import com.onfree.core.entity.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingField;
 import com.onfree.core.entity.PortfolioDrawingField;
 import com.onfree.core.entity.portfolio.Portfolio;
 import com.onfree.core.entity.portfolio.PortfolioStatus;
 import com.onfree.core.entity.portfoliocontent.PortfolioContent;
 import com.onfree.core.entity.user.ArtistUser;
-import com.onfree.core.repository.*;
+import com.onfree.core.repository.DrawingFieldRepository;
+import com.onfree.core.repository.PortfolioContentRepository;
+import com.onfree.core.repository.PortfolioDrawingFieldRepository;
+import com.onfree.core.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,7 +75,7 @@ public class PortfolioService {
 
         //포트폴리오 상태 설정
         final PortfolioStatus portfolioStatus
-                = getPortfolioStatusOnIsTemporary(dto.isTemporary());
+                = getPortfolioStatusOnIsTemporary(dto.getTemporary());
 
         //포트 폴리오 생성
         return Portfolio.createPortfolio(
@@ -96,7 +93,7 @@ public class PortfolioService {
 
     private List<DrawingField> getDrawingFieldsById(List<Long> drawingFieldIds) {
         if(drawingFieldIds != null && !drawingFieldIds.isEmpty()) {
-            return drawingFieldRepository.findAllByDisabledIsFalseAndDrawingFieldIdIn(drawingFieldIds);
+            return drawingFieldRepository.findAllByStatusNotDisabledAndTempDrawingFieldIdIn(drawingFieldIds);
         }
         return Collections.emptyList();
     }
@@ -160,7 +157,7 @@ public class PortfolioService {
     }
 
     private List<DrawingField> getAllDrawingFieldList() {
-        return drawingFieldRepository.findAllByDisabledIsFalseOrderByTopDesc();
+        return drawingFieldRepository.findAllByStatusNotDisabledAndTempOrderByTopDesc();
     }
 
     private List<UsedDrawingFieldDto> getUsedDrawingFieldDtos(List<DrawingField> allDrawingFields, List<Long> drawingFieldIdsOfPortfolio) {

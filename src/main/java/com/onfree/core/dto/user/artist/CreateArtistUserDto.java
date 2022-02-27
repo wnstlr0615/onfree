@@ -41,7 +41,7 @@ public class CreateArtistUserDto {
         @Pattern(regexp = "^01(0|1|[6-9])-(\\d{3}|\\d{4})-\\d{4}$", message="핸드폰번호 패턴이 올바르지 않습니다.")
         private final String phoneNumber;
 
-        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = " ${BankName.joinString()}" )
+        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" )
         @NotNull(message = "은행명은 공백일 수 없습니다.")
         private final BankName bankName;
 
@@ -77,11 +77,11 @@ public class CreateArtistUserDto {
         @NotNull(message = "성별입력은 필수 입니다.")
         private final Gender gender;
 
-        @ApiModelProperty(value = "프로필 URL", example = "http://onfree.io/images/546456498")
+        @ApiModelProperty(value = "프로필 URL", example = "www.onfree.co.kr/api/v1/images/546456498")
         @NotBlank(message = "프로필 URL 은 필수입니다.")
         private final String profileImage;
 
-        @ApiModelProperty(value = "포트폴리오 개인룸 URL", example = "http://onfree.io/portfoliourl/546456498")
+        @ApiModelProperty(value = "포트폴리오 개인룸 URL", example = "www.onfree.co.kr/api/v1/portfolio-url/546456498")
         @NotBlank(message = "포트폴리오 개인룸 URL 은 필수입니다.")
         private final String portfolioUrl;
 

@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +25,13 @@ import java.util.Locale;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
+@RequestMapping("/api/v1/signup/verify")
 public class SignupController {
     private final SignUpService signUpService;
 
     /** 이메일 인증 */
     @ApiOperation(value = "이메일 인증 API", notes = "이메일 인증 API email 주소로 요청 시 이메일 발송 응답없음(비동기)")
-    @GetMapping("/api/v1/signup/verify/email/{email}")
+    @GetMapping("/email/{email}")
     public SimpleResponse asyncEmailVerify(
             @ApiParam(value = "이메일 주소", example = "joon@naver.com")
             @PathVariable("email") String email
@@ -52,7 +54,7 @@ public class SignupController {
     /** 이메일 인증 확인 */
     
     @ApiOperation(value = "이메일 인증 확인 API", notes = "발급 받은 uuid를 통해 요청 시 인증 확인 처리")
-    @GetMapping("/api/v1/signup/verify/uuid/{uuid}")
+    @GetMapping("/uuid/{uuid}")
     public SimpleResponse checkEmailVerify(
             @ApiParam(value = "이메일 확인 인증 uuid", example = "123123-54654-54123-21344")
             @PathVariable("uuid") String uuid)
@@ -72,7 +74,7 @@ public class SignupController {
     /** 닉네임 중복확인 */
     
     @ApiOperation(value = "닉네임 중복 확인 API", notes = "닉네임 중복확인 API")
-    @GetMapping("/api/v1/signup/verify/nickname/{nickname}")
+    @GetMapping("/nickname/{nickname}")
     public SimpleResponse checkUsedNickname(
             @ApiParam(value = "닉네임",  example = "joon")
             @PathVariable("nickname") String nickname
@@ -91,10 +93,10 @@ public class SignupController {
     /** 포트폴리오룸 개인 URL 중복 확인 */
     
     @ApiOperation(value = "포트폴리오룸 개인 URL 중복 확인 API", notes = "포트폴리오룸 개인 URL 중복 확인 API")
-    @GetMapping("/api/v1/signup/verify/personal_url/{personal_url}")
+    @GetMapping("/personal-url/{personal-url}")
     public SimpleResponse checkPersonalURL(
             @ApiParam(value = "포트폴리오룸 개인 URL ", example = "joon")
-            @PathVariable("personal_url") String personalUrl
+            @PathVariable("personal-url") String personalUrl
     ){
         validatedPersonalUrl(personalUrl);
         signUpService.checkUsedPersonalURL(personalUrl);
@@ -107,5 +109,8 @@ public class SignupController {
             throw new SignUpException(SignUpErrorCode.PERSONAL_URL_IS_BLANK);
         }
     }
+
+
+
 
 }

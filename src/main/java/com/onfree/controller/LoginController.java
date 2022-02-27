@@ -8,6 +8,7 @@ import com.onfree.core.dto.LoginFormDto;
 import com.onfree.core.dto.user.UpdatePasswordDto;
 import com.onfree.core.entity.user.User;
 import com.onfree.core.service.LoginService;
+import com.onfree.utils.CookieUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +28,10 @@ import static com.onfree.common.constant.SecurityConstant.REFRESH_TOKEN;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class LoginController {
     private final LoginService loginService;
-
+    private final CookieUtil cookieUtil;
     @ApiOperation(value = "로그인", notes = "로그인 요청")
     @PostMapping("/login")
     public JwtLoginResponse login(@RequestBody LoginFormDto loginFormDto){
@@ -49,12 +50,11 @@ public class LoginController {
     }
 
     private void deleteTokenCookie(HttpServletResponse response) {
-        Cookie accessCookie = new Cookie(ACCESS_TOKEN, "");
-        accessCookie.setMaxAge(0);
-        Cookie refreshCookie = new Cookie(REFRESH_TOKEN, "");
-        refreshCookie.setMaxAge(0);
+        Cookie accessCookie = cookieUtil.resetCookie(ACCESS_TOKEN);
+        Cookie refreshCookie = cookieUtil.resetCookie(REFRESH_TOKEN);
         response.addCookie(accessCookie);
         response.addCookie(refreshCookie);
+
 
     }
 

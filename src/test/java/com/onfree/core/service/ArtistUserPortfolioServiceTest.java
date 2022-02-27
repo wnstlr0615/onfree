@@ -2,8 +2,9 @@ package com.onfree.core.service;
 
 import com.onfree.core.dto.portfolio.PortfolioSimpleDto;
 import com.onfree.core.dto.user.artist.MobileCarrier;
-import com.onfree.core.entity.DrawingField;
+import com.onfree.core.entity.drawingfield.DrawingField;
 import com.onfree.core.entity.PortfolioDrawingField;
+import com.onfree.core.entity.drawingfield.DrawingFieldStatus;
 import com.onfree.core.entity.portfolio.Portfolio;
 import com.onfree.core.entity.portfolio.PortfolioStatus;
 import com.onfree.core.entity.portfoliocontent.ImageContent;
@@ -24,7 +25,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.lang.annotation.Retention;
 import java.util.List;
 import java.util.Optional;
 
@@ -141,14 +141,14 @@ class ArtistUserPortfolioServiceTest {
 
     private List<PortfolioDrawingField> getPortfolioDrawingFields() {
         return List.of(
-                createPortfolioDrawingField("캐릭터디자인", "캐릭터디자인", false),
-                createPortfolioDrawingField("일러스트", "일러스트", false)
+                createPortfolioDrawingField("캐릭터디자인", "캐릭터디자인",  DrawingFieldStatus.USED),
+                createPortfolioDrawingField("일러스트", "일러스트",  DrawingFieldStatus.USED)
         );
     }
 
-    private PortfolioDrawingField createPortfolioDrawingField(String fieldName, String description, boolean top) {
+    private PortfolioDrawingField createPortfolioDrawingField(String fieldName, String description,  DrawingFieldStatus status) {
         return PortfolioDrawingField.createPortfolioDrawingField(
-                DrawingField.createDrawingField(fieldName, description, top)
+                DrawingField.createDrawingField(fieldName, description, status)
         );
     }
 

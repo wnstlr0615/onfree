@@ -35,12 +35,11 @@ public class CreatePortfolioDto  {
     @ApiModel(value = "CreatePortfolioDto_Request")
     public static class Request  {
         @ApiModelProperty(value = "메인이미지 url", notes = "포트폴리오 메인에 등록할 메인이미지", example = "https://onfree-store.s3.ap-northeast-2.amazonaws.com/portfolio/main-image/test-main-image.png")
-        @NotNull(message = "메인이미지url은 공백일 수 없습니다.")
+        @NotNull(message = "mainImageUrl은 필 수 입력 항목 입니다.")
         private String mainImageUrl;
 
         @ApiModelProperty(value = "포트폴리오 제목", notes = "포트폴리오 제목", example = "포트폴리오 제목입니다.")
-        @Size(min = 5, message = "포트폴리오 제목은 5자 이상입니다.")
-        @NotBlank(message = "포트폴리오 제목은 필 수 입니다.")
+        @NotNull(message = "title은  필수 입력 항목입니다.")
         private String title;
 
         @ApiModelProperty(value = "포트폴리오 그림 분야", notes = "포트폴리오 그림 분야", dataType = "List")
@@ -56,7 +55,8 @@ public class CreatePortfolioDto  {
         private List<CreatePortfolioContentDto> contents;
 
         @ApiModelProperty(value = "임시 저장 유무", notes = "포트폴리오 임시 저장", example = "false")
-        private boolean temporary;
+        @NotNull(message = "temporary 은 필수 입력 항목입니다..")
+        private Boolean temporary;
         
         //== 생성 메소드 ==//
         public static CreatePortfolioDto.Request createPortfolioDtoRequest(

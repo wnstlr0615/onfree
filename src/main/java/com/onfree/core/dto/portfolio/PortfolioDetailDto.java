@@ -36,7 +36,6 @@ public class PortfolioDetailDto extends RepresentationModel<PortfolioDetailDto> 
     @ApiModelProperty(value = "포트폴리오 그림 분야", notes = "포트폴리오 그림 분야", dataType = "List")
     private List<UsedDrawingFieldDto> drawingFields;
 
-
     @ApiModelProperty(value = "포트폴리오 내용", notes = "포트폴리오 내용", dataType = "List")
     private List<PortfolioContentDetailDto> contents;
 

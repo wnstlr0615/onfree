@@ -1,6 +1,7 @@
 package com.onfree.core.entity;
 
 import com.onfree.common.model.BaseEntity;
+import com.onfree.core.entity.drawingfield.DrawingField;
 import com.onfree.core.entity.user.ArtistUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
