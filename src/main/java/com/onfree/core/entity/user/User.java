@@ -110,4 +110,8 @@ public class User extends BaseTimeEntity {
     public void updateNotification(UserNotification userNotification) {
         this.userNotification = userNotification;
     }
+
+    public void updateNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
 }

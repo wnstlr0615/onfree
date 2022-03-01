@@ -233,7 +233,7 @@ class JwtCheckFilterTest {
 
         //when & then
 //        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-//        jwtCheckFilter.doFilterInternal(request, response, mockFilterChain);
+        jwtCheckFilter.doFilterInternal(request, response, mockFilterChain);
 //        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 
 

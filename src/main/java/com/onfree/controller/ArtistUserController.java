@@ -4,33 +4,23 @@ import com.onfree.common.annotation.CurrentArtistUser;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.exception.GlobalException;
 import com.onfree.common.model.SimpleResponse;
-import com.onfree.core.dto.portfolio.PortfolioSimpleDto;
-import com.onfree.core.dto.user.DeletedUserResponse;
 import com.onfree.core.dto.user.artist.ArtistUserDetailDto;
 import com.onfree.core.dto.user.artist.CreateArtistUserDto;
 import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
+import com.onfree.core.dto.user.artist.UpdateNicknameDto;
 import com.onfree.core.dto.user.artist.status.StatusMarkDto;
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.service.ArtistUserService;
-import com.onfree.core.service.PortfolioService;
 import com.onfree.validator.StatusMarkValidator;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
@@ -125,7 +115,7 @@ public class ArtistUserController {
     @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "영업마크 설정")
     @PatchMapping("/me/status")
-    public SimpleResponse updateStatusMark(
+    public SimpleResponse statusMarkModify(
             @CurrentArtistUser ArtistUser artistUser,
             @Valid @RequestBody StatusMarkDto statusMarkDto,
             BindingResult errors
@@ -139,6 +129,25 @@ public class ArtistUserController {
                 linkTo(ArtistUserController.class).slash("me").slash("status").withSelfRel(),
                 Link.of(linkTo(SwaggerController.class) + "/#/artist-user-controller/updateStatusMarkUsingPATCH").withRel("profile")
         );
+        return response;
+    }
+
+    @PreAuthorize("hasRole('ARTIST')")
+    @PatchMapping("/me/nickname")
+    public SimpleResponse nicknameModify(
+            @RequestBody @Valid UpdateNicknameDto updateNicknameDto,
+            @CurrentArtistUser ArtistUser artistUser
+    ){
+        artistUserService.updateNickname(artistUser.getUserId(), updateNicknameDto.getNickname());
+
+        SimpleResponse response = SimpleResponse.success("닉네임이 성공적으로 변경되었습니다.");
+
+        //링크 추가
+        response.add(
+          linkTo(ArtistUserController.class).slash("me").slash("nickname").withSelfRel(),
+          Link.of(linkTo(SwaggerController.class) + "/#/artist-user-controller/updateNicknameUsingPatch").withRel("profile")
+        );
+
         return response;
     }
 

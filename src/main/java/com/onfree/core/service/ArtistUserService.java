@@ -8,6 +8,7 @@ import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.entity.user.BankInfo;
 import com.onfree.core.repository.ArtistUserRepository;
 import com.onfree.common.error.exception.UserException;
+import com.onfree.core.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import static com.onfree.common.error.code.UserErrorCode.*;
 public class ArtistUserService {
     private final PasswordEncoder passwordEncoder;
     private final ArtistUserRepository artistUserRepository;
+    private final UserRepository userRepository;
 
     /** 회원가입 요청 */
     @Transactional
@@ -79,7 +81,7 @@ public class ArtistUserService {
     }
 
     private ArtistUser getArtistUser(Long userId) {
-        return artistUserRepository.findById(userId)
+        return artistUserRepository.findByUserIdAndDeletedIsFalse(userId)
                 .orElseThrow(
                         () -> new UserException(NOT_FOUND_USERID)
                 );
@@ -112,6 +114,7 @@ public class ArtistUserService {
 
     @Transactional
     public void modifyArtistUser(Long userId, UpdateArtistUserDto.Request request) {
+        //TODO 닉네임 중복 등 검증 추가
         ArtistUser artistUser = getArtistUser(userId);
         artistUserInfoUpdate(artistUser, request);
 
@@ -131,4 +134,23 @@ public class ArtistUserService {
         artistUser.updateStatusMark(statusMarkDto.getStatusMark());
     }
 
+    /** 작가유저 닉네임 변경 */
+    @Transactional
+    public void updateNickname(Long userId, String newNickname) {
+        // 닉네임 중복 검사
+        validateDuplicatedNickname(newNickname);
+
+        //사용자 조회
+        ArtistUser artistUser = getArtistUser(userId);
+
+        //닉네임 업데이트
+        artistUser.updateNickname(newNickname);
+    }
+
+    private void validateDuplicatedNickname(String nickname) {
+        int countByNickname = userRepository.countByNickname(nickname);
+        if(countByNickname > 0){
+            throw new UserException(USER_NICKNAME_DUPLICATED);
+        }
+    }
 }

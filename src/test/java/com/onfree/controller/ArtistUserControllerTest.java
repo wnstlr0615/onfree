@@ -6,10 +6,7 @@ import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
 import com.onfree.config.webmvc.resolver.CurrentArtistUserArgumentResolver;
-import com.onfree.core.dto.user.artist.ArtistUserDetailDto;
-import com.onfree.core.dto.user.artist.CreateArtistUserDto;
-import com.onfree.core.dto.user.artist.MobileCarrier;
-import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
+import com.onfree.core.dto.user.artist.*;
 import com.onfree.core.dto.user.artist.status.StatusMarkDto;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.service.ArtistUserService;
@@ -489,4 +486,82 @@ class ArtistUserControllerTest extends ControllerBaseTest {
                 .build();
     }
 
+    @Test
+    @WithArtistUser
+    @DisplayName("[성공][PATCH] 작가 유저 닉네임 변경 테스트")
+    public void givenNewNickname_whenUpdateNickname_thenSuccess() throws Exception{
+        //given
+        String updateNickname = "새로운 닉네임";
+        UpdateNicknameDto updateNicknameDto = givenUpdateNickname(updateNickname);
+
+        when(currentArtistUserArgumentResolver.supportsParameter(any()))
+                .thenReturn(true);
+
+        when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(
+                        getArtistUser()
+                );
+        doNothing()
+                .when(artistUserService).updateNickname(anyLong(), anyString());
+
+        //when //then
+        mvc.perform(patch("/api/v1/users/artist/me/nickname")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                    mapper.writeValueAsString(
+                            updateNicknameDto
+                    )
+            )
+        )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.result").value(true))
+            .andExpect(jsonPath("$.message").value("닉네임이 성공적으로 변경되었습니다."))
+            .andExpect(jsonPath("$._links.self").isNotEmpty())
+            .andExpect(jsonPath("$._links.profile").isNotEmpty())
+        ;
+        verify(artistUserService).updateNickname(anyLong(), eq(updateNickname));
+    }
+
+    private UpdateNicknameDto givenUpdateNickname(String nickname) {
+        return UpdateNicknameDto.builder()
+                .nickname(nickname)
+                .build();
+    }
+
+    @Test
+    @WithArtistUser
+    @DisplayName("[실패][PATCH] 변경하려는 닉네임이 이미 있는 경우 - USER_NICKNAME_DUPLICATED_ERROR")
+    public void givenDuplicatedNickname_whenUpdateNickname_thenUserNicknameDuplicatedError() throws Exception{
+        //given
+         UserErrorCode errorCode = UserErrorCode.USER_NICKNAME_DUPLICATED;
+        String duplicateNickname = "중복 닉네임";
+        UpdateNicknameDto updateNicknameDto = givenUpdateNickname(duplicateNickname);
+        when(currentArtistUserArgumentResolver.supportsParameter(any()))
+                .thenReturn(true);
+
+        when(currentArtistUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(
+                        getArtistUser()
+                );
+        doThrow(new UserException(errorCode))
+                .when(artistUserService).updateNickname(anyLong(), anyString());
+
+        //when //then
+        mvc.perform(patch("/api/v1/users/artist/me/nickname")
+            .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                        mapper.writeValueAsString(
+                                updateNicknameDto
+                        )
+                )
+        )
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
+            .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
+        ;
+        verify(artistUserService).updateNickname(anyLong(), eq(duplicateNickname));
+
+    }
 }

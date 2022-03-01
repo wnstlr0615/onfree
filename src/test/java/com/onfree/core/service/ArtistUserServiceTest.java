@@ -1,5 +1,6 @@
 package com.onfree.core.service;
 
+import com.onfree.common.error.code.ErrorCode;
 import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.dto.user.artist.status.StatusMarkDto;
 import com.onfree.core.dto.user.artist.ArtistUserDetailDto;
@@ -9,6 +10,7 @@ import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.ArtistUserRepository;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
+import com.onfree.core.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -33,6 +36,8 @@ class ArtistUserServiceTest {
 
     @Mock
     ArtistUserRepository artistUserRepository;
+    @Mock
+    UserRepository userRepository;
     @Spy
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -129,7 +134,7 @@ class ArtistUserServiceTest {
     public void givenUserId_whenGetUserInfo_thenUserInfo() {
         //given
         final long userId = 1L;
-        when(artistUserRepository.findById(anyLong()))
+        when(artistUserRepository.findByUserIdAndDeletedIsFalse(anyLong()))
                 .thenReturn(
                         Optional.ofNullable(
                                 getArtistUserEntity(userId)
@@ -162,7 +167,7 @@ class ArtistUserServiceTest {
     public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse(){
         //given
         final long deletedUserId = 1L;
-        when(artistUserRepository.findById(deletedUserId))
+        when(artistUserRepository.findByUserIdAndDeletedIsFalse(deletedUserId))
                 .thenReturn(
                         Optional.of(getArtistUserEntity(
                                 givenCreateArtistUserReq(), deletedUserId
@@ -172,7 +177,7 @@ class ArtistUserServiceTest {
         artistUserService.removeArtistUser(deletedUserId);
 
         //then
-        verify(artistUserRepository, times(1)).findById(eq(deletedUserId));
+        verify(artistUserRepository, times(1)).findByUserIdAndDeletedIsFalse(eq(deletedUserId));
     }
 
     private ArtistUser getArtistUserEntity(CreateArtistUserDto.Request request, Long userId) {
@@ -186,7 +191,7 @@ class ArtistUserServiceTest {
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
 
-        when(artistUserRepository.findById(deletedUserId))
+        when(artistUserRepository.findByUserIdAndDeletedIsFalse(deletedUserId))
                 .thenReturn(
                         Optional.empty()
                 );
@@ -197,7 +202,7 @@ class ArtistUserServiceTest {
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", errorCode)
                 .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
-        verify(artistUserRepository, times(1)).findById(eq(deletedUserId));
+        verify(artistUserRepository, times(1)).findByUserIdAndDeletedIsFalse(eq(deletedUserId));
     }
 
     @Test
@@ -208,7 +213,7 @@ class ArtistUserServiceTest {
         final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
         final boolean deleted = true;
 
-        when(artistUserRepository.findById(deletedUserId))
+        when(artistUserRepository.findByUserIdAndDeletedIsFalse(deletedUserId))
                 .thenReturn(
                         Optional.of(
                                 getArtistUserEntity(
@@ -223,7 +228,7 @@ class ArtistUserServiceTest {
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", errorCode)
                 .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
-        verify(artistUserRepository, times(1)).findById(eq(deletedUserId));
+        verify(artistUserRepository, times(1)).findByUserIdAndDeletedIsFalse(eq(deletedUserId));
     }
     private ArtistUser getArtistUserEntity(CreateArtistUserDto.Request request, Long userId, boolean deleted){
         final BankInfo bankInfo = getBankInfo(request.getBankName(), request.getAccountNumber());
@@ -259,7 +264,7 @@ class ArtistUserServiceTest {
         final long userId = 1L;
         final UpdateArtistUserDto.Request request = givenUpdateArtistUserReq();
         final ArtistUser artistUserEntity = getArtistUserEntity(userId);
-        when(artistUserRepository.findById(any()))
+        when(artistUserRepository.findByUserIdAndDeletedIsFalse(any()))
                 .thenReturn(
                         Optional.of(artistUserEntity)
                 );
@@ -276,7 +281,7 @@ class ArtistUserServiceTest {
             .hasFieldOrPropertyWithValue("profileImage",request.getProfileImage())
             .hasFieldOrPropertyWithValue("portfolioRoom.portfolioRoomURL",request.getPortfolioUrl())
         ;
-        verify(artistUserRepository, times(1)).findById(eq(userId));
+        verify(artistUserRepository, times(1)).findByUserIdAndDeletedIsFalse(eq(userId));
     }
     public ArtistUser getArtistUserEntity(long userId){
         return ArtistUser.builder()
@@ -337,7 +342,7 @@ class ArtistUserServiceTest {
         final long givenUserId = 1L;
         final StatusMarkDto givenStatusMarkDto = givenStatusMarkDto(StatusMark.REST);
         final ArtistUser artistUser = getArtistUserEntity(givenUserId);
-        when(artistUserRepository.findById(anyLong()))
+        when(artistUserRepository.findByUserIdAndDeletedIsFalse(anyLong()))
                 .thenReturn(
                         Optional.of(
                                 artistUser
@@ -347,7 +352,7 @@ class ArtistUserServiceTest {
         assertThat(artistUser.getStatusMark()).isEqualTo(StatusMark.OPEN);
         artistUserService.updateStatusMark(givenUserId, givenStatusMarkDto);
         assertThat(artistUser.getStatusMark()).isEqualTo(StatusMark.REST);
-        verify(artistUserRepository).findById(eq(givenUserId));
+        verify(artistUserRepository).findByUserIdAndDeletedIsFalse(eq(givenUserId));
     }
 
     private StatusMarkDto givenStatusMarkDto(StatusMark statusMark) {
@@ -362,7 +367,7 @@ class ArtistUserServiceTest {
         //given
         final long wrongUserId = 1L;
         final StatusMarkDto givenStatusMarkDto = givenStatusMarkDto(StatusMark.REST);
-        when(artistUserRepository.findById(any()))
+        when(artistUserRepository.findByUserIdAndDeletedIsFalse(any()))
                 .thenReturn(
                         Optional.empty()
                 );
@@ -373,6 +378,68 @@ class ArtistUserServiceTest {
                 .hasFieldOrPropertyWithValue("errorCode", UserErrorCode.NOT_FOUND_USERID)
                 .hasFieldOrPropertyWithValue("errorMessage", UserErrorCode.NOT_FOUND_USERID.getDescription())
         ;
-        verify(artistUserRepository, times(1)).findById(eq(wrongUserId));
+        verify(artistUserRepository, times(1)).findByUserIdAndDeletedIsFalse(eq(wrongUserId));
+    }
+    
+    @Test
+    @DisplayName("[성공] 작가유저 닉네임 변경")
+    public void givenNewNickname_whenUpdateNickname_thenNothing(){
+        //given
+        String newNickname = "새로운 닉네임";
+        long userId = 1L;
+
+        ArtistUser artistUserEntity = getArtistUserEntity(userId);
+        String beforeNickname = artistUserEntity.getNickname();
+
+        when(userRepository.countByNickname(anyString()))
+                .thenReturn(0);
+
+        when(artistUserRepository.findByUserIdAndDeletedIsFalse(anyLong()))
+                .thenReturn(
+                        Optional.of(
+                                artistUserEntity
+                        )
+                );
+
+        //when
+        artistUserService.updateNickname(userId, newNickname);
+
+        //then
+        assertAll(
+            () -> assertThat(beforeNickname).isNotEqualTo(artistUserEntity.getNickname()),
+            () -> assertThat(artistUserEntity.getNickname()).isEqualTo(newNickname)
+        );
+        verify(userRepository).countByNickname(eq(newNickname));
+        verify(artistUserRepository).findByUserIdAndDeletedIsFalse(eq(userId));
+
+    }
+
+    @Test
+    @DisplayName("[실패] 닉네임 중복으로 인한 닉네임 변경 실패")
+    public void givenDuplicatedNewNickname_whenUpdateNickname_thenNothing(){
+        //given
+        String duplicatedNickname = "중복 닉네임";
+        long userId = 1L;
+
+        ArtistUser artistUserEntity = getArtistUserEntity(userId);
+
+        ErrorCode errorCode = UserErrorCode.USER_NICKNAME_DUPLICATED;
+        when(userRepository.countByNickname(anyString()))
+                .thenReturn(1);
+
+        //when
+        UserException userException = assertThrows(
+                UserException.class,
+                () -> artistUserService.updateNickname(userId, duplicatedNickname)
+        );
+
+        //then
+        assertThat(userException)
+                .hasFieldOrPropertyWithValue("errorCode", errorCode)
+                .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
+
+        verify(userRepository).countByNickname(eq(duplicatedNickname));
+        verify(artistUserRepository, never()).findByUserIdAndDeletedIsFalse(eq(userId));
+
     }
 }
