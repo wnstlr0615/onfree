@@ -52,7 +52,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[성공] 공지사항 목록 조회 - NoticeSimpleDtoList로 반환")
-    public void givenPageable_whenGetNoticeSimpleDtoList_thenNoticeSimpleDotList() throws Exception{
+    public void givenPageable_whenGetNoticeSimpleDtoList_thenNoticeSimpleDotList(){
         //given
         final PageRequest pageRequest = PageRequest.of(0, 10);
         final List<Notice> noticeList = getNoticeList();
@@ -104,7 +104,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[실패] 공지사항 목록 조회 - 공지가 없으므로 NOTICE_IS_EMPTY 에러 발생")
-    public void givenPageable_whenGetNoticeSimpleDtoEmptyList_thenNoticeIsEmptyError() throws Exception{
+    public void givenPageable_whenGetNoticeSimpleDtoEmptyList_thenNoticeIsEmptyError(){
         //given
         final PageRequest pageRequest = PageRequest.of(0, 10);
         final CustomerCenterErrorCode errorCode = CustomerCenterErrorCode.NOTICES_IS_EMPTY;
@@ -126,7 +126,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[성공] 공지사항 상세 조회")
-    public void givenNoticeId_whenGetNoticeDetailDto_thenNoticeDetailDto() throws Exception{
+    public void givenNoticeId_whenGetNoticeDetailDto_thenNoticeDetailDto(){
         //given
         final long noticeId = 1L;
         final Notice notice = createNotice((int) noticeId);
@@ -155,7 +155,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[실패] 공지사항 상세 조회 - 해당 공지 ID가 존재하지 않아 NOT_FOUND_NOTICE 에러 발생")
-    public void givenNoticeId_whenGetNoticeDetailDto_thenNotFoundNoticeError() throws Exception{
+    public void givenNoticeId_whenGetNoticeDetailDto_thenNotFoundNoticeError(){
         //given
         final long noticeId = 1L;
         final CustomerCenterErrorCode errorCode = CustomerCenterErrorCode.NOT_FOUND_NOTICE;
@@ -177,7 +177,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[성공] 자주하는 질문 목록 조회 - QuestionSimpleDtoList 반환")
-    public void givenPageable_whenGetQuestionSimpleDtoList_thenQuestionSimpleDotList() throws Exception{
+    public void givenPageable_whenGetQuestionSimpleDtoList_thenQuestionSimpleDotList(){
         //given
         final PageRequest pageRequest = PageRequest.of(0, 10);
         final List<Question> questionList = getQuestionList();
@@ -233,7 +233,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[실패] 자주하는 질문 목록 조회 -  자주하는 질문 목록이 없어서 QUESTION_IS_EMPTY 에러 발생")
-    public void givenPageable_whenGetQuestionSimpleDtoEmptyList_thenQuestionIsEmptyError() throws Exception{
+    public void givenPageable_whenGetQuestionSimpleDtoEmptyList_thenQuestionIsEmptyError(){
         //given
         final PageRequest pageRequest = PageRequest.of(0, 10);
         final CustomerCenterErrorCode errorCode = CustomerCenterErrorCode.QUESTION_IS_EMPTY;
@@ -255,7 +255,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[성공] 자주하는 질문 상세 조회")
-    public void givenQuestionId_whenGetQuestionDetailDto_thenQuestionDetailDto() throws Exception{
+    public void givenQuestionId_whenGetQuestionDetailDto_thenQuestionDetailDto(){
         //given
         final long questionId = 1L;
         final Question question = createQuestion((int) questionId);
@@ -286,7 +286,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[실패] 자주하는 질문 상세 조회 - 해당 자주하는 질문 ID가 존재하지 않아 NOT_FOUND_QUESTION 에러 발생")
-    public void givenQuestionId_whenGetQuestionDetailDto_thenNotFoundQuestionError() throws Exception {
+    public void givenQuestionId_whenGetQuestionDetailDto_thenNotFoundQuestionError() {
         //given
         final long questionId = 1L;
         final CustomerCenterErrorCode errorCode = CustomerCenterErrorCode.NOT_FOUND_QUESTION;
@@ -308,7 +308,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[성공] 공지 추가 하기")
-    public void givenCreateNoticeDtoRequest_whenCreateNotice_thenCreateNoticeDtoResponse() throws Exception{
+    public void givenCreateNoticeDtoRequest_whenCreateNotice_thenCreateNoticeDtoResponse(){
         //given
             when(noticeRepository.save(
                     any(Notice.class))
@@ -352,7 +352,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[성공] 공지 수정 하기")
-    public void givenUpdateNoticeDtoRequest_whenUpdateNotice_thenUpdateNoticeDtoResponse() throws Exception{
+    public void givenUpdateNoticeDtoRequest_whenUpdateNotice_thenUpdateNoticeDtoResponse(){
         //given
         long noticeId = 1L;
 
@@ -388,7 +388,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[실패] 공지 수정 하기 -  해당 공지 ID가 존재하지 않아 NOT_FOUND_NOTICE 에러 발생")
-    public void givenUpdateNoticeDtoRequest_whenUpdateNoticeButNotFoundNotice_thenNotFoundNoticeError() throws Exception{
+    public void givenUpdateNoticeDtoRequest_whenUpdateNoticeButNotFoundNotice_thenNotFoundNoticeError(){
         //given
         long noticeId = 1L;
         CustomerCenterErrorCode errorCode = CustomerCenterErrorCode.NOT_FOUND_NOTICE;
@@ -413,7 +413,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[성공] 질문 추가 하기")
-    public void givenCreateQuestionDtoRequest_whenCreateQuestion_thenCreateQuestionDtoResponse() throws Exception{
+    public void givenCreateQuestionDtoRequest_whenCreateQuestion_thenCreateQuestionDtoResponse(){
         //given
         when(questionRepository.save(
                 any(Question.class))
@@ -457,7 +457,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[성공] 질문 수정 하기")
-    public void givenUpdateQuestionDtoRequest_whenUpdateQuestion_thenUpdateQuestionDtoResponse() throws Exception{
+    public void givenUpdateQuestionDtoRequest_whenUpdateQuestion_thenUpdateQuestionDtoResponse(){
         //given
         long questionId = 1L;
 
@@ -493,7 +493,7 @@ class CustomerCenterServiceTest {
 
     @Test
     @DisplayName("[실패] 질문 수정 하기 -  해당 질문 ID가 존재하지 않아 NOT_FOUND_QUESTION 에러 발생")
-    public void givenUpdateQuestionDtoReqQuestionUpdateQuestionButNotFoundQuestion_thenNotFoundQuestionError() throws Exception{
+    public void givenUpdateQuestionDtoReqQuestionUpdateQuestionButNotFoundQuestion_thenNotFoundQuestionError(){
         //given
         long questionId = 1L;
         CustomerCenterErrorCode errorCode = CustomerCenterErrorCode.NOT_FOUND_QUESTION;

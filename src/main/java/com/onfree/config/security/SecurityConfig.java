@@ -3,6 +3,7 @@ package com.onfree.config.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.config.security.filter.JwtCheckFilter;
 import com.onfree.config.security.filter.JwtLoginFilter;
+import com.onfree.config.security.handler.CustomAccessDeniedHandler;
 import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
 import com.onfree.config.security.handler.JwtLoginAuthenticationFailHandler;
 import com.onfree.core.service.LoginService;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,8 +28,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Configuration
 @EnableWebSecurity
@@ -69,19 +74,31 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         String[] whiteList=new String[]{
-                "/login", "/error", "/logout", "/api/signup/**", "/api/password/reset/**"
+                "/api/v1/login", "/error", "/api/v1/logout", "/api/v1/signup/**", "/api/v1/password/**",
         };
-        String[] GETWhiteList = new String[]{
-                "/api/notices", "/api/notices/**",
-                "/api/questions", "/api/questions/**"
+        String[] getWhiteList = new String[]{
+                "/api/v1/notices/**",  "/api/v1/questions/**",
+                "/api/v1/portfolios/**", "/api/v1/users/artist/**",
+                "/api/v1/images/**"
+
+        };
+        String[] postWhiteList = new String[]{
+                "/api/v1/upload/profile-image",
+                "/api/v1/users/artist",
+                "/api/v1/users/normal"
+        };
+        String[] onlyArtistUrl = new String[]{
+                "/api/v1/users/artist/**",
+                "/api/v1/upload/profile-image",
+                "/api/v1/upload/portfolio-content-image"
         };
         http.authorizeRequests()
-                .antMatchers(HttpMethod.POST,"/api/users/artist", "/api/users/normal").permitAll()
                 .antMatchers(whiteList).permitAll()
-                .antMatchers(HttpMethod.GET,GETWhiteList).permitAll()
-                .antMatchers(HttpMethod.POST, "/api/notices/**", "/api/questions/**").hasRole("ADMIN")
-                .antMatchers("/api/users/artist/**").hasRole("ARTIST")
-                .antMatchers("/api/users/normal/**").hasRole("NORMAL")
+                .antMatchers(HttpMethod.GET, getWhiteList).permitAll()
+                .antMatchers(HttpMethod.POST, postWhiteList).permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/notices/**", "/api/v1/questions/**").hasRole("ADMIN")
+                .antMatchers(onlyArtistUrl).hasRole("ARTIST")
+                .antMatchers("/api/v1/users/normal/**").hasRole("NORMAL")
                 .anyRequest().authenticated();
         http.httpBasic().disable()
             .csrf().disable()
@@ -90,11 +107,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint())
+                .accessDeniedHandler(accessDeniedException())
         ;
+        http.cors();
 
         http
                 .addFilterAt(
-                        new JwtCheckFilter(customUserDetailService, authenticationEntryPoint(), jwtUtil, loginService, cookieUtil)
+                        new JwtCheckFilter(customUserDetailService, authenticationEntryPoint(), jwtUtil, loginService, cookieUtil, mapper)
                         , BasicAuthenticationFilter.class)
                 .addFilterAt(
                         new JwtLoginFilter(authenticationManagerBean(), authenticationFailHandler(), mapper, loginService, jwtUtil, cookieUtil)
@@ -102,10 +121,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         ;
     }
 
+    private AccessDeniedHandler accessDeniedException() {
+        return new CustomAccessDeniedHandler();
+    }
+
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
 
     @Bean
     PasswordEncoder passwordEncoder(){

@@ -1,5 +1,6 @@
 package com.onfree.utils;
 
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.user.*;
 import com.onfree.common.model.VerifyResult;
 import com.onfree.common.properties.JWTProperties;
@@ -28,7 +29,7 @@ class JWTUtilTest {
     }
     @Test
     @DisplayName("[성공] access 토큰 생성 후 검증 통과")
-    public void givenSuccessToken_whenVerify_thenSuccessVerify() throws Exception{
+    public void givenSuccessToken_whenVerify_thenSuccessVerify(){
         //given
         final NormalUser user = givenNormalUser("jun@naver.com");
         final String token = jwtUtil.createAccessToken(user);
@@ -60,7 +61,7 @@ class JWTUtilTest {
                 .password("!Abcderghijk112")
                 .gender(Gender.MAN)
                 .name("준식")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)
@@ -79,7 +80,7 @@ class JWTUtilTest {
 
     @Test
     @DisplayName("[실패] 토큰 생성 후 시간이 만료된 경우 ")
-    public void givenExpireToken_whenVerify_thenFailVerify() throws Exception{
+    public void givenExpireToken_whenVerify_thenFailVerify(){
         //given
       /*  staticMock 다른 메소드에 영향을 줘서 임시로 다음과 같이 수정
       final LocalDateTime mock = Mockito.mock(LocalDateTime.class);
@@ -99,24 +100,10 @@ class JWTUtilTest {
         assertThat(verify.isResult()).isFalse();
     }
 
-    @Test
-    @DisplayName("[실패] 토큰 생성 시 null 이 입력된 경우 ")
-    @Disabled("@NonNull로 null 방지 처리")
-    public void givenNull_whenCreateToken_thenFailVerify() throws Exception{
-        //given
-        final String token = jwtUtil.createAccessToken(null);
-
-        //when
-        final VerifyResult verify = jwtUtil.verify(token);
-
-        //then
-        assertThat(verify).isNull();
-
-    }
 
     @Test
     @DisplayName("[성공] refresh 토큰 생성 후 검증 통과")
-    public void givenSuccessRefreshToken_whenVerify_thenSuccessVerify() throws Exception{
+    public void givenSuccessRefreshToken_whenVerify_thenSuccessVerify(){
         //given
         final NormalUser user = givenNormalUser("jun@naver.com");
         final String token = jwtUtil.createRefreshToken(user);
@@ -131,7 +118,7 @@ class JWTUtilTest {
 
     @Test
     @DisplayName("[실패] refresh 토큰 생성 후 시간이 만료된 경우 ")
-    public void givenExpireRefreshToken_whenVerify_thenLoginException() throws Exception{
+    public void givenExpireRefreshToken_whenVerify_thenLoginException(){
         //given
         final NormalUser user = givenNormalUser("jun123@naver.com");
         final String token = jwtUtil.createRefreshToken(user, -1L);

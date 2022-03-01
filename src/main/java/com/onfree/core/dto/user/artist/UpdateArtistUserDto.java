@@ -2,7 +2,6 @@ package com.onfree.core.dto.user.artist;
 
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.entity.user.BankName;
-import com.onfree.core.entity.user.NormalUser;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
@@ -12,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-public class UpdateArtistUser {
+public class UpdateArtistUserDto {
     @Builder
     @Getter
     @ApiModel(value = "UpdateArtistUser_Request")
@@ -22,8 +21,8 @@ public class UpdateArtistUser {
         private final String nickname;
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
-        @NotBlank(message = "통신사는 공백일 수 없습니다.")
-        private final String newsAgency; //통신사
+        @NotNull(message = "통신사는 공백일 수 없습니다.")
+        private final MobileCarrier mobileCarrier; //통신사
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
@@ -61,7 +60,7 @@ public class UpdateArtistUser {
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
         @NotBlank(message = "통신사는 공백일 수 없습니다.")
-        private final String newsAgency; //통신사
+        private final MobileCarrier mobileCarrier; //통신사
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
@@ -88,16 +87,16 @@ public class UpdateArtistUser {
         @NotBlank(message = "포트폴리오 개인룸 URL 은 필수입니다.")
         private final String portfolioUrl;
 
-        public static UpdateArtistUser.Response fromEntity(ArtistUser entity){
-            return UpdateArtistUser.Response.builder()
+        public static UpdateArtistUserDto.Response fromEntity(ArtistUser entity){
+            return Response.builder()
                     .nickname(entity.getNickname())
                     .bankName(entity.getBankInfo().getBankName())
                     .accountNumber(entity.getBankInfo().getAccountNumber())
-                    .newsAgency(entity.getNewsAgency())
+                    .mobileCarrier(entity.getMobileCarrier())
                     .phoneNumber(entity.getPhoneNumber())
                     .profileImage(entity.getProfileImage())
                     .adultCertification(entity.getAdultCertification())
-                    .portfolioUrl(entity.getPortfolioUrl())
+                    .portfolioUrl(entity.getPortfolioRoom().getPortfolioRoomURL())
                     .build();
         }
     }

@@ -2,7 +2,7 @@ package com.onfree.core.service;
 
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
-import com.onfree.core.dto.UpdateUserNotificationDto;
+import com.onfree.core.dto.user.UpdateUserNotificationDto;
 import com.onfree.core.entity.user.User;
 import com.onfree.core.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -25,4 +25,14 @@ public class UserAgree {
 
     @Column(nullable = false)
     private Boolean advertisement; // 광고 동의
+
+    //== 생성 메소드 ==//
+    public static UserAgree createUserAgree(Boolean service, Boolean policy, Boolean personalInfo, Boolean advertisement){
+        return UserAgree.builder()
+                .service(service)
+                .policy(policy)
+                .personalInfo(personalInfo)
+                .advertisement(advertisement)
+                .build();
+    }
 }

@@ -4,6 +4,7 @@ import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.exception.GlobalException;
 import com.onfree.common.model.UploadFile;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,7 +15,8 @@ import java.util.UUID;
 @Component
 @Slf4j
 public class FileStore {
-    private final String LOCAL_PROFILE_IMAGE_PATH = "C:/Users/wnstl/onfreeImage/";
+    @Value("${file.dir}")
+    private String LOCAL_PROFILE_IMAGE_PATH;
 
     public String getDirPath() {
         return LOCAL_PROFILE_IMAGE_PATH;
@@ -53,10 +55,10 @@ public class FileStore {
     public void removeFile(File targetFile) {
         final String targetFileName = targetFile.getName();
         if(targetFile.delete()){
-            log.info("{} deleted success", targetFile);
+            log.info("{} deleted success", targetFileName);
             return;
         }
-        log.error("{} deleted fail", targetFile);
+        log.error("{} deleted fail", targetFileName);
     }
 
     public File getFile(UploadFile uploadFile) {

@@ -1,6 +1,6 @@
 package com.onfree.controller;
 
-import com.onfree.common.WebMvcBaseTest;
+import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.code.LoginErrorCode;
 import com.onfree.common.error.code.UserErrorCode;
@@ -8,6 +8,7 @@ import com.onfree.common.error.exception.LoginException;
 import com.onfree.common.error.exception.UserException;
 import com.onfree.core.dto.user.UpdatePasswordDto;
 import com.onfree.core.service.LoginService;
+import com.onfree.utils.CookieUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,26 +26,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = LoginController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
-class LoginControllerTest extends WebMvcBaseTest {
+class LoginControllerTest extends ControllerBaseTest {
 
     @MockBean
     LoginService loginService;
+    @MockBean
+    CookieUtil cookieUtil;
 
     @Test
     @DisplayName("[성공][GET] 비밀번호 인증용 메일 전송 ")
     public void givenEmail_whenPasswordResetSendMail_thenSuccess() throws Exception{
         //given
         final String email = "wnstlr0615@naver.com";
-        Mockito.doNothing().when(loginService).passwordReset(eq(email));
+        Mockito.doNothing()
+                .when(loginService).passwordReset(eq(email));
         //when //then
-        mvc.perform(get("/api/password/reset")
+        mvc.perform(get("/api/v1/password/reset")
                 .queryParam("email", email)
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andDo(print())
             .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(true))
-                .andExpect(jsonPath("$.message").value("패스워드 초기화 인증 메일을 전송하였습니다."))
+            .andExpect(jsonPath("$.result").value(true))
+            .andExpect(jsonPath("$.message").value("패스워드 초기화 인증 메일을 전송하였습니다."))
         ;
         verify(loginService).passwordReset(eq(email));
     }
@@ -56,7 +60,7 @@ class LoginControllerTest extends WebMvcBaseTest {
         final String email = "";
         final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
-        mvc.perform(get("/api/password/reset")
+        mvc.perform(get("/api/v1/password/reset")
                 .queryParam("email", email)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -75,7 +79,7 @@ class LoginControllerTest extends WebMvcBaseTest {
         final String email = "wnstlr0615@naver.c";
         final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
-        mvc.perform(get("/api/password/reset")
+        mvc.perform(get("/api/v1/password/reset")
                 .queryParam("email", email)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -95,7 +99,7 @@ class LoginControllerTest extends WebMvcBaseTest {
         doThrow(new UserException(errorCode))
                 .when(loginService).passwordReset(eq(email));
         //when //then
-        mvc.perform(get("/api/password/reset")
+        mvc.perform(get("/api/v1/password/reset")
                 .queryParam("email", email)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -116,7 +120,7 @@ class LoginControllerTest extends WebMvcBaseTest {
         doNothing().when(loginService).updatePassword(any(UpdatePasswordDto.class));
 
         //when//then
-        mvc.perform(post("/api/password/reset")
+        mvc.perform(post("/api/v1/password/reset")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -147,7 +151,7 @@ class LoginControllerTest extends WebMvcBaseTest {
                 .updatePassword(any(UpdatePasswordDto.class));
 
         //when//then
-        mvc.perform(post("/api/password/reset")
+        mvc.perform(post("/api/v1/password/reset")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -173,7 +177,7 @@ class LoginControllerTest extends WebMvcBaseTest {
                 .updatePassword(any(UpdatePasswordDto.class));
 
         //when//then
-        mvc.perform(post("/api/password/reset")
+        mvc.perform(post("/api/v1/password/reset")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(

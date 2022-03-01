@@ -1,18 +1,25 @@
 package com.onfree.core.dto.user.artist;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.onfree.core.entity.user.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.*;
 
-public class CreateArtistUser {
+public class CreateArtistUserDto {
     @Getter
     @Builder
-    @ApiModel(value = "CreateUserDto_Request")
+    @ApiModel(value = "CreateArtistUserDto_Request")
     public static class Request {
+        @ApiModelProperty(value = "이메일주소(사용자 아이디)", example = "jun@naver.com")
+        @Email(message = "이메일 형식이 올바르지 않습니다.")
+        @NotBlank(message = "이메일은 공백일 수 없습니다.")
+        private final String email;
+
         @ApiModelProperty(value = "사용자 이름", example = "김모씨")
         @NotBlank(message = "이름은 공백일수 없습니다.")
         private final String name;
@@ -21,25 +28,20 @@ public class CreateArtistUser {
         @NotBlank(message = "닉네임은 공백일수 없습니다.")
         private final String nickname;
 
-        @ApiModelProperty(value = "이메일주소(사용자 아이디)", example = "jun@naver.com")
-        @Email(message = "이메일 형식이 올바르지 않습니다.")
-        @NotBlank(message = "이메일은 공백일 수 없습니다.")
-        private final String email;
-
         @ApiModelProperty(value = "사용자 비밀번호", example = "!abcdefghijk123")
         @NotBlank(message = "비밀번호는 공백일 수 없습니다.")
         private final String password;
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
-        @NotBlank(message = "통신사는 공백일 수 없습니다.")
-        private final String newsAgency; //통신사
+        @NotNull(message = "통신사는 공백일 수 없습니다.")
+        private final MobileCarrier mobileCarrier; //통신사
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
         @Pattern(regexp = "^01(0|1|[6-9])-(\\d{3}|\\d{4})-\\d{4}$", message="핸드폰번호 패턴이 올바르지 않습니다.")
         private final String phoneNumber;
 
-        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = " ${BankName.joinString()}" )
+        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" )
         @NotNull(message = "은행명은 공백일 수 없습니다.")
         private final BankName bankName;
 
@@ -75,11 +77,11 @@ public class CreateArtistUser {
         @NotNull(message = "성별입력은 필수 입니다.")
         private final Gender gender;
 
-        @ApiModelProperty(value = "프로필 URL", example = "http://onfree.io/images/546456498")
+        @ApiModelProperty(value = "프로필 URL", example = "www.onfree.co.kr/api/v1/images/546456498")
         @NotBlank(message = "프로필 URL 은 필수입니다.")
         private final String profileImage;
 
-        @ApiModelProperty(value = "포트폴리오 개인룸 URL", example = "http://onfree.io/portfoliourl/546456498")
+        @ApiModelProperty(value = "포트폴리오 개인룸 URL", example = "www.onfree.co.kr/api/v1/portfolio-url/546456498")
         @NotBlank(message = "포트폴리오 개인룸 URL 은 필수입니다.")
         private final String portfolioUrl;
 
@@ -101,7 +103,7 @@ public class CreateArtistUser {
                     .password(password)
                     .gender(gender)
                     .name(name)
-                    .newsAgency(newsAgency)
+                    .mobileCarrier(mobileCarrier)
                     .phoneNumber(phoneNumber)
                     .bankInfo(bankInfo)
                     .userAgree(userAgree)
@@ -116,8 +118,8 @@ public class CreateArtistUser {
 
     @Getter
     @Builder
-    @ApiModel(value = "CreateUserDto_Response")
-    public static class Response{
+    @ApiModel(value = "CreateArtistUserDto_Response")
+    public static class Response extends RepresentationModel<Response> {
         @ApiModelProperty(value = "사용자 이름", example = "김모씨")
         private final String name;
 
@@ -129,14 +131,14 @@ public class CreateArtistUser {
         private final String email;
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
-        private final String newsAgency; //통신사
+        private final MobileCarrier mobileCarrier; //통신사
 
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         private final String phoneNumber;
 
         @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = "${BankName.joinString()}" )
-        private final String bankName;
+        private final BankName bankName;
 
         @ApiModelProperty(value = "계좌번호", example = "123456-456789-12")
         private final String accountNumber;
@@ -157,7 +159,7 @@ public class CreateArtistUser {
         private final Boolean adultCertification;
 
         @ApiModelProperty(value = "성별", example = "${Gender.joinString()}")
-        private final String gender;
+        private final Gender gender;
 
         @ApiModelProperty(value = "프로필 URL", example = "http://onfree.io/images/546456498")
         private final String profileImage;
@@ -170,19 +172,19 @@ public class CreateArtistUser {
             return Response.builder()
                     .adultCertification(entity.getAdultCertification())
                     .email(entity.getEmail())
-                    .gender(entity.getGender().getName())
+                    .gender(entity.getGender())
                     .name(entity.getName())
                     .nickname(entity.getNickname())
-                    .newsAgency(entity.getNewsAgency())
+                    .mobileCarrier(entity.getMobileCarrier())
                     .phoneNumber(entity.getPhoneNumber())
-                    .bankName(entity.getBankInfo().getBankName().getBankName())
+                    .bankName(entity.getBankInfo().getBankName())
                     .accountNumber(entity.getBankInfo().getAccountNumber())
                     .advertisementAgree(entity.getUserAgree().getAdvertisement())
                     .personalInfoAgree(entity.getUserAgree().getPersonalInfo())
                     .policyAgree(entity.getUserAgree().getPolicy())
                     .serviceAgree(entity.getUserAgree().getService())
                     .profileImage(entity.getProfileImage())
-                    .portfolioUrl(entity.getPortfolioUrl())
+                    .portfolioUrl(entity.getPortfolioRoom().getPortfolioRoomURL())
                     .build();
         }
     }
