@@ -1,5 +1,6 @@
 package com.onfree.core.dto.user.normal;
 
+import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.user.BankName;
 import com.onfree.core.entity.user.NormalUser;
 import io.swagger.annotations.ApiModel;
@@ -9,7 +10,7 @@ import lombok.Getter;
 
 import javax.validation.constraints.*;
 
-public class UpdateNormalUser {
+public class UpdateNormalUserDto {
     @ApiModel(value = "UpdaetNormalUser_Request")
     @Builder
     @Getter
@@ -19,8 +20,8 @@ public class UpdateNormalUser {
         private final String nickname;
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
-        @NotBlank(message = "통신사는 공백일 수 없습니다.")
-        private final String newsAgency; //통신사
+        @NotNull(message = "통신사는 공백일 수 없습니다.")
+        private final MobileCarrier mobileCarrier; //통신사
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
@@ -54,7 +55,7 @@ public class UpdateNormalUser {
 
         @ApiModelProperty(value = "통신사", example = "SKT", allowableValues = "KT,SKT,LG")
         @NotBlank(message = "통신사는 공백일 수 없습니다.")
-        private final String newsAgency; //통신사
+        private final MobileCarrier mobileCarrier; //통신사
 
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         @NotBlank(message = "핸드폰번호는 공백일 수 없습니다.")
@@ -77,12 +78,12 @@ public class UpdateNormalUser {
         @NotBlank(message = "프로필 url은 필수입니다.")
         private final String profileImage;
 
-        public static UpdateNormalUser.Response fromEntity(NormalUser entity){
-            return UpdateNormalUser.Response.builder()
+        public static UpdateNormalUserDto.Response fromEntity(NormalUser entity){
+            return Response.builder()
                     .nickname(entity.getNickname())
                     .bankName(entity.getBankInfo().getBankName())
                     .accountNumber(entity.getBankInfo().getAccountNumber())
-                    .newsAgency(entity.getNewsAgency())
+                    .mobileCarrier(entity.getMobileCarrier())
                     .phoneNumber(entity.getPhoneNumber())
                     .profileImage(entity.getProfileImage())
                     .adultCertification(entity.getAdultCertification())

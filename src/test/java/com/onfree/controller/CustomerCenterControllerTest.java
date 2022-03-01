@@ -1,6 +1,6 @@
 package com.onfree.controller;
 
-import com.onfree.common.WebMvcBaseTest;
+import com.onfree.common.ControllerBaseTest;
 import com.onfree.core.dto.notice.NoticeDetailDto;
 import com.onfree.core.dto.notice.NoticeSimpleDto;
 import com.onfree.core.dto.question.QuestionDetailDto;
@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = CustomerCenterController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-class CustomerCenterControllerTest extends WebMvcBaseTest {
+class CustomerCenterControllerTest extends ControllerBaseTest {
 
     @MockBean
     CustomerCenterService customerCenterService;
@@ -48,19 +48,22 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
                         getPageNoticesSimpleList()
                 );
         //when// then
-        mvc.perform(get("/api/notices")
+        mvc.perform(get("/api/v1/notices")
             .contentType(MediaType.APPLICATION_JSON_VALUE)
         )
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content").isNotEmpty())
-            .andExpect(jsonPath("$.content[0].noticeId").value(1L))
-            .andExpect(jsonPath("$.content[0].title").value("title1"))
-            .andExpect(jsonPath("$.content[0].top").value(false))
-            .andExpect(jsonPath("$.content[0].view").value(0))
-            .andExpect(jsonPath("$.content[0].createdDate").isNotEmpty())
-            .andExpect(jsonPath("$.content[0].createdBy").value("운영자"))
-            .andExpect(jsonPath("$.totalElements").value(5))
+            .andExpect(jsonPath("$._embedded.items").isNotEmpty())
+            .andExpect(jsonPath("$._embedded.items[0].noticeId").value(1L))
+            .andExpect(jsonPath("$._embedded.items[0].title").value("title1"))
+            .andExpect(jsonPath("$._embedded.items[0].top").value(false))
+            .andExpect(jsonPath("$._embedded.items[0].view").value(0))
+            .andExpect(jsonPath("$._embedded.items[0].createdDate").isNotEmpty())
+            .andExpect(jsonPath("$._embedded.items[0].createdBy").value("운영자"))
+            .andExpect(jsonPath("$._embedded.items[0]._links.notice-details").isNotEmpty())
+            .andExpect(jsonPath("$.page.totalElements").value(5))
+            .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+            .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
 
             ;
     }
@@ -102,7 +105,7 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
         when(customerCenterService.getNoticeSimpleDtoList(any()))
                 .thenThrow(new CustomerCenterException(errorCode));
         //when// then
-        mvc.perform(get("/api/notices")
+        mvc.perform(get("/api/v1/notices")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         )
                 .andDo(print())
@@ -124,7 +127,7 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
                         getNoticeDetailDto()
         );
         //when//then
-        mvc.perform(get("/api/notices/{noticeId}", noticeId)
+        mvc.perform(get("/api/v1/notices/{noticeId}", noticeId)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         )
                 .andDo(print())
@@ -135,6 +138,8 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.view").value(1))
                 .andExpect(jsonPath("$.createdDate").isNotEmpty())
                 .andExpect(jsonPath("$.createdBy").value("운영자"))
+                .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+                .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
         ;
     }
 
@@ -161,7 +166,7 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
         ).thenThrow(new CustomerCenterException(errorCode));
 
         //when//then
-        mvc.perform(get("/api/notices/{noticeId}", noticeId)
+        mvc.perform(get("/api/v1/notices/{noticeId}", noticeId)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         )
                 .andDo(print())
@@ -182,18 +187,21 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
                 );
 
         //when//then
-        mvc.perform(get("/api/questions")
+        mvc.perform(get("/api/v1/questions")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].questionId").value(1L))
-                .andExpect(jsonPath("$.content[0].title").value("title1"))
-                .andExpect(jsonPath("$.content[0].top").value(false))
-                .andExpect(jsonPath("$.content[0].view").value(0))
-                .andExpect(jsonPath("$.content[0].createdDate").isNotEmpty())
-                .andExpect(jsonPath("$.content[0].createdBy").value("운영자"))
-                .andExpect(jsonPath("$.totalElements").value(5))
+                .andExpect(jsonPath("$._embedded.items[0].questionId").value(1L))
+                .andExpect(jsonPath("$._embedded.items[0].title").value("title1"))
+                .andExpect(jsonPath("$._embedded.items[0].top").value(false))
+                .andExpect(jsonPath("$._embedded.items[0].view").value(0))
+                .andExpect(jsonPath("$._embedded.items[0].createdDate").isNotEmpty())
+                .andExpect(jsonPath("$._embedded.items[0].createdBy").value("운영자"))
+                .andExpect(jsonPath("$._embedded.items[0]._links.question-details").isNotEmpty())
+                .andExpect(jsonPath("$.page.totalElements").value(5))
+                .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+                .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
         ;
     }
 
@@ -234,7 +242,7 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
                 .thenThrow(new CustomerCenterException(errorCode));
 
         //when// then
-        mvc.perform(get("/api/questions")
+        mvc.perform(get("/api/v1/questions")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         )
                 .andDo(print())
@@ -256,7 +264,7 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
                 );
 
         //when//then
-        mvc.perform(get("/api/questions/{questionId}", questionId)
+        mvc.perform(get("/api/v1/questions/{questionId}", questionId)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         )
                 .andDo(print())
@@ -267,7 +275,8 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.view").value(1))
                 .andExpect(jsonPath("$.createdDate").isNotEmpty())
                 .andExpect(jsonPath("$.createdBy").value("운영자"))
-
+                .andExpect(jsonPath("$._links.self.href").isNotEmpty())
+                .andExpect(jsonPath("$._links.profile.href").isNotEmpty())
         ;
     }
 
@@ -294,7 +303,7 @@ class CustomerCenterControllerTest extends WebMvcBaseTest {
         ).thenThrow(new CustomerCenterException(errorCode));
 
         //when//then
-        mvc.perform(get("/api/questions/{questionId}", questionId)
+        mvc.perform(get("/api/v1/questions/{questionId}", questionId)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         )
                 .andDo(print())

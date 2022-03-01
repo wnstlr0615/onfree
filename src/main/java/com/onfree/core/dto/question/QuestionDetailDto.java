@@ -6,13 +6,14 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDate;
 
 @Builder
 @Getter
 @ApiModel(value = "QuestionDetailDto", description = "자주하기 질문 상세 정보")
-public class QuestionDetailDto {
+public class QuestionDetailDto extends RepresentationModel<QuestionDetailDto> {
     @ApiModelProperty(value = "질문하기 ID", example = "1L")
     private final Long questionId;
 

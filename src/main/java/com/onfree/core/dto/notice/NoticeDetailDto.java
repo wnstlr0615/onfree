@@ -5,13 +5,13 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class NoticeDetailDto {
+public class NoticeDetailDto extends RepresentationModel<NoticeDetailDto> {
 
     @ApiModelProperty(value = "공지글 ID", example = "1L")
     private final Long noticeId;

@@ -2,21 +2,17 @@ package com.onfree.controller;
 
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
-import com.onfree.common.WebMvcBaseTest;
+import com.onfree.common.ControllerBaseTest;
+import com.onfree.config.webmvc.resolver.CurrentNormalUserArgumentResolver;
 import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.normal.CreateNormalUser;
-import com.onfree.core.dto.user.normal.NormalUserDetail;
-import com.onfree.core.dto.user.normal.UpdateNormalUser;
-import com.onfree.core.entity.user.BankName;
-import com.onfree.core.entity.user.Gender;
-import com.onfree.core.entity.user.NormalUser;
+import com.onfree.core.dto.user.artist.MobileCarrier;
+import com.onfree.core.dto.user.normal.CreateNormalUserDto;
+import com.onfree.core.dto.user.normal.NormalUserDetailDto;
+import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
+import com.onfree.core.entity.user.*;
 import com.onfree.core.service.NormalUserService;
-import com.onfree.common.error.code.ErrorCode;
-import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
-import com.onfree.utils.Checker;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -24,7 +20,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -36,12 +31,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = NormalUserController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-class NormalUserControllerTest extends WebMvcBaseTest {
+class NormalUserControllerTest extends ControllerBaseTest {
     @MockBean
     NormalUserService normalUserService;
-
-    @MockBean(name = "checker")
-    Checker checker;
+    @MockBean
+    CurrentNormalUserArgumentResolver currentNormalUserArgumentResolver;
 
     @Test
     @WithAnonymousUser
@@ -49,13 +43,13 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     public void givenCreateUserReq_whenCreateNormalUser_thenCreateUserRes() throws Exception{
 
         //given
-        CreateNormalUser.Request request = givenCreateNormalUserReq();
-        CreateNormalUser.Response response = givenCreateNormalUserRes(request);
-        when(normalUserService.createdNormalUser(any()))
+        CreateNormalUserDto.Request request = givenCreateNormalUserReq();
+        CreateNormalUserDto.Response response = givenCreateNormalUserRes(request);
+        when(normalUserService.addNormalUser(any()))
                 .thenReturn(response);
 
         //when //then
-        mvc.perform(post("/api/users/normal")
+        mvc.perform(post("/api/v1/users/normal")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -68,45 +62,24 @@ class NormalUserControllerTest extends WebMvcBaseTest {
             .andExpect(jsonPath("$.name").value("준식"))
             .andExpect(jsonPath("$.nickname").value("온프리짱짱"))
             .andExpect(jsonPath("$.email").value("jun@naver.com"))
-            .andExpect(jsonPath("$.newsAgency").value("SKT"))
+            .andExpect(jsonPath("$.mobileCarrier").value(MobileCarrier.SKT.toString()))
             .andExpect(jsonPath("$.phoneNumber").value("010-8888-9999"))
-            .andExpect(jsonPath("$.bankName").value(BankName.IBK_BANK.getBankName()))
+            .andExpect(jsonPath("$.bankName").value(BankName.IBK_BANK.name()))
             .andExpect(jsonPath("$.accountNumber").value("010-8888-9999"))
             .andExpect(jsonPath("$.serviceAgree").value(true))
             .andExpect(jsonPath("$.policyAgree").value(true))
             .andExpect(jsonPath("$.personalInfoAgree").value(true))
             .andExpect(jsonPath("$.advertisementAgree").value(true))
             .andExpect(jsonPath("$.adultCertification").value(true))
-            .andExpect(jsonPath("$.gender").value(Gender.MAN.getName()))
+            .andExpect(jsonPath("$.gender").value(Gender.MAN.name()))
             .andExpect(jsonPath("$.profileImage").value("http://onfree.io/images/123456789"))
         ;
-        verify(normalUserService, times(1)).createdNormalUser(any());
+        verify(normalUserService, times(1)).addNormalUser(any());
     }
 
-    @Test
-    @WithMockUser(roles = {"ARTIST", "NORMAL"})
-    @DisplayName("[실패][POST] 회원가입 요청 - 익명 사용자가 아닌 다른 사람이 접근 할 경우")
-    public void givenCreateUserReq_whenCreateNormalUserWithLoginUser_thenCreateUserRes() throws Exception{
-        //given
-        CreateNormalUser.Request request = givenCreateNormalUserReq();
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
-        //when //then
-        mvc.perform(post("/api/users/normal")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                        mapper.writeValueAsString(
-                                request
-                        )
-                )
-        )
-                .andDo(print())
-                .andExpect(status().isForbidden())
-        ;
-        verify(normalUserService, never()).createdNormalUser(any());
-    }
-    private CreateNormalUser.Request givenCreateNormalUserReq() {
-        return CreateNormalUser.Request
+
+    private CreateNormalUserDto.Request givenCreateNormalUserReq() {
+        return CreateNormalUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("jun@naver.com")
@@ -114,7 +87,7 @@ class NormalUserControllerTest extends WebMvcBaseTest {
                 .gender(Gender.MAN)
                 .nickname("온프리짱짱")
                 .name("준식")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-8888-9999")
@@ -125,17 +98,17 @@ class NormalUserControllerTest extends WebMvcBaseTest {
                 .profileImage("http://onfree.io/images/123456789")
                 .build();
     }
-    private CreateNormalUser.Response givenCreateNormalUserRes(CreateNormalUser.Request request){
-        return CreateNormalUser.Response
+    private CreateNormalUserDto.Response givenCreateNormalUserRes(CreateNormalUserDto.Request request){
+        return CreateNormalUserDto.Response
                 .builder()
                 .adultCertification(request.getAdultCertification())
                 .email(request.getEmail())
-                .gender(request.getGender().getName())
+                .gender(request.getGender())
                 .name(request.getName())
                 .nickname(request.getNickname())
-                .newsAgency(request.getNewsAgency())
+                .mobileCarrier(request.getMobileCarrier())
                 .phoneNumber(request.getPhoneNumber())
-                .bankName(request.getBankName().getBankName())
+                .bankName(request.getBankName())
                 .accountNumber(request.getAccountNumber())
                 .advertisementAgree(request.getAdvertisementAgree())
                 .personalInfoAgree(request.getPersonalInfoAgree())
@@ -144,42 +117,17 @@ class NormalUserControllerTest extends WebMvcBaseTest {
                 .profileImage(request.getProfileImage())
                 .build();
     }
-    @Test
-    @WithAnonymousUser
-    @DisplayName("[실패][POST] 회원가입 요청 - 회원가입 request가 올바르지 않은 경우")
-    @Disabled("ValidateAOP 사용으로 단위테스트에는 테스트가 적용 되지 않음")
-    public void givenWrongCreateUserReq_whenCreateNormalUser_thenParameterValidError() throws Exception{
-        //given
-        CreateNormalUser.Request request = givenWrongCreateNormalUserReq();
-        ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
-        //when //then
-        mvc.perform(post("/api/users/normal")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                        mapper.writeValueAsString(
-                                request
-                        )
-                )
-        )
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errorCode").value(errorCode.toString()))
-                .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
-        ;
-        verify(normalUserService, never()).createdNormalUser(any());
-    }
 
-    private CreateNormalUser.Request givenWrongCreateNormalUserReq() {
-        return CreateNormalUser.Request
+
+    private CreateNormalUserDto.Request givenWrongCreateNormalUserReq() {
+        return CreateNormalUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("")
                 .password("!Abcderghijk112")
                 .gender(Gender.MAN)
                 .name("")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankName(null)
                 .accountNumber("010-8888-9999")
@@ -196,12 +144,12 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     @DisplayName("[실패][POST] 회원가입 요청 - 이메일 중복으로 인한 회원가입 실패")
     public void givenDuplicatedEmail_whenCreateNormalUser_thenDuplicatedEmailError() throws Exception{
         //given
-        CreateNormalUser.Request request = givenCreateNormalUserReq();
+        CreateNormalUserDto.Request request = givenCreateNormalUserReq();
         UserErrorCode errorCode = UserErrorCode.USER_EMAIL_DUPLICATED;
-        when(normalUserService.createdNormalUser(any()))
+        when(normalUserService.addNormalUser(any()))
                 .thenThrow( new UserException(errorCode));
         //when //then
-        mvc.perform(post("/api/users/normal")
+        mvc.perform(post("/api/v1/users/normal")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -210,11 +158,11 @@ class NormalUserControllerTest extends WebMvcBaseTest {
                 )
         )
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
         ;
-        verify(normalUserService, times(1)).createdNormalUser(any());
+        verify(normalUserService, times(1)).addNormalUser(any());
     }
 
     @Test
@@ -223,38 +171,59 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     public void givenUserId_whenGetUserInfo_thenReturnUserInfo() throws Exception {
         //given
         final Long userId = 1L;
-        when(normalUserService.getUserDetail(userId))
+        when(normalUserService.getUserDetail(anyLong()))
                 .thenReturn(
                         getNormalUserInfo()
                 );
-        when(checker.isSelf(anyLong()))
+        when(currentNormalUserArgumentResolver.supportsParameter(any()))
                 .thenReturn(true);
-        //when
-
-        //then
-        mvc.perform(get("/api/users/normal/{userId}", userId)
+        when(currentNormalUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(getNormalUser(1L));
+        //when//then
+        mvc.perform(get("/api/v1/users/normal/me")
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("준식"))
                 .andExpect(jsonPath("$.email").value("jun@naver.com"))
-                .andExpect(jsonPath("$.newsAgency").value("SKT"))
+                .andExpect(jsonPath("$.mobileCarrier").value(MobileCarrier.SKT.toString()))
                 .andExpect(jsonPath("$.phoneNumber").value("010-8888-9999"))
-                .andExpect(jsonPath("$.bankName").value(BankName.IBK_BANK.getBankName()))
+                .andExpect(jsonPath("$.bankName").value(BankName.IBK_BANK.name()))
                 .andExpect(jsonPath("$.accountNumber").value("010-8888-9999"))
                 .andExpect(jsonPath("$.serviceAgree").value(true))
                 .andExpect(jsonPath("$.policyAgree").value(true))
                 .andExpect(jsonPath("$.personalInfoAgree").value(true))
                 .andExpect(jsonPath("$.advertisementAgree").value(true))
                 .andExpect(jsonPath("$.adultCertification").value(true))
-                .andExpect(jsonPath("$.gender").value(Gender.MAN.getName()))
+                .andExpect(jsonPath("$.gender").value(Gender.MAN.name()))
                 .andExpect(jsonPath("$.profileImage").value("http://onfree.io/images/123456789"))
                 ;
         verify(normalUserService, times(1)).getUserDetail(any());
     }
-    public NormalUserDetail getNormalUserInfo(){
-            return NormalUserDetail
+    public NormalUser getNormalUser(long userId){
+        return NormalUser.builder()
+                .userId(userId)
+                .adultCertification(Boolean.TRUE)
+                .email("jun@naver.com")
+                .password("!Abcderghijk112")
+                .gender(Gender.MAN)
+                .name("준식")
+                .mobileCarrier(MobileCarrier.SKT)
+                .phoneNumber("010-8888-9999")
+                .bankInfo(
+                        BankInfo.createBankInfo(BankName.IBK_BANK, "010-8888-9999")
+                )
+                .userAgree(
+                        UserAgree.createUserAgree(true,true,true,true)
+                )
+                .profileImage("http://onfree.io/images/123456789")
+                .build();
+
+    }
+
+    public NormalUserDetailDto getNormalUserInfo(){
+            return NormalUserDetailDto
                     .fromEntity(
                             getNormalUserEntityFromCreateNormalUserRequest()
                     );
@@ -270,14 +239,14 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     public void givenUserId_whenGetUserInfoWithArtistUser_thenReturnUserInfo() throws Exception {
         //given
         final Long userId = 1L;
-        when(normalUserService.getUserDetail(userId))
+        when(normalUserService.getUserDetail(anyLong()))
                 .thenReturn(
                         getNormalUserInfo()
                 );
         //when
 
         //then
-        mvc.perform(get("/api/users/normal/{userId}", userId)
+        mvc.perform(get("/api/v1/users/normal/me")
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
@@ -286,30 +255,7 @@ class NormalUserControllerTest extends WebMvcBaseTest {
         verify(normalUserService, never()).getUserDetail(any());
     }
 
-    @Test
-    @WithNormalUser
-    @DisplayName("[실패][GET] 사용자 정보 조회 - 없는 userId 검색 시 예외발생  ")
-    @Disabled("자기 userID가 아니거나 로그인하지 않으면 접근 할 수 없음")
-    public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserError() throws Exception {
-        //given
-        final Long userId = 1L;
-        final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
-        when(normalUserService.getUserDetail(userId))
-                .thenThrow(new UserException(errorCode));
-        //when
 
-        //then
-        mvc.perform(get("/api/users/normal/{userId}", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("errorCode").value(errorCode.toString()))
-                .andExpect(jsonPath("errorMessage").value(errorCode.getDescription()))
-        ;
-        verify(normalUserService, times(1)).getUserDetail(any());
-
-    }
     @Test
     @WithNormalUser
     @DisplayName("[성공][DELETE] 사용자 계정 Flag 삭제")
@@ -317,20 +263,23 @@ class NormalUserControllerTest extends WebMvcBaseTest {
 
         //given
         final long deletedUserId = 1L;
-        when(normalUserService.deletedNormalUser(deletedUserId))
-                .thenReturn(getDeletedUserResponse(1L));
-        when(checker.isSelf(anyLong()))
+        doNothing().when(normalUserService)
+                .removeNormalUser(deletedUserId);
+        when(currentNormalUserArgumentResolver.supportsParameter(any()))
                 .thenReturn(true);
+        when(currentNormalUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(getNormalUser(1L));
+
         //when && then
-        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
+        mvc.perform(delete("/api/v1/users/normal/me")
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value(deletedUserId))
-                .andExpect(jsonPath("$.deleted").value(true))
+                .andExpect(jsonPath("$.result").value(true))
+                .andExpect(jsonPath("$.message").value("사용자가 정상적으로 삭제되었습니다."))
         ;
-        verify(normalUserService, times(1)).deletedNormalUser(any());
+        verify(normalUserService, times(1)).removeNormalUser(any());
     }
 
     private DeletedUserResponse getDeletedUserResponse(long userId) {
@@ -347,36 +296,13 @@ class NormalUserControllerTest extends WebMvcBaseTest {
         //given
         final long deletedUserId = 1L;
         //when && then
-        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
+        mvc.perform(delete("/api/v1/users/normal/me")
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;
-        verify(normalUserService, never()).deletedNormalUser(any());
-    }
-
-
-    @Test
-    @WithNormalUser
-    @DisplayName("[실패][DELETE] 사용자 계정 Flag 삭제 - userId가 없는 경우")
-    @Disabled("자기 userID가 아니거나 로그인하지 않으면 접근 할 수 없음")
-    public void givenWrongDeleteUserId_whenDeleteNormalUser_thenNotFoundUserId() throws Exception{
-        //given
-        final long deletedUserId = 1L;
-        final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
-        when(normalUserService.deletedNormalUser(deletedUserId))
-                .thenThrow(new UserException(errorCode));
-        //when && then
-        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
-                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
-        ;
-        verify(normalUserService, times(1)).deletedNormalUser(any());
+        verify(normalUserService, never()).removeNormalUser(any());
     }
 
     @Test
@@ -386,13 +312,14 @@ class NormalUserControllerTest extends WebMvcBaseTest {
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
-        when(normalUserService.deletedNormalUser(deletedUserId))
-                .thenThrow(new UserException(errorCode));
-        when(checker.isSelf(anyLong()))
+        doThrow(new UserException(errorCode))
+                .when(normalUserService).removeNormalUser(deletedUserId);
+        when(currentNormalUserArgumentResolver.supportsParameter(any()))
                 .thenReturn(true);
-
+        when(currentNormalUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(getNormalUser(1L));
         //when && then
-        mvc.perform(delete("/api/users/normal/{deletedUserId}", deletedUserId)
+        mvc.perform(delete("/api/v1/users/normal/me")
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
@@ -400,7 +327,7 @@ class NormalUserControllerTest extends WebMvcBaseTest {
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
         ;
-        verify(normalUserService, times(1)).deletedNormalUser(any());
+        verify(normalUserService, times(1)).removeNormalUser(any());
     }
     @Test
     @WithNormalUser
@@ -408,14 +335,14 @@ class NormalUserControllerTest extends WebMvcBaseTest {
     public void givenUpdateUserInfo_whenModifiedUser_thenReturnUpdateInfo() throws Exception{
         //given
         final long userId = 1L;
-        when(normalUserService.modifyedUser(any(), any()))
-                .thenReturn(
-                        getUpdateNormalUserRes()
-                );
-        when(checker.isSelf(anyLong()))
+        doNothing().when(normalUserService).modifyNormalUser(anyLong(), any());
+
+        when(currentNormalUserArgumentResolver.supportsParameter(any()))
                 .thenReturn(true);
+        when(currentNormalUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(getNormalUser(1L));
         //when then
-        mvc.perform(put("/api/users/normal/{userId}", userId)
+        mvc.perform(put("/api/v1/users/normal/me")
             .contentType(MediaType.APPLICATION_JSON)
             .content(
                     mapper.writeValueAsString(
@@ -425,35 +352,30 @@ class NormalUserControllerTest extends WebMvcBaseTest {
         )
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.nickname").value("온프리프리"))
-            .andExpect(jsonPath("$.bankName").value(BankName.IBK_BANK.toString()))
-            .andExpect(jsonPath("$.accountNumber").value("010-0000-0000"))
-            .andExpect(jsonPath("$.newsAgency").value("SKT"))
-            .andExpect(jsonPath("$.phoneNumber").value("010-0000-0000"))
-            .andExpect(jsonPath("$.adultCertification").value(true))
-            .andExpect(jsonPath("$.profileImage").value("http://onfree.io/images/aaa123"))
+            .andExpect(jsonPath("$.result").value(true))
+            .andExpect(jsonPath("$.message").value("사용자 정보가 정상적으로 수정 되었습니다."))
         ;
-        verify(normalUserService, times(1)).modifyedUser(eq(userId), any());
+        verify(normalUserService, times(1)).modifyNormalUser(eq(userId), any());
     }
 
-    private UpdateNormalUser.Response getUpdateNormalUserRes() {
-        return UpdateNormalUser.Response.builder()
+    private UpdateNormalUserDto.Response getUpdateNormalUserRes() {
+        return UpdateNormalUserDto.Response.builder()
                 .nickname("온프리프리")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-0000-0000")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
                 .profileImage("http://onfree.io/images/aaa123")
                 .build();
     }
 
-    private UpdateNormalUser.Request givenUpdateNormalUserReq() {
-        return UpdateNormalUser.Request.builder()
+    private UpdateNormalUserDto.Request givenUpdateNormalUserReq() {
+        return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-0000-0000")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
                 .profileImage("http://onfree.io/images/aaa123")
@@ -466,7 +388,7 @@ class NormalUserControllerTest extends WebMvcBaseTest {
         //given
         final long userId = 1L;
         //when then
-        mvc.perform(put("/api/users/normal/{userId}", userId)
+        mvc.perform(put("/api/v1/users/normal/me")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -477,72 +399,21 @@ class NormalUserControllerTest extends WebMvcBaseTest {
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;
-        verify(normalUserService, never()).modifyedUser(eq(userId), any());
+        verify(normalUserService, never()).modifyNormalUser(eq(userId), any());
     }
 
-    @Test
-    @WithNormalUser
-    @DisplayName("[실패][PUT] 사용자 정보 수정 - 잘못된 데이터 입력 ")
-    @Disabled("ValidateAOP 사용으로 단위테스트에는 테스트가 적용 되지 않음")
-    public void givenWrongUpdateUserInfo_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
-        //given
-        final long userId = 1L;
-        final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
-        //when then
-        mvc.perform(put("/api/users/normal/{userId}", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                        mapper.writeValueAsString(
-                                givenWrongUpdateNormalUserReq()
-                        )
-                )
-        )
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
-                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
-           ;
-        verify(normalUserService, never()).modifyedUser(eq(userId), any());
-    }
 
-    private UpdateNormalUser.Request givenWrongUpdateNormalUserReq() {
-        return UpdateNormalUser.Request.builder()
+
+    private UpdateNormalUserDto.Request givenWrongUpdateNormalUserReq() {
+        return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")
                 .accountNumber("010-0000-0000")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
                 .profileImage("http://onfree.io/images/aaa123")
                 .build();
     }
-    @Test
-    @WithNormalUser
-    @DisplayName("[실패][PUT] 사용자 정보 수정 - 없는 userId 사용 ")
-    public void givenWrongUserId_whenModifiedUser_thenNotValidRequestParametersError() throws Exception{
-        //given
-        final long wrongUserId = 1L;
-        final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
-        when(normalUserService.modifyedUser(eq(wrongUserId), any()))
-                .thenThrow(new UserException(errorCode));
-        when(checker.isSelf(anyLong()))
-                .thenReturn(true);
-        //when then
-        mvc.perform(put("/api/users/normal/{userId}", wrongUserId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                        mapper.writeValueAsString(
-                                givenUpdateNormalUserReq()
-                        )
-                )
-        )
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
-                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
-        ;
-        verify(normalUserService, times(1)).modifyedUser(eq(wrongUserId), any());
-    }
+
 
 }

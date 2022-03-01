@@ -1,67 +1,102 @@
 package com.onfree.controller;
 
-import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.normal.CreateNormalUser;
-import com.onfree.core.dto.user.normal.NormalUserDetail;
-import com.onfree.core.dto.user.normal.UpdateNormalUser;
+import com.onfree.common.annotation.CurrentNormalUser;
+import com.onfree.common.model.SimpleResponse;
+import com.onfree.core.dto.user.normal.CreateNormalUserDto;
+import com.onfree.core.dto.user.normal.NormalUserDetailDto;
+import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
+import com.onfree.core.entity.user.NormalUser;
 import com.onfree.core.service.NormalUserService;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.hateoas.Link;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@Api(tags = "일반유저 기본기능 제공 컨트롤러",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/users/normal", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users/normal", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class NormalUserController {
     private final NormalUserService normalUserService;
 
-    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("!isAuthenticated()")
     @ApiOperation(value = "일반 유저 회원 가입 요청" , notes = "일반 유저 회원 가입 요청")
     @PostMapping("")
-    public CreateNormalUser.Response createNormalUser(
-            @RequestBody @Valid  CreateNormalUser.Request request,
+    public ResponseEntity normalUserAdd(
+            @RequestBody @Valid  CreateNormalUserDto.Request request,
             BindingResult errors
     ){
-        return normalUserService.createdNormalUser(request);
+        CreateNormalUserDto.Response response = normalUserService.addNormalUser(request);
+        //링크 추가
+        response.add(
+                linkTo(NormalUserController.class).withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/normal-user-controller/normalUserAddUsingPOST").withRel("profile")
+        );
+
+        return ResponseEntity.created(
+                linkTo(NormalUserController.class).slash("me").toUri()
+        ).body(response);
     }
-    @PreAuthorize(value = "hasRole('NORMAL') and @checker.isSelf(#userId)")
+
+    @PreAuthorize(value = "hasRole('NORMAL') ")
     @ApiOperation(value = "일반 유저 사용자 정보 조회", notes = "일반 유저 사용자 정보 조회")
-    @GetMapping("/{userId}")
-    public NormalUserDetail getUserInfo(
-            @ApiParam(value = "사용자 userId ") @PathVariable(name = "userId") Long userId
+    @GetMapping("/me")
+    public NormalUserDetailDto normalUserDetails(
+            @CurrentNormalUser NormalUser normalUser
     ){
-        return normalUserService.getUserDetail(userId);
+        NormalUserDetailDto response = normalUserService.getUserDetail(normalUser.getUserId());
+        //링크 추가
+        response.add(
+                linkTo(NormalUserController.class).slash("me").withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/normal-user-controller/normalUserDetailsUsingGET").withRel("profile")
+        );
+        return response;
     }
 
-    @PreAuthorize(value = "hasRole('NORMAL') and @checker.isSelf(#userId)")
+    @PreAuthorize(value = "hasRole('NORMAL') ")
     @ApiOperation(value = "일반 유저 사용자 deleted 처리")
-    @DeleteMapping("/{deletedUserId}")
-    public DeletedUserResponse deletedNormalUser(
-            @ApiParam(value = "사용자 userId ") @PathVariable(name = "deletedUserId") Long userId
+    @DeleteMapping("/me")
+    public SimpleResponse normalUserRemove(
+            @CurrentNormalUser NormalUser normalUser
     ){
-        return normalUserService.deletedNormalUser(userId);
+        normalUserService.removeNormalUser(normalUser.getUserId());
+        SimpleResponse response = SimpleResponse.success("사용자가 정상적으로 삭제되었습니다.");
+
+        //링크 추가
+        response.add(
+                linkTo(NormalUserController.class).slash("me").withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/normal-user-controller/normalUserRemoveUsingDELETE").withRel("profile")
+        );
+        return response;
     }
 
-    @PreAuthorize(value = "hasRole('NORMAL') and @checker.isSelf(#userId)")
+    @PreAuthorize(value = "hasRole('NORMAL')")
     @ApiOperation(value = "일반 유저 정보수정")
-    @PutMapping("/{userId}")
-    public UpdateNormalUser.Response updateUserInfo(
-            @ApiParam(value = "업데이트 할 사용자 ID") @PathVariable("userId") Long userId,
-            @RequestBody @Valid UpdateNormalUser.Request request,
+    @PutMapping("/me")
+    public SimpleResponse normalUserModify(
+            @CurrentNormalUser NormalUser normalUser,
+            @RequestBody @Valid UpdateNormalUserDto.Request request,
             BindingResult errors
     ){
-        return normalUserService.modifyedUser(userId, request);
+         normalUserService.modifyNormalUser(normalUser.getUserId(), request);
+        SimpleResponse response = SimpleResponse.success("사용자 정보가 정상적으로 수정 되었습니다.");
+
+        // 링크 추가
+        response.add(
+                linkTo(NormalUserController.class).slash("me").withSelfRel(),
+                Link.of(linkTo(SwaggerController.class) + "/#/normal-user-controller/normalUserModifyUsingPUT").withRel("profile")
+        );
+
+        return response;
+
     }
 }

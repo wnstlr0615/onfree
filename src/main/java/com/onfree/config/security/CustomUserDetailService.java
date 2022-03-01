@@ -22,7 +22,7 @@ public class CustomUserDetailService implements UserDetailsService {
     }
 
     private User getUserFindByUsername(String username) {
-        return userRepository.findByEmail(username)
+        return userRepository.findByEmailAndDeletedIsFalse(username)
                         .orElseThrow(() -> new UsernameNotFoundException("해당 사용자를 찾을 수 없습니다."));
     }
 }

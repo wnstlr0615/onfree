@@ -7,16 +7,16 @@ import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.error.code.ErrorCode;
 import com.onfree.common.error.code.GlobalErrorCode;
-import com.onfree.common.error.exception.GlobalException;
-import com.onfree.core.dto.UpdateUserNotificationDto;
+import com.onfree.core.dto.user.UpdateUserNotificationDto;
 import com.onfree.core.dto.notice.CreateNoticeDto;
 import com.onfree.core.dto.notice.UpdateNoticeDto;
 import com.onfree.core.dto.question.CreateQuestionDto;
 import com.onfree.core.dto.question.UpdateQuestionDto;
-import com.onfree.core.dto.user.artist.CreateArtistUser;
-import com.onfree.core.dto.user.artist.UpdateArtistUser;
-import com.onfree.core.dto.user.normal.CreateNormalUser;
-import com.onfree.core.dto.user.normal.UpdateNormalUser;
+import com.onfree.core.dto.user.artist.CreateArtistUserDto;
+import com.onfree.core.dto.user.artist.MobileCarrier;
+import com.onfree.core.dto.user.artist.UpdateArtistUserDto;
+import com.onfree.core.dto.user.normal.CreateNormalUserDto;
+import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
 import com.onfree.core.service.LoginService;
@@ -40,7 +40,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import static com.onfree.common.constant.SecurityConstant.BEARER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -115,7 +114,7 @@ class ValidateAopTest {
                 .password("{bcrypt}onfree")
                 .gender(Gender.MAN)
                 .name("joon")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)
@@ -144,7 +143,7 @@ class ValidateAopTest {
                 .password("{bcrypt}onfree")
                 .gender(Gender.MAN)
                 .name("joon")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)
@@ -164,10 +163,10 @@ class ValidateAopTest {
     @DisplayName("[실패][POST] 회원가입 요청 - 잘못된 데이터 입력")
     public void givenCreateUserReq_whenCreateNormalUserWithLoginUser_thenCreateUserRes() throws Exception{
         //given
-        CreateNormalUser.Request request = givenWrongCreateNormalUserReq();
+        CreateNormalUserDto.Request request = givenWrongCreateNormalUserReq();
         final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
-        mvc.perform(post("/api/users/normal")
+        mvc.perform(post("/api/v1/users/normal")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -181,8 +180,8 @@ class ValidateAopTest {
                 .andExpect(jsonPath("$.errors[0]").isNotEmpty())
         ;
     }
-    private CreateNormalUser.Request givenWrongCreateNormalUserReq() {
-        return CreateNormalUser.Request
+    private CreateNormalUserDto.Request givenWrongCreateNormalUserReq() {
+        return CreateNormalUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("jun@naver.com")
@@ -190,7 +189,7 @@ class ValidateAopTest {
                 .gender(Gender.MAN)
                 .nickname("")
                 .name("")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-8888-9999")
@@ -207,11 +206,10 @@ class ValidateAopTest {
     @DisplayName("[실패][PUT] 사용자 정보 수정 - 잘못된 데이터 입력 ")
     public void givenWrongUpdateUserInfo_whenModifiedNormalUser_thenNotValidRequestParametersError() throws Exception{
         //given
-        final long userId = 1L;
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when then
-        mvc.perform(put("/api/users/normal/{userId}", userId)
+        mvc.perform(put("/api/v1/users/normal/me")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -227,11 +225,11 @@ class ValidateAopTest {
         ;
     }
 
-    private UpdateNormalUser.Request givenWrongUpdateNormalUserReq() {
-        return UpdateNormalUser.Request.builder()
+    private UpdateNormalUserDto.Request givenWrongUpdateNormalUserReq() {
+        return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")
                 .accountNumber("010-0000-0000")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
                 .profileImage("http://onfree.io/images/aaa123")
@@ -244,11 +242,11 @@ class ValidateAopTest {
     @DisplayName("[실패][POST] 회원가입 요청 -  잘못된 데이터 입력")
     public void givenWrongCreateUserReq_whenCreateArtistUser_thenParameterValidError() throws Exception{
         //given
-        CreateArtistUser.Request request = givenWrongCreateArtistUserReq();
+        CreateArtistUserDto.Request request = givenWrongCreateArtistUserReq();
         ErrorCode errorCode=GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when //then
-        mvc.perform(post("/api/users/artist")
+        mvc.perform(post("/api/v1/users/artist")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -264,15 +262,15 @@ class ValidateAopTest {
         ;
     }
 
-    private CreateArtistUser.Request givenWrongCreateArtistUserReq() {
-        return CreateArtistUser.Request
+    private CreateArtistUserDto.Request givenWrongCreateArtistUserReq() {
+        return CreateArtistUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("")
                 .password("!Abcderghijk112")
                 .gender(Gender.MAN)
                 .name("")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankName(null)
                 .accountNumber("010-8888-9999")
@@ -290,10 +288,9 @@ class ValidateAopTest {
     @DisplayName("[실패][PUT] 사용자 정보 수정 - 잘못된 데이터 입력 ")
     public void givenWrongUpdateUserInfo_whenModifiedArtistUser_thenNotValidRequestParametersError() throws Exception{
         //given
-        final long userId = 2L;
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when then
-        mvc.perform(put("/api/users/artist/{userId}", userId)
+        mvc.perform(put("/api/v1/users/artist/me")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -309,11 +306,11 @@ class ValidateAopTest {
         ;
     }
 
-    private UpdateArtistUser.Request givenWrongUpdateArtistUserReq() {
-        return UpdateArtistUser.Request.builder()
+    private UpdateArtistUserDto.Request givenWrongUpdateArtistUserReq() {
+        return UpdateArtistUserDto.Request.builder()
                 .nickname("온프리프리")
                 .accountNumber("010-0000-0000")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
                 .profileImage("http://onfree.io/images/aaa123")
@@ -330,7 +327,7 @@ class ValidateAopTest {
 
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when //then
-        mvc.perform(post("/admin/api/notices")
+        mvc.perform(post("/admin/api/v1/notices")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -362,7 +359,7 @@ class ValidateAopTest {
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
-        mvc.perform(put("/admin/api/notices/{noticeId}", noticeId)
+        mvc.perform(put("/admin/api/v1/notices/{noticeId}", noticeId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsBytes(
@@ -394,7 +391,7 @@ class ValidateAopTest {
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
-        mvc.perform(post("/admin/api/questions")
+        mvc.perform(post("/admin/api/v1/questions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -426,7 +423,7 @@ class ValidateAopTest {
         final ErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
 
         //when//then
-        mvc.perform(put("/admin/api/questions/{questionId}", questionId)
+        mvc.perform(put("/admin/api/v1/questions/{questionId}", questionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -454,11 +451,10 @@ class ValidateAopTest {
     @DisplayName("[실패][PUT] 사용자 알림설정 변경 - 잘못된 데이터 입력")
     public void givenOtherUserIdAndUpdateUserNotificationDto_whenUpdateUserNotification_thenAccessDeniedError() throws Exception{
         //given
-        final long userId = 1L;
         final GlobalErrorCode errorCode = GlobalErrorCode.NOT_VALIDATED_REQUEST;
         //when
         //then
-        mvc.perform(put("/api/users/{userId}/notifications", userId)
+        mvc.perform(put("/api/v1/users/me/notifications")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, BEARER +normalUserAccessToken)
                 .content(

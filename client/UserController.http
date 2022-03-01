@@ -1,0 +1,11 @@
+PUT {{host}}/api/v1/users/me/notifications
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "emailRequestNotification": true,
+  "kakaoRequestNotification": false,
+  "emailNewsNotification": true,
+  "kakaoNewsNotification": false,
+  "pushRequestNotification": true
+}

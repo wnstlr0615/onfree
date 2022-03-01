@@ -5,10 +5,12 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.time.LocalDate;
 @Builder
 @Getter
+@Relation(collectionRelation = "items")
 public class QuestionSimpleDto {
     @ApiModelProperty(value = "질문하기 ID", example = "1L")
     private final Long questionId;

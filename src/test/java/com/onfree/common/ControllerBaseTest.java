@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @ActiveProfiles("test")
 @WebMvcTest
-public abstract class WebMvcBaseTest {
+public abstract class ControllerBaseTest {
     @Autowired
     protected MockMvc mvc;
 

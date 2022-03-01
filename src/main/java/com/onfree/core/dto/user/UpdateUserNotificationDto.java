@@ -1,4 +1,4 @@
-package com.onfree.core.dto;
+package com.onfree.core.dto.user;
 
 import com.onfree.core.entity.user.UserNotification;
 import io.swagger.annotations.ApiModelProperty;
