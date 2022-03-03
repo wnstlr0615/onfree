@@ -8,6 +8,7 @@ import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.service.ArtistUserDrawingFieldService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users/artist")
+@RequestMapping(value = "/api/v1/users/artist", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class ArtistUserDrawingFieldController {
     private final ArtistUserDrawingFieldService drawingFieldService;
 

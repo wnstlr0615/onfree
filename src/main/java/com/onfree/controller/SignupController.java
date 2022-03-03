@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/signup/verify")
+@RequestMapping(value = "/api/v1/signup/verify",  consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SignupController {
     private final SignUpService signUpService;
 

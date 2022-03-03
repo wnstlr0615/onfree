@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -24,7 +25,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/admin/api/v1/drawing-fields")
+@RequestMapping(value = "/admin/api/v1/drawing-fields",  consumes = MediaType.APPLICATION_JSON_VALUE)
 public class DrawingFieldAdminController {
     private final DrawingFieldService drawingFieldService;
 

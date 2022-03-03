@@ -234,7 +234,9 @@ class PortfolioControllerTest extends ControllerBaseTest {
         //when
 
         //then
-        mvc.perform(get("/api/v1/portfolios/{portfolioId}", givenPortfolioId))
+        mvc.perform(get("/api/v1/portfolios/{portfolioId}", givenPortfolioId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.portfolioId").value(givenPortfolioId))
@@ -282,7 +284,9 @@ class PortfolioControllerTest extends ControllerBaseTest {
         //when
 
         //then
-        mvc.perform(get("/api/v1/portfolios/{portfolioId}", givenPortfolioId))
+        mvc.perform(get("/api/v1/portfolios/{portfolioId}", givenPortfolioId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
@@ -312,7 +316,8 @@ class PortfolioControllerTest extends ControllerBaseTest {
 
         //when //then
         mvc.perform(get("/api/v1/portfolios/{portfolioId}/temp", givenTempPortfolioId)
-                )
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.portfolioId").value(givenTempPortfolioId))
@@ -347,6 +352,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
         //when //then
         mvc.perform(get("/api/v1/portfolios/{portfolioId}/temp", givenTempPortfolioId)
                 .queryParam("userId", String.valueOf(userId))
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().isForbidden())
@@ -386,6 +392,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
         //when
         //then
         mvc.perform(delete("/api/v1/portfolios/{portfolioId}", givenPortfolioId)
+            .contentType(MediaType.APPLICATION_JSON)
         )
             .andDo(print())
             .andExpect(status().isOk())
@@ -410,6 +417,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
         //when
         //then
         mvc.perform(delete("/api/v1/portfolios/{portfolioId}", givenPortfolioId)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().isBadRequest())

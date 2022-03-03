@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -456,7 +457,7 @@ class ValidateAopTest {
         //then
         mvc.perform(put("/api/v1/users/me/notifications")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, BEARER +normalUserAccessToken)
+                .header(HttpHeaders.AUTHORIZATION, BEARER +  normalUserAccessToken)
                 .content(
                         mapper.writeValueAsString(
                                 givenWrongUpdateUserNotificationDto()

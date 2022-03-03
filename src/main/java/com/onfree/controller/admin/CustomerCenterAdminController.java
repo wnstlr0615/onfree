@@ -25,7 +25,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/admin/api/v1", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/admin/api/v1", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class CustomerCenterAdminController {
     private final CustomerCenterService customerCenterService;
 

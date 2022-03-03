@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -45,6 +46,7 @@ class SignupControllerTest extends ControllerBaseTest {
         //when //then
         mvc.perform(
                 get("/api/v1/signup/verify/email/{email}", givenEmail)
+                .contentType(MediaType.APPLICATION_JSON)
         )
             .andDo(print())
             .andExpect(status().isOk())
@@ -65,6 +67,7 @@ class SignupControllerTest extends ControllerBaseTest {
         //when //then
         mvc.perform(
                 get("/api/v1/signup/verify/email/{email}", givenEmail)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -88,6 +91,7 @@ class SignupControllerTest extends ControllerBaseTest {
         //when //then
         mvc.perform(
                 get("/api/v1/signup/verify/email/{email}", givenEmail)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -107,9 +111,11 @@ class SignupControllerTest extends ControllerBaseTest {
                 eq(givenUUID)
         );
         //when //then
-        mvc.perform(get("/api/v1/signup/verify/uuid/{uuid}", givenUUID))
+        mvc.perform(get("/api/v1/signup/verify/uuid/{uuid}", givenUUID)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andDo(print())
-            .andExpect(status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value(true))
                 .andExpect(jsonPath("$.message").value(message))
         ;
@@ -129,7 +135,9 @@ class SignupControllerTest extends ControllerBaseTest {
         final SignUpErrorCode errorCode = SignUpErrorCode.UUID_IS_BLANK;
 
         //when //then
-        mvc.perform(get("/api/v1/signup/verify/uuid/{uuid}", givenUUID))
+        mvc.perform(get("/api/v1/signup/verify/uuid/{uuid}", givenUUID)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
@@ -150,7 +158,9 @@ class SignupControllerTest extends ControllerBaseTest {
                         eq(givenUUID)
                 );
         //when //then
-        mvc.perform(get("/api/v1/signup/verify/uuid/{uuid}", givenUUID))
+        mvc.perform(get("/api/v1/signup/verify/uuid/{uuid}", givenUUID)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
@@ -171,6 +181,7 @@ class SignupControllerTest extends ControllerBaseTest {
         //when
         //then
         mvc.perform(get("/api/v1/signup/verify/nickname/{nickname}", givenNickname)
+                .contentType(MediaType.APPLICATION_JSON)
         )
             .andDo(print())
             .andExpect(status().isOk())
@@ -189,6 +200,7 @@ class SignupControllerTest extends ControllerBaseTest {
         //when
         //then
         mvc.perform(get("/api/v1/signup/verify/nickname/{nickname}", givenNickname)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -209,6 +221,7 @@ class SignupControllerTest extends ControllerBaseTest {
         //when
         //then
         mvc.perform(get("/api/v1/signup/verify/nickname/{nickname}", givenNickname)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -230,6 +243,7 @@ class SignupControllerTest extends ControllerBaseTest {
         //when
         //then
         mvc.perform(get("/api/v1/signup/verify/personal-url/{personal-url}", personalUrl)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -248,6 +262,7 @@ class SignupControllerTest extends ControllerBaseTest {
         //when
         //then
         mvc.perform(get("/api/v1/signup/verify/personal-url/{personal-url}", personalUrl).param("personalUrl", personalUrl)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -271,6 +286,7 @@ class SignupControllerTest extends ControllerBaseTest {
         //when
         //then
         mvc.perform(get("/api/v1/signup/verify/personal-url/{personal-url}", personalUrl)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))

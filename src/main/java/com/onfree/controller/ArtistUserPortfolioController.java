@@ -4,7 +4,6 @@ import com.onfree.common.annotation.CurrentArtistUser;
 import com.onfree.core.dto.portfolio.PortfolioSimpleDto;
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.service.ArtistUserPortfolioService;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/users/artist", produces = MediaTypes.HAL_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users/artist",  consumes = MediaType.APPLICATION_JSON_VALUE)
 public class ArtistUserPortfolioController {
     private final ArtistUserPortfolioService artistUserPortfolioService;
     public final int PAGESIZE = 6;
