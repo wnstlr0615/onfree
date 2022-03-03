@@ -19,6 +19,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         resolvers.add(currentNormalUserArgumentResolver());
         resolvers.add(loginUserArgumentResolver());
         resolvers.add(currentArtistUserArgumentResolver());
+        WebMvcConfigurer.super.addArgumentResolvers(resolvers);
     }
 
 

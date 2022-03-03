@@ -3,8 +3,6 @@ package com.onfree.config.webmvc.resolver;
 import com.onfree.common.annotation.LoginUser;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.exception.GlobalException;
-import com.onfree.core.entity.user.ArtistUser;
-import com.onfree.core.entity.user.NormalUser;
 import com.onfree.core.entity.user.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
@@ -20,20 +18,15 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.hasParameterAnnotation(LoginUser.class)
-                || parameter.getParameterType().isAssignableFrom(User.class);
+                && parameter.getParameterType().isAssignableFrom(Long.class);
     }
 
     @Override
-    public User resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+    public Long resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication != null){
-            Object principal = authentication.getPrincipal();
-            if(principal instanceof ArtistUser){
-                return (ArtistUser) principal;
-            }
-            if(principal instanceof NormalUser){
-                return (NormalUser) principal;
-            }
+        if(authentication != null && authentication.isAuthenticated()) {
+            User principal = (User)authentication.getPrincipal();
+            return principal.getUserId();
         }
         throw new GlobalException(GlobalErrorCode.ACCESS_DENIED);
     }
