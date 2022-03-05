@@ -36,11 +36,11 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/me/notifications")
     public SimpleResponse userNotificationModify(
-            @LoginUser Long userId,
+            @LoginUser User user,
             @Valid @RequestBody UpdateUserNotificationDto updateUserNotificationDto,
             BindingResult errors
     ) {
-        userService.updateUserNotification(userId, updateUserNotificationDto);
+        userService.updateUserNotification(user.getUserId(), updateUserNotificationDto);
         SimpleResponse response = SimpleResponse.success("알림설정이 변경되었습니다.");
 
         //링크 추가

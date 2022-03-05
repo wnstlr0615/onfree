@@ -132,6 +132,7 @@ public class ArtistUserController {
         return response;
     }
 
+    /** 닉네임 변경 하기*/
     @PreAuthorize("hasRole('ARTIST')")
     @PatchMapping("/me/nickname")
     public SimpleResponse nicknameModify(

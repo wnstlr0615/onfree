@@ -88,7 +88,7 @@ public class ArtistUserDrawingFieldService {
     }
 
     private List<Long> getAllArtistUserHasDrawingFieldIdListByArtistUser(ArtistUser artistUser) {
-        return artistUserDrawingFieldRepository.findAllArtistuserDrawingFieldIdByArtistUser(artistUser);
+        return artistUserDrawingFieldRepository.findAllArtistUserDrawingFieldIdByArtistUser(artistUser);
     }
 
     private List<UsedDrawingFieldDto> getUsedDrawingFieldDtoList(List<DrawingField> allDrawingFields, List<Long> artistUserHasDrawingFieldIdList) {

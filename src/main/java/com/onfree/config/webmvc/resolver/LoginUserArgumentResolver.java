@@ -18,15 +18,14 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.hasParameterAnnotation(LoginUser.class)
-                && parameter.getParameterType().isAssignableFrom(Long.class);
+                && parameter.getParameterType().isAssignableFrom(User.class);
     }
 
     @Override
-    public Long resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+    public User resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication != null && authentication.isAuthenticated()) {
-            User principal = (User)authentication.getPrincipal();
-            return principal.getUserId();
+            return (User)authentication.getPrincipal();
         }
         throw new GlobalException(GlobalErrorCode.ACCESS_DENIED);
     }

@@ -25,4 +25,12 @@ public class ArtistUserDrawingField extends BaseEntity {
 
     @ManyToOne
     private DrawingField drawingField;
+
+    //== 생성 메서드 ==//
+    public static ArtistUserDrawingField createArtistUserDrawingField(ArtistUser artistUser, DrawingField drawingField){
+        return ArtistUserDrawingField.builder()
+                .artistUser(artistUser)
+                .drawingField(drawingField)
+                .build();
+    }
 }

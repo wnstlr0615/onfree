@@ -2,15 +2,13 @@ package com.onfree.core.dto.drawingfield.artist;
 
 import com.onfree.core.entity.drawingfield.DrawingField;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
+@ToString
 public class UsedDrawingFieldDto {
     @ApiModelProperty(value = "그림분야 PK", notes = "그림분야 PK")
     private Long drawingFieldId;
