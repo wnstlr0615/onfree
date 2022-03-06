@@ -80,8 +80,10 @@ public class PortfolioRoomService {
     @Transactional
     public void modifyStatusMessage(ArtistUser artistUser, UpdateStatusMessageDto dto) {
         PortfolioRoom portfolioRoom = getPortfolioRoomByArtistUser(artistUser); //사용자 포트폴리오룸 조회
+        validateUpdatablePortfolioRoomProperty(portfolioRoom); //포트폴리오 을 업데이트 가능한 지 여부 검사
         updateStatusMessage(portfolioRoom, dto.getStatusMessage()); // 상태 메시지 변경
     }
+
 
     private void updateStatusMessage(PortfolioRoom portfolioRoom, String statusMessage) {
         portfolioRoom.updateStatusMessage(statusMessage);
@@ -100,13 +102,13 @@ public class PortfolioRoomService {
     }
 
     private void updatePortfolioStatus(PortfolioRoom portfolioRoom, UpdatePortfolioStatusDto dto) {
-        validateUpdatePortfolioStatus(portfolioRoom); //포트폴리오 상태를 업데이트 가능한 지 여부 검사
+        validateUpdatablePortfolioRoomProperty(portfolioRoom); //포트폴리오 상태를 업데이트 가능한 지 여부 검사
         PortfolioRoomStatus status
                 = dto.getPortfolioStatus() ? PortfolioRoomStatus.PUBLIC_PORTFOLIO_ROOM : PortfolioRoomStatus.PRIVATE_PORTFOLIO_ROOM;
         portfolioRoom.updatePortfolioRoomStatus(status);
     }
 
-    private void validateUpdatePortfolioStatus(PortfolioRoom portfolioRoom) {
+    private void validateUpdatablePortfolioRoomProperty(PortfolioRoom portfolioRoom) {
         switch (portfolioRoom.getPortfolioRoomStatus()){
             case PUBLIC_PORTFOLIO_ROOM:
             case PRIVATE_PORTFOLIO_ROOM:

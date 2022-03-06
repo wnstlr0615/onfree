@@ -7,7 +7,6 @@ import com.onfree.common.error.exception.PortfolioRoomException;
 import com.onfree.core.dto.portfolioroom.UpdatePortfolioStatusDto;
 import com.onfree.core.dto.portfolioroom.UpdateStatusMessageDto;
 import com.onfree.core.dto.user.artist.MobileCarrier;
-import com.onfree.core.entity.portfolioroom.PortfolioRoom;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.service.PortfolioRoomService;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +20,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -47,7 +45,7 @@ class ArtistUserPortfolioRoomControllerTest extends ControllerBaseTest {
 
         //when //then
         mvc.perform(put("/api/v1/artist/me/portfolio-room/status-message")
-            .with(authentication(new UsernamePasswordAuthenticationToken(artistUser, null, getAuthorities())))
+            .with(authentication(new UsernamePasswordAuthenticationToken(artistUser, null, getArtistAuthority())))
             .contentType(MediaType.APPLICATION_JSON)
             .content(
                     mapper.writeValueAsString(
@@ -65,7 +63,7 @@ class ArtistUserPortfolioRoomControllerTest extends ControllerBaseTest {
         verify(portfolioRoomService).modifyStatusMessage(any(ArtistUser.class), any());
     }
 
-    private List<SimpleGrantedAuthority> getAuthorities() {
+    private List<SimpleGrantedAuthority> getArtistAuthority() {
         return List.of(new SimpleGrantedAuthority("ROLE_ARTIST"));
     }
 
@@ -116,7 +114,7 @@ class ArtistUserPortfolioRoomControllerTest extends ControllerBaseTest {
 
         //when //then
         mvc.perform(put("/api/v1/artist/me/portfolio-room/status")
-                .with(authentication(new UsernamePasswordAuthenticationToken(artistUser, null, getAuthorities())))
+                .with(authentication(new UsernamePasswordAuthenticationToken(artistUser, null, getArtistAuthority())))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
@@ -149,7 +147,7 @@ class ArtistUserPortfolioRoomControllerTest extends ControllerBaseTest {
                 .when(portfolioRoomService).modifyPortfolioStatus(any(), any());
         //when //then
         mvc.perform(put("/api/v1/artist/me/portfolio-room/status")
-                .with(authentication(new UsernamePasswordAuthenticationToken(artistUser, null, getAuthorities())))
+                .with(authentication(new UsernamePasswordAuthenticationToken(artistUser, null, getArtistAuthority())))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(

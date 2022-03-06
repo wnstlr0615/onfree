@@ -12,12 +12,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.Link;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,8 +44,9 @@ public class ArtistUserPortfolioRoomController {
     @PreAuthorize("hasRole('ARTIST')")
     @PutMapping("/status-message")
     public SimpleResponse statusMessageModify(
+            @CurrentArtistUser ArtistUser artistUser,
             @Valid @RequestBody UpdateStatusMessageDto dto,
-            @CurrentArtistUser ArtistUser artistUser
+            BindingResult errors
     ){
         portfolioRoomService.modifyStatusMessage(artistUser, dto);
         SimpleResponse response = SimpleResponse.success("상태메시지가 성공적으로 변경 되었습니다.");
@@ -61,8 +62,9 @@ public class ArtistUserPortfolioRoomController {
     @PreAuthorize("hasRole('ARTIST')")
     @PutMapping("/status")
     public SimpleResponse portfolioRoomStatusModify(
+            @CurrentArtistUser ArtistUser artistUser,
             @Valid @RequestBody UpdatePortfolioStatusDto dto,
-            @CurrentArtistUser ArtistUser artistUser
+            BindingResult errors
     ){
         portfolioRoomService.modifyPortfolioStatus(artistUser, dto);
 
