@@ -37,7 +37,6 @@ public class UpdateRealTimeRequestDto {
     @ApiModelProperty(value = "의뢰 디자인 용도", example = "COMMERCIAL", allowableValues = "COMMERCIAL,NOT_COMMERCIAL")
     private UseType useType; // 용도
 
-    @NotBlank(message = "referenceLink 는  필수 입니다.")
     @ApiModelProperty(value = "참고 링크", example = "http://naver.com")
     private String referenceLink; // 참고 링크
 

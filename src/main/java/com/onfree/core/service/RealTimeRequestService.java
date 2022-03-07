@@ -166,10 +166,11 @@ public class RealTimeRequestService {
     private void deleteRealTimeRequest(RealTimeRequest realTimeRequest) {
         realTimeRequest.delete();
     }
-    
+
+    /** 실시간 의뢰 마감 */
     @Transactional
     public void modifyRequestStatus(Long requestId, User user) {
-        finishRequestStatus( // 실시간 의뢰 삭제
+        finishRequestStatus( // 실시간 의뢰 마감 설정
                 validateUpdatableRequestStatus( //실시간 의뢰 마감 설정 가능 유무 확인
                         getRealTimeRequestByRealTimeRequestByIdAndUser(requestId, user) // 실시간 의뢰 조회
                 )

@@ -37,7 +37,6 @@ public class RealTimeRequest extends BaseTimeEntity {
     @Column(nullable = false)
     private UseType useType; // 용도
 
-    @Column(nullable = false)
     private String referenceLink; // 참고 링크
 
     @Column(nullable = false)
