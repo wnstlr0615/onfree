@@ -2,12 +2,13 @@ package com.onfree.controller;
 
 
 import com.onfree.anotation.WithArtistUser;
+import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.ControllerBaseTest;
 import com.onfree.core.dto.realtimerequest.SimpleRealtimeRequestDto;
 import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.realtimerequset.RequestStatus;
 import com.onfree.core.entity.user.*;
-import com.onfree.core.service.RealTimeRequestService;
+import com.onfree.core.service.UserRealTimeRequestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,19 +38,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest( controllers = UserRealTimeRequestController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 class UserRealTimeRequestControllerTest extends ControllerBaseTest {
     @MockBean
-    RealTimeRequestService realTimeRequestService;
-
-
+    UserRealTimeRequestService userRealTimeRequestService;
 
     @Test
     @WithArtistUser
     @DisplayName("[성공][GET] 실시간 의뢰 페이징 테스트 - 작가유저 조회")
-    public void givenPageAndPageSize_whenMyRealTimeRequestList_thenPagingList() throws Exception{
+    public void givenPageAndPageSize_whenMyRealTimeRequestListByArtistUser_thenPagingList() throws Exception{
         //given
         int page = 0;
         int size = 10;
         int total = 6;
-        long userId = 1L;
 
         PageRequest pageRequest = PageRequest.of(page, size);
         ArtistUser artistUser = getArtistUser();
@@ -65,7 +63,7 @@ class UserRealTimeRequestControllerTest extends ControllerBaseTest {
         PageImpl<SimpleRealtimeRequestDto> dtoPage = new PageImpl<>(simpleRealtimeRequestDtos, pageRequest, total);
 
 
-        when(realTimeRequestService.findAllRealTimeRequestByUserId(userId, page, size))
+        when(userRealTimeRequestService.findAllRealTimeRequestByUserId(any(User.class), anyInt(), anyInt()))
                 .thenReturn(
                         dtoPage
                 );
@@ -74,7 +72,7 @@ class UserRealTimeRequestControllerTest extends ControllerBaseTest {
         mvc.perform(get("/api/v1/users/me/real-time-requests")
                 .with(
                         authentication(
-                                new UsernamePasswordAuthenticationToken(artistUser,  null, List.of(new SimpleGrantedAuthority("ROLE_ARTIST")))
+                                new UsernamePasswordAuthenticationToken(artistUser,  null, getAuthorities("ROLE_ARTIST"))
                         )
                 )
                 .queryParam("page", "0")
@@ -95,7 +93,7 @@ class UserRealTimeRequestControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$._links.profile").isNotEmpty())
 
         ;
-        verify(realTimeRequestService).findAllRealTimeRequestByUserId(anyLong(), anyInt(), anyInt());
+        verify(userRealTimeRequestService).findAllRealTimeRequestByUserId(any(User.class), eq(page), eq(size));
     }
 
     private SimpleRealtimeRequestDto createSimpleRealTimeRequestDto(long requestId, String title, String status) {
@@ -134,6 +132,88 @@ class UserRealTimeRequestControllerTest extends ControllerBaseTest {
                 .deleted(false)
                 .role(Role.ARTIST)
                 .portfolioUrl("http://www.onfree.co.kr/folioUrl/dasdasfasd")
+                .build();
+    }
+
+    @Test
+    @WithNormalUser
+    @DisplayName("[성공][GET] 실시간 의뢰 페이징 테스트 - 일반유저 조회")
+    public void givenPageAndPageSize_whenMyRealTimeRequestListByNormalUser_thenPagingList() throws Exception{
+        //given
+        int page = 0;
+        int size = 10;
+        int total = 6;
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+        long userId = 1L;
+        NormalUser normalUser = getNormalUser(userId);
+        List<SimpleRealtimeRequestDto> simpleRealtimeRequestDtos =  List.of(
+                createSimpleRealTimeRequestDto(1L, "제목1", RequestStatus.REQUEST_RECRUITING.getDisplayStatus()),
+                createSimpleRealTimeRequestDto(2L, "제목2", RequestStatus.REQUEST_RECRUITING.getDisplayStatus()),
+                createSimpleRealTimeRequestDto(3L, "제목3", RequestStatus.REQUEST_RECRUITING.getDisplayStatus()),
+                createSimpleRealTimeRequestDto(4L, "제목4", RequestStatus.REQUEST_FINISH.getDisplayStatus()),
+                createSimpleRealTimeRequestDto(5L, "제목5", RequestStatus.REQUEST_FINISH.getDisplayStatus()),
+                createSimpleRealTimeRequestDto(6L, "제목6", RequestStatus.REQUEST_FINISH.getDisplayStatus())
+        );
+
+        PageImpl<SimpleRealtimeRequestDto> dtoPage = new PageImpl<>(simpleRealtimeRequestDtos, pageRequest, total);
+
+
+        when(userRealTimeRequestService.findAllRealTimeRequestByUserId(any(User.class), anyInt(), anyInt()))
+                .thenReturn(
+                        dtoPage
+                );
+
+        //when //then
+        mvc.perform(get("/api/v1/users/me/real-time-requests")
+                .with(
+                        authentication(
+                                new UsernamePasswordAuthenticationToken(normalUser,  null, getAuthorities("ROLE_NORMAL"))
+                        )
+                )
+                .queryParam("page", "0")
+                .queryParam("size", "10")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.items[0].realTimeRequestId").value(1L))
+                .andExpect(jsonPath("$._embedded.items[0].title").value("제목1"))
+                .andExpect(jsonPath("$._embedded.items[0].status").value(RequestStatus.REQUEST_RECRUITING.getDisplayStatus()))
+                .andExpect(jsonPath("$._embedded.items[0].nickname").isNotEmpty())
+                .andExpect(jsonPath("$._embedded.items[0].startDate").isNotEmpty())
+                .andExpect(jsonPath("$._embedded.items[0].endDate").isNotEmpty())
+                .andExpect(jsonPath("$._embedded.items[0].createDate").isNotEmpty())
+                .andExpect(jsonPath("$._embedded.items[0]._links.self").isNotEmpty())
+                .andExpect(jsonPath("$._links.self").isNotEmpty())
+                .andExpect(jsonPath("$._links.profile").isNotEmpty())
+
+        ;
+        verify(userRealTimeRequestService).findAllRealTimeRequestByUserId(any(User.class), eq(page), eq(size));
+
+    }
+
+    private List<SimpleGrantedAuthority> getAuthorities(String role) {
+        return List.of(new SimpleGrantedAuthority(role));
+    }
+
+    public NormalUser getNormalUser(long userId){
+        return NormalUser.builder()
+                .userId(userId)
+                .adultCertification(Boolean.TRUE)
+                .email("jun@naver.com")
+                .password("!Abcderghijk112")
+                .gender(Gender.MAN)
+                .name("준식")
+                .mobileCarrier(MobileCarrier.SKT)
+                .phoneNumber("010-8888-9999")
+                .bankInfo(
+                        BankInfo.createBankInfo(BankName.IBK_BANK, "010-8888-9999")
+                )
+                .userAgree(
+                        UserAgree.createUserAgree(true,true,true,true)
+                )
+                .profileImage("http://onfree.io/images/123456789")
                 .build();
     }
 }

@@ -2,7 +2,10 @@ package com.onfree.controller;
 
 import com.onfree.common.annotation.LoginUser;
 import com.onfree.core.dto.realtimerequest.SimpleRealtimeRequestDto;
-import com.onfree.core.service.RealTimeRequestService;
+import com.onfree.core.entity.user.User;
+import com.onfree.core.service.UserRealTimeRequestService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -24,18 +27,22 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/v1/users/me/real-time-requests", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class UserRealTimeRequestController {
-    private final RealTimeRequestService realTimeRequestService;
+    private final UserRealTimeRequestService userRealTimeRequestService;
 
     @PreAuthorize("isAuthenticated()")
+    @ApiOperation(value = "본인 실시간 의뢰 전체 보기")
     @GetMapping("")
     public ResponseEntity<?> myRealTimeRequestList(
-            @LoginUser Long userId,
+            @ApiParam(hidden = true)
+            @LoginUser User user,
+            @ApiParam(name = "page", example = "0", required = true)
             @RequestParam(defaultValue = "0") int page,
+            @ApiParam(name = "size", example = "10", required = true)
             @RequestParam(defaultValue = "10") int size,
-            PagedResourcesAssembler<SimpleRealtimeRequestDto> assembler1
+            PagedResourcesAssembler<SimpleRealtimeRequestDto> assembler
     ){
-        Page<SimpleRealtimeRequestDto> response = realTimeRequestService.findAllRealTimeRequestByUserId(userId, page, size);
-        PagedModel<EntityModel<SimpleRealtimeRequestDto>> pagedModel = assembler1.toModel(response);
+        Page<SimpleRealtimeRequestDto> response = userRealTimeRequestService.findAllRealTimeRequestByUserId(user, page, size);
+        PagedModel<EntityModel<SimpleRealtimeRequestDto>> pagedModel = assembler.toModel(response);
 
         //링크 추가
         pagedModel.add(
@@ -52,4 +59,5 @@ public class UserRealTimeRequestController {
         );
         return ResponseEntity.ok(pagedModel);
     }
+
 }
