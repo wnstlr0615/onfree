@@ -14,7 +14,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/portfolio-rooms", consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/portfolio-rooms")
 public class PortfolioRoomController {
     private final PortfolioRoomService portfolioRoomService;
 

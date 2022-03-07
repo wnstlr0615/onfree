@@ -24,14 +24,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/users/normal", consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users/normal")
 public class NormalUserController {
     private final NormalUserService normalUserService;
 
     @PreAuthorize("!isAuthenticated()")
     @ApiOperation(value = "일반 유저 회원 가입 요청" , notes = "일반 유저 회원 가입 요청")
-    @PostMapping("")
-    public ResponseEntity normalUserAdd(
+    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> normalUserAdd(
             @RequestBody @Valid  CreateNormalUserDto.Request request,
             BindingResult errors
     ){
@@ -81,7 +81,7 @@ public class NormalUserController {
 
     @PreAuthorize(value = "hasRole('NORMAL')")
     @ApiOperation(value = "일반 유저 정보수정")
-    @PutMapping("/me")
+    @PutMapping(value = "/me", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse normalUserModify(
             @CurrentNormalUser NormalUser normalUser,
             @RequestBody @Valid UpdateNormalUserDto.Request request,

@@ -21,7 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/users/artist",  consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users/artist")
 public class ArtistUserPortfolioController {
     private final ArtistUserPortfolioService artistUserPortfolioService;
     public final int PAGESIZE = 6;
@@ -29,7 +29,7 @@ public class ArtistUserPortfolioController {
     /** 작가 포트폴리오 전체 조회*/
     @ApiOperation(value = "작가 포트폴리오 전체 조회 API", notes = "임시 저장 포트폴리오 목록에 경우 작가유저 본인만 접근 가능, 나머지는 누구나 조회 가능")
     @GetMapping("/{userId}/portfolios")
-    public ResponseEntity portfolioList(
+    public ResponseEntity<?>portfolioList(
             @ApiParam("작가유저 PK")
             @PathVariable Long userId,
             @RequestParam(defaultValue = "0") int page,
@@ -59,7 +59,7 @@ public class ArtistUserPortfolioController {
     @ApiOperation(value = "작가 임시 포트폴리오 전체 조회 API", notes = "임시 저장 포트폴리오 목록에 경우 작가유저 본인만 접근 가능, 나머지는 누구나 조회 가능")
     @PreAuthorize("hasRole('ARTIST')")
     @GetMapping("/me/portfolios/temp")
-    public ResponseEntity tempPortfolioList(
+    public ResponseEntity<?>tempPortfolioList(
             @RequestParam(defaultValue = "0") int page,
             @CurrentArtistUser ArtistUser artistUser,
             PagedResourcesAssembler<PortfolioSimpleDto> assembler

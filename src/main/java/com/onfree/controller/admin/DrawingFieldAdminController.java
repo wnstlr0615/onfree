@@ -25,7 +25,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/admin/api/v1/drawing-fields",  consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/admin/api/v1/drawing-fields")
 public class DrawingFieldAdminController {
     private final DrawingFieldService drawingFieldService;
 
@@ -71,8 +71,8 @@ public class DrawingFieldAdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @ApiOperation(value = "그림분야 추가", notes = "그림 분야 추가 API")
-    @PostMapping
-    public ResponseEntity drawingFieldAdd(
+    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?>drawingFieldAdd(
             @Valid @RequestBody CreateDrawingFieldDto createDrawingFieldDto,
             BindingResult errors
     ){
@@ -94,7 +94,7 @@ public class DrawingFieldAdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @ApiOperation(value = "그림분야 수정", notes = "그림 분야 수정 API")
-    @PutMapping("/{drawingFieldId}")
+    @PutMapping(value = "/{drawingFieldId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse drawingFieldModify(
             @ApiParam(value = "그림분야 PK", example = "1")
             @PathVariable("drawingFieldId") Long drawingFieldId,

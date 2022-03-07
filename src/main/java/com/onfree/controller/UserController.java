@@ -28,13 +28,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/users", consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users")
 public class UserController {
     private final UserService userService;
 
     /** 알림설정 */
     @PreAuthorize("isAuthenticated()")
-    @PutMapping("/me/notifications")
+    @PutMapping(value = "/me/notifications", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse userNotificationModify(
             @LoginUser User user,
             @Valid @RequestBody UpdateUserNotificationDto updateUserNotificationDto,

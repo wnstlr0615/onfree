@@ -17,13 +17,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/users/artist", consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users/artist")
 public class ArtistUserDrawingFieldController {
     private final ArtistUserDrawingFieldService drawingFieldService;
 
     @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "그림분야 변경")
-    @PutMapping("/me/drawing-fields")
+    @PutMapping(value = "/me/drawing-fields", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse updateDrawingFields(
             @CurrentArtistUser ArtistUser artistUser,
             @Valid @RequestBody UpdateDrawingFieldsDto updateDrawingFieldsDto

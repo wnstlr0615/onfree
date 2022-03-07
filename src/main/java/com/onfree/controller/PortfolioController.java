@@ -27,14 +27,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/portfolios",  consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/portfolios")
 public class PortfolioController {
     private final PortfolioService portfolioService;
 
     /** 포트폴리오 추가 */
     @ApiOperation(value = "포트폴리오 작성 API", notes = "작가 포트폴리오를 작성하는 API")
     @PreAuthorize("hasRole('ARTIST')")
-    @PostMapping()
+    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CreatePortfolioDto.Response> portfolioAdd(
             @CurrentArtistUser ArtistUser artistUser,
             @Valid @RequestBody CreatePortfolioDto.Request dto,
@@ -113,7 +113,7 @@ public class PortfolioController {
     /** 대표 포트폴리오 지정*/
     @ApiOperation(value = "포트폴리오 대표 설정", notes = "포트폴리오 대표 설정")
     @PreAuthorize("hasRole('ARTIST')")
-    @PutMapping("/{portfolioId}/representative")
+    @PutMapping(value = "/{portfolioId}/representative", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse portfolioRepresent(
             @ApiParam("포트폴리오 PK")
             @PathVariable Long portfolioId,
@@ -132,7 +132,7 @@ public class PortfolioController {
     /** 포트폴리오 수정*/
     @ApiOperation(value = "포트폴리오 수정 API", notes = "자기 포트폴리오 수정하기")
     @PreAuthorize("hasRole('ARTIST')")
-    @PutMapping("/{portfolioId}")
+    @PutMapping(value = "/{portfolioId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse portfolioUpdate(
             @PathVariable Long portfolioId,
             @CurrentArtistUser ArtistUser artistUser,

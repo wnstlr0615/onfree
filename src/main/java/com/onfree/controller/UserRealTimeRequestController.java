@@ -25,7 +25,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/users/me/real-time-requests", consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users/me/real-time-requests")
 public class UserRealTimeRequestController {
     private final UserRealTimeRequestService userRealTimeRequestService;
 

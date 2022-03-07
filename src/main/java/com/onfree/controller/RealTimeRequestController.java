@@ -38,7 +38,7 @@ public class RealTimeRequestController {
      */
     @ApiOperation(value = "실시간 의뢰 전체 보기", hidden = true)
     @GetMapping("")
-    public ResponseEntity realTimeRequestList(
+    public ResponseEntity<?>realTimeRequestList(
             @ApiParam(name = "page", example = "0", required = true)
             @RequestParam(defaultValue = "0") int page,
             @ApiParam(name = "size", example = "10", required = true)
@@ -91,7 +91,7 @@ public class RealTimeRequestController {
     @ApiOperation("실시간 의뢰 추가")
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity realTimeRequestAdd(
+    public ResponseEntity<?>realTimeRequestAdd(
             @LoginUser User user,
             @Valid @RequestBody CreateRealTimeRequestDto.Request request,
             BindingResult errors
@@ -160,7 +160,7 @@ public class RealTimeRequestController {
     /** 실시간 의뢰 마감 설정 */
     @ApiOperation("실시간 의뢰 마감 설정")
     @PreAuthorize("isAuthenticated()")
-    @PatchMapping("/{requestId}/finish")
+    @PatchMapping(value = "/{requestId}/finish", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse requestStatusFinish(
             @ApiParam(value = "실시간 의뢰 PK", example = "1L")
             @PathVariable Long requestId,

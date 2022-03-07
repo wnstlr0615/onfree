@@ -21,7 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/artist/me/portfolio-room", consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/artist/me/portfolio-room")
 public class ArtistUserPortfolioRoomController {
     private final PortfolioRoomService portfolioRoomService;
 
@@ -42,7 +42,7 @@ public class ArtistUserPortfolioRoomController {
     /** 상태메시지 변경하기 */
     @ApiOperation("작가유저 포트폴리오룸 상태메시지 변경하기")
     @PreAuthorize("hasRole('ARTIST')")
-    @PutMapping("/status-message")
+    @PutMapping(value = "/status-message", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse statusMessageModify(
             @CurrentArtistUser ArtistUser artistUser,
             @Valid @RequestBody UpdateStatusMessageDto dto,
@@ -60,7 +60,7 @@ public class ArtistUserPortfolioRoomController {
     /** 포트폴리오룸 상태 변경하기 */
     @ApiOperation("작가유저 포트폴리오룸 상태 변경하기")
     @PreAuthorize("hasRole('ARTIST')")
-    @PutMapping("/status")
+    @PutMapping(value = "/status", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse portfolioRoomStatusModify(
             @CurrentArtistUser ArtistUser artistUser,
             @Valid @RequestBody UpdatePortfolioStatusDto dto,

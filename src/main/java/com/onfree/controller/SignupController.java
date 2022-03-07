@@ -26,7 +26,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
-@RequestMapping(value = "/api/v1/signup/verify",  consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/signup/verify")
 public class SignupController {
     private final SignUpService signUpService;
 
