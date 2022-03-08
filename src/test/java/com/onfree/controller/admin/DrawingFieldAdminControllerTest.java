@@ -99,7 +99,9 @@ class DrawingFieldAdminControllerTest extends ControllerBaseTest {
                 );
         //when
         //then
-        mvc.perform(get("/admin/api/v1/drawing-fields"))
+        mvc.perform(get("/admin/api/v1/drawing-fields")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.items[0]").isNotEmpty())
@@ -142,7 +144,9 @@ class DrawingFieldAdminControllerTest extends ControllerBaseTest {
                 );
         //when
         //then
-        mvc.perform(get("/admin/api/v1/drawing-fields"))
+        mvc.perform(get("/admin/api/v1/drawing-fields")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))

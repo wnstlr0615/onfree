@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -26,14 +27,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping(value = "/api/v1")
 public class S3UploadController {
 
     private final AwsS3Service awsS3Service;
 
     /** 프로필 사진 업로드 */
     @ApiOperation(value = "프로필 사진 업로드 API")
-    @PostMapping("/upload/profile-image")
+    @PostMapping(value = "/upload/profile-image", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String profileImageUpload(
             @ApiParam(value = "이미지 파일", allowableValues = "png,jpeg,jpg")
             @RequestParam MultipartFile file
@@ -64,7 +65,7 @@ public class S3UploadController {
 
     @ApiOperation(value = "포트폴리오 내용 사진 업로드 API")
     @PreAuthorize("hasRole('ARTIST')")
-    @PostMapping("/upload/portfolio-content-image")
+    @PostMapping(value = "/upload/portfolio-content-image", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String portfolioContentImageUpload(
             @ApiParam(value = "이미지 파일", allowableValues = "png,jpeg,jpg")
             @RequestParam MultipartFile file){
@@ -77,7 +78,7 @@ public class S3UploadController {
 
     @ApiOperation(value = "포트폴리오 메인 이미지 업로드 API")
     @PreAuthorize("hasRole('ARTIST')")
-    @PostMapping("/upload/portfolio-main-image")
+    @PostMapping(value = "/upload/portfolio-main-image", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String portfolioMainImageUpload(
             @ApiParam(value = "이미지 파일", allowableValues = "png,jpeg,jpg")
             @RequestParam MultipartFile file

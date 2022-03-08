@@ -183,7 +183,7 @@ class ArtistUserDrawingFieldServiceTest {
                 .thenReturn(
                         getDrawingFieldList()
                 );
-        when(artistUserDrawingFieldRepository.findAllArtistuserDrawingFieldIdByArtistUser(any(ArtistUser.class)))
+        when(artistUserDrawingFieldRepository.findAllArtistUserDrawingFieldIdByArtistUser(any(ArtistUser.class)))
                 .thenReturn(
                         getArtistUserDrawingFieldIdList()
                 );
@@ -208,7 +208,7 @@ class ArtistUserDrawingFieldServiceTest {
                         .hasFieldOrPropertyWithValue("used", false)
         );
 
-        verify(artistUserDrawingFieldRepository).findAllArtistuserDrawingFieldIdByArtistUser(any(ArtistUser.class));
+        verify(artistUserDrawingFieldRepository).findAllArtistUserDrawingFieldIdByArtistUser(any(ArtistUser.class));
         verify(drawingFieldRepository).findAllByStatusNotDisabledAndTempOrderByTopDesc();
     }
 
@@ -231,7 +231,7 @@ class ArtistUserDrawingFieldServiceTest {
                 .thenReturn(
                         getDrawingFieldList()
                 );
-        when(artistUserDrawingFieldRepository.findAllArtistuserDrawingFieldIdByArtistUser(any(ArtistUser.class)))
+        when(artistUserDrawingFieldRepository.findAllArtistUserDrawingFieldIdByArtistUser(any(ArtistUser.class)))
                 .thenReturn(
                         List.of()
                 );
@@ -256,7 +256,7 @@ class ArtistUserDrawingFieldServiceTest {
                         .hasFieldOrPropertyWithValue("used", false)
         );
 
-        verify(artistUserDrawingFieldRepository).findAllArtistuserDrawingFieldIdByArtistUser(any(ArtistUser.class));
+        verify(artistUserDrawingFieldRepository).findAllArtistUserDrawingFieldIdByArtistUser(any(ArtistUser.class));
         verify(drawingFieldRepository).findAllByStatusNotDisabledAndTempOrderByTopDesc();
     }
 }

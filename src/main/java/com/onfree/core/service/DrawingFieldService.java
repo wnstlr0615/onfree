@@ -41,7 +41,9 @@ public class DrawingFieldService {
                 createDrawingField(fieldName, description, status)
         );
     }
-
+    private DrawingField saveDrawingField(DrawingField drawingField) {
+        return drawingFieldRepository.save(drawingField);
+    }
     private DrawingField createDrawingField(String fieldName, String description, DrawingFieldStatus status) {
         return DrawingField.createDrawingField(fieldName,description, status);
     }
@@ -98,9 +100,7 @@ public class DrawingFieldService {
         return drawingField;
     }
 
-    private DrawingField saveDrawingField(DrawingField drawingField) {
-        return drawingFieldRepository.save(drawingField);
-    }
+
 
     private DrawingFieldDto getDrawingFieldDto(DrawingField drawingField) {
         return DrawingFieldDto.fromEntity(drawingField);

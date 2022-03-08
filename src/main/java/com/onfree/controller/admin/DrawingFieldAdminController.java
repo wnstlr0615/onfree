@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -70,8 +71,8 @@ public class DrawingFieldAdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @ApiOperation(value = "그림분야 추가", notes = "그림 분야 추가 API")
-    @PostMapping
-    public ResponseEntity drawingFieldAdd(
+    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?>drawingFieldAdd(
             @Valid @RequestBody CreateDrawingFieldDto createDrawingFieldDto,
             BindingResult errors
     ){
@@ -93,7 +94,7 @@ public class DrawingFieldAdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @ApiOperation(value = "그림분야 수정", notes = "그림 분야 수정 API")
-    @PutMapping("/{drawingFieldId}")
+    @PutMapping(value = "/{drawingFieldId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse drawingFieldModify(
             @ApiParam(value = "그림분야 PK", example = "1")
             @PathVariable("drawingFieldId") Long drawingFieldId,

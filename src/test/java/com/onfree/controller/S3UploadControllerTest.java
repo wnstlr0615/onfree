@@ -42,6 +42,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
         //then
         mvc.perform(multipart("/api/v1/upload/profile-image")
                 .file(file)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -60,6 +61,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
         //when //then
         mvc.perform(multipart("/api/v1/upload/profile-image")
                 .file(file)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().is(errorCode.getStatus()))
@@ -78,6 +80,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
         //when//then
         mvc.perform(multipart("/api/v1/upload/profile-image")
                 .file(file)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -102,6 +105,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
         //then
         mvc.perform(multipart("/api/v1/upload/portfolio-content-image")
                 .file(file)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -124,6 +128,7 @@ class S3UploadControllerTest extends ControllerBaseTest {
         //then
         mvc.perform(multipart("/api/v1/upload/portfolio-main-image")
                 .file(file)
+                .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
