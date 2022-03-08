@@ -21,23 +21,39 @@ public class PortfolioRoom extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "portfolioRoom")
     private ArtistUser artistUser;
 
+    @Column(nullable = false, unique = true)
     private String portfolioRoomURL;
+
     private String statusMessage;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PortfolioRoomStatus portfolioRoomStatus;
     
-    //== 생성메서드 ==//
+    //== 생성 메서드 ==//
     public static PortfolioRoom createPortfolioRoom(ArtistUser artistUser, String portfolioRoomURL){
+        return createPortfolioRoom(artistUser, portfolioRoomURL, "", PortfolioRoomStatus.PUBLIC_PORTFOLIO_ROOM);
+    }
+
+    public static PortfolioRoom createPortfolioRoom(ArtistUser artistUser, String portfolioRoomURL, String statusMessage, PortfolioRoomStatus publicPortfolioRoom){
         return PortfolioRoom.builder()
                 .artistUser(artistUser)
                 .portfolioRoomURL(portfolioRoomURL)
-                .statusMessage("")
-                .portfolioRoomStatus(PortfolioRoomStatus.PUBLIC_PORTFOLIO_ROOM)
+                .statusMessage(statusMessage)
+                .portfolioRoomStatus(publicPortfolioRoom)
                 .build();
     }
 
+    //== 비즈니스 로직 ==//
     public void updatePortfolioRoomUrl(String portfolioUrl) {
         this.portfolioRoomURL = portfolioUrl;
+    }
+
+    public void updatePortfolioRoomStatus(PortfolioRoomStatus status) {
+        this.portfolioRoomStatus = status;
+    }
+
+    public void updateStatusMessage(String statusMessage) {
+        this.statusMessage = statusMessage;
     }
 }

@@ -18,10 +18,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -31,7 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest extends ControllerBaseTest {
     @MockBean
     UserService userService;
-    @MockBean
+
+    @SpyBean
     LoginUserArgumentResolver loginUserArgumentResolver;
 
     @Test
@@ -40,16 +46,13 @@ class UserControllerTest extends ControllerBaseTest {
     public void givenNormalUserIdAndUpdateUserNotificationDto_whenUserNotificationModify_thenSimpleResponseSuccess() throws Exception{
         //given
         final long userId = 1L;
+        NormalUser normalUser = getNormalUser(userId);
         doNothing().when(userService)
                 .updateUserNotification(anyLong(), any(UpdateUserNotificationDto.class));
-        when(loginUserArgumentResolver.supportsParameter(any()))
-                .thenReturn(true);
-        when(loginUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
-                .thenReturn(
-                        getNormalUser()
-                );
+
         //when //then
-        mvc.perform(put("/api/v1/users/me/notifications", userId)
+        mvc.perform(put("/api/v1/users/me/notifications")
+                .with(authentication(new UsernamePasswordAuthenticationToken(normalUser, null, List.of(new SimpleGrantedAuthority("ROLE_NORMAL")))))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
                 .content(
@@ -66,9 +69,20 @@ class UserControllerTest extends ControllerBaseTest {
         verify(userService).updateUserNotification(eq(userId), any(UpdateUserNotificationDto.class));
     }
 
-    public NormalUser getNormalUser(){
+
+    private UpdateUserNotificationDto givenUpdateUserNotificationDto() {
+        return UpdateUserNotificationDto.builder()
+                .emailNewsNotification(true)
+                .emailRequestNotification(true)
+                .kakaoNewsNotification(false)
+                .kakaoRequestNotification(false)
+                .pushRequestNotification(true)
+                .build();
+    }
+
+    public NormalUser getNormalUser(long userId){
         return NormalUser.builder()
-                .userId(1L)
+                .userId(userId)
                 .adultCertification(Boolean.TRUE)
                 .email("jun@naver.com")
                 .password("!Abcderghijk112")
@@ -84,17 +98,6 @@ class UserControllerTest extends ControllerBaseTest {
                 )
                 .profileImage("http://onfree.io/images/123456789")
                 .build();
-
-    }
-
-    private UpdateUserNotificationDto givenUpdateUserNotificationDto() {
-        return UpdateUserNotificationDto.builder()
-                .emailNewsNotification(true)
-                .emailRequestNotification(true)
-                .kakaoNewsNotification(false)
-                .kakaoRequestNotification(false)
-                .pushRequestNotification(true)
-                .build();
     }
 
     @Test
@@ -105,12 +108,10 @@ class UserControllerTest extends ControllerBaseTest {
         final long userId = 1L;
         doNothing().when(userService)
                 .updateUserNotification(eq(userId), any(UpdateUserNotificationDto.class));
-        when(loginUserArgumentResolver.supportsParameter(any()))
-                .thenReturn(true);
-        when(loginUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
-                .thenReturn(getArtistUser());
+        ArtistUser artistUser = getArtistUser();
         //when //then
-        mvc.perform(put("/api/v1/users/me/notifications", userId)
+        mvc.perform(put("/api/v1/users/me/notifications")
+                .with(authentication(new UsernamePasswordAuthenticationToken(artistUser, null, List.of(new SimpleGrantedAuthority("ROLE_ARTIST")))))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(

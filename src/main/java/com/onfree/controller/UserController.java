@@ -2,14 +2,21 @@ package com.onfree.controller;
 
 import com.onfree.common.annotation.LoginUser;
 import com.onfree.common.model.SimpleResponse;
+import com.onfree.core.dto.realtimerequest.SimpleRealtimeRequestDto;
 import com.onfree.core.dto.user.UpdateUserNotificationDto;
 import com.onfree.core.entity.user.User;
+import com.onfree.core.service.RealTimeRequestService;
 import com.onfree.core.service.UserService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -17,16 +24,17 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaTypes.HAL_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users")
 public class UserController {
     private final UserService userService;
 
     /** 알림설정 */
     @PreAuthorize("isAuthenticated()")
-    @PutMapping("/me/notifications")
+    @PutMapping(value = "/me/notifications", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse userNotificationModify(
             @LoginUser User user,
             @Valid @RequestBody UpdateUserNotificationDto updateUserNotificationDto,
@@ -42,4 +50,5 @@ public class UserController {
         );
         return response;
     }
+
 }

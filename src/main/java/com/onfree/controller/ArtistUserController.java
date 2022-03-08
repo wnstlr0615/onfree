@@ -29,7 +29,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/users/artist",  consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users/artist")
 public class ArtistUserController {
 
     private final ArtistUserService artistUserService;
@@ -38,7 +38,7 @@ public class ArtistUserController {
     /** 회원 가입*/
     @PreAuthorize(value = "!isAuthenticated()")
     @ApiOperation(value = "작가 유저 회원 가입 요청" , notes = "작가 유저 회원 가입 요청")
-    @PostMapping("")
+    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CreateArtistUserDto.Response> artistUserAdd(
             @RequestBody @Valid  CreateArtistUserDto.Request request,
             BindingResult errors
@@ -94,7 +94,7 @@ public class ArtistUserController {
     /** 사용자 정보 수정*/
     @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "작가 유저 정보수정")
-    @PutMapping("/me")
+    @PutMapping(value = "/me", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse artistUserModify(
             @CurrentArtistUser ArtistUser artistUser,
             @RequestBody @Valid UpdateArtistUserDto.Request request,
@@ -114,7 +114,7 @@ public class ArtistUserController {
     /** 작가유저 영업마크 설정*/
     @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "영업마크 설정")
-    @PatchMapping("/me/status")
+    @PatchMapping(value = "/me/status", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse statusMarkModify(
             @CurrentArtistUser ArtistUser artistUser,
             @Valid @RequestBody StatusMarkDto statusMarkDto,
@@ -132,8 +132,9 @@ public class ArtistUserController {
         return response;
     }
 
+    /** 닉네임 변경 하기*/
     @PreAuthorize("hasRole('ARTIST')")
-    @PatchMapping("/me/nickname")
+    @PatchMapping(value = "/me/nickname", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse nicknameModify(
             @RequestBody @Valid UpdateNicknameDto updateNicknameDto,
             @CurrentArtistUser ArtistUser artistUser

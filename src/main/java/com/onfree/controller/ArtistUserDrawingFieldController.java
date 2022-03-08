@@ -8,6 +8,7 @@ import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.service.ArtistUserDrawingFieldService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,13 +17,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users/artist")
+@RequestMapping(value = "/api/v1/users/artist")
 public class ArtistUserDrawingFieldController {
     private final ArtistUserDrawingFieldService drawingFieldService;
 
     @PreAuthorize("hasRole('ARTIST')")
     @ApiOperation(value = "그림분야 변경")
-    @PutMapping("/me/drawing-fields")
+    @PutMapping(value = "/me/drawing-fields", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse updateDrawingFields(
             @CurrentArtistUser ArtistUser artistUser,
             @Valid @RequestBody UpdateDrawingFieldsDto updateDrawingFieldsDto

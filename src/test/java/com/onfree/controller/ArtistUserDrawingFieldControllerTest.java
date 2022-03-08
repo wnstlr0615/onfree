@@ -112,7 +112,9 @@ class ArtistUserDrawingFieldControllerTest extends ControllerBaseTest {
                 .thenReturn(getUsedDrawingFieldDtoList());
         //when
         //then
-        mvc.perform(get("/api/v1/users/artist/{userId}/drawing-fields", givenUserId))
+        mvc.perform(get("/api/v1/users/artist/{userId}/drawing-fields", givenUserId)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.[0].drawingFieldId").value(1))

@@ -219,7 +219,6 @@ class NormalUserControllerTest extends ControllerBaseTest {
                 )
                 .profileImage("http://onfree.io/images/123456789")
                 .build();
-
     }
 
     public NormalUserDetailDto getNormalUserInfo(){

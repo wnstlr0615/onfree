@@ -25,14 +25,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/admin/api/v1", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/admin/api/v1")
 public class CustomerCenterAdminController {
     private final CustomerCenterService customerCenterService;
 
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "공지 생성", notes = "ADMIN 사용자가 공지를 추가하는 요청")
     @PreAuthorize("hasRole('ADMIN') and isAuthenticated()")
-    @PostMapping("/notices")
+    @PostMapping(value = "/notices", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CreateNoticeDto.Response noticeAdd(
             @Valid @RequestBody CreateNoticeDto.Request request,
             BindingResult errors
@@ -50,7 +50,7 @@ public class CustomerCenterAdminController {
     }
     @ApiOperation(value = "공지 수정", notes = "ADMIN 사용자가 공지를 수정하는 요청")
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/notices/{noticeId}")
+    @PutMapping(value = "/notices/{noticeId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse noticeModify(
             @ApiParam(value = "해당 공지 ID", example = "1")
             @PathVariable("noticeId")Long noticeId,
@@ -73,7 +73,7 @@ public class CustomerCenterAdminController {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "질문 생성", notes = "ADMIN 사용자가 질문을 추가하는 요청")
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/questions")
+    @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CreateQuestionDto.Response questionAdd(
             @Valid @RequestBody CreateQuestionDto.Request request,
             BindingResult errors){
@@ -90,7 +90,7 @@ public class CustomerCenterAdminController {
 //
     @ApiOperation(value = "질문 수정", notes = "ADMIN 사용자가 질문을 수정하는 요청")
     @PreAuthorize("hasRole('ADMIN') ")
-    @PutMapping("/questions/{questionId}")
+    @PutMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public SimpleResponse questionModify(
             @ApiParam(value = "해당 질문 ID", example = "1")
             @PathVariable("questionId")Long questionId,
