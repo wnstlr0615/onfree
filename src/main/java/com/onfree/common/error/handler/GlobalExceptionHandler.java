@@ -74,6 +74,11 @@ public class GlobalExceptionHandler {
         printLog(request, "PortfolioRoomException", e.getErrorCode());
         return ResponseResult.fail(e.getErrorCode());
     }
+    @ExceptionHandler(RequestApplyException.class)
+    public ResponseEntity<?> requestApplyExceptionHandler(RequestApplyException e, HttpServletRequest request){
+        printLog(request, "RequestApplyException", e.getErrorCode());
+        return ResponseResult.fail(e.getErrorCode());
+    }
 
     private void printLog(HttpServletRequest request, String exception, ErrorCode errorCode) {
         log.error(exception + ": {}", errorCode);

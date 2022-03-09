@@ -9,7 +9,6 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -29,7 +28,6 @@ public abstract class RequestApply extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private RequestApplyStatus status;
 
-    @Builder
     public RequestApply(User clientUser, ArtistUser artistUser, RequestApplyStatus status) {
         this.clientUser = clientUser;
         this.artistUser = artistUser;
