@@ -2,11 +2,9 @@ name: docker_CI
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, feature/*]
   pull_request:
     branches: [ develop ]
-
-  workflow_dispatch:
 
 jobs:
   build:
