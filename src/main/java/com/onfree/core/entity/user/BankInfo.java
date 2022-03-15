@@ -19,4 +19,12 @@ public class BankInfo {
 
     @Column(nullable = false, length = 20)
     private String accountNumber; // 계좌번호
+
+    //== 생성 메서드 ==//
+    public static BankInfo createBankInfo(BankName bankName, String accountNumber){
+        return BankInfo.builder()
+                .bankName(bankName)
+                .accountNumber(accountNumber)
+                .build();
+    }
 }

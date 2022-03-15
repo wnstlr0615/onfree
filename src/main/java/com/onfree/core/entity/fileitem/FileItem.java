@@ -17,8 +17,25 @@ import javax.persistence.*;
 public class FileItem extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long fileItemId;
+
     @Embedded
     private UploadFile uploadFile;
+
     private String bucketPath;
+
+    @Enumerated(EnumType.STRING)
     private FileType fileType;
+
+    @Enumerated(EnumType.STRING)
+    private FileStatus status;
+
+    //== 생성 메서드 ==//
+    public static FileItem createFileItem(UploadFile uploadFile, String bucketPath, FileType fileType, FileStatus status) {
+        return FileItem.builder()
+                .uploadFile(uploadFile)
+                .bucketPath(bucketPath)
+                .fileType(fileType)
+                .status(status)
+                .build();
+    }
 }

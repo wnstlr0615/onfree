@@ -1,10 +1,12 @@
 package com.onfree.config.security.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onfree.common.error.code.LoginErrorCode;
 import com.onfree.common.error.exception.LoginException;
 import com.onfree.common.model.VerifyResult;
 import com.onfree.config.security.CustomUserDetail;
 import com.onfree.config.security.CustomUserDetailService;
+import com.onfree.config.security.dto.JwtLoginResponse;
 import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
 import com.onfree.core.entity.user.User;
 import com.onfree.core.service.LoginService;
@@ -13,7 +15,9 @@ import com.onfree.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -35,7 +39,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
     private final LoginService loginService;
     private final CookieUtil cookieUtil;
-
+    private final ObjectMapper mapper;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -53,7 +57,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             if (verify.isResult()) { //accessToken 이 유효한 경우
                 try {
                     oldRefreshToken = getCookieValue(request, REFRESH_TOKEN);
-                    if(isEmptyRefreshToken(username, oldRefreshToken)){// refreshToken 이 없는 경우 (로그아웃 )
+                    if(isWrongRefreshToken(username, oldRefreshToken)){// refreshToken 이 없거나 변저된 경우경우 (로그아웃 )
                         log.info("refresh token empty - username : {} ", username);
                         clearToken(response, username);
                         filterChain.doFilter(request,response);
@@ -73,7 +77,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
                 try {
                     log.info("accessToken expired - usernaem : {}", username);
                     oldRefreshToken = getCookieValue(request, REFRESH_TOKEN);
-                    if(isEmptyRefreshToken(username, oldRefreshToken) || tokenIsExpired(oldRefreshToken)){ //DB에 토큰이 없거나 토큰이 유효성이 지난 경우
+                    if(isWrongRefreshToken(username, oldRefreshToken) || tokenIsExpired(oldRefreshToken)){ //DB에 토큰이 없거나 토큰이 유효성이 지난 경우
                         log.info("accessToken expired && refreshToken empty  - username : {}", username);
                         clearToken(response, username);
                         filterChain.doFilter(request,response);
@@ -81,14 +85,13 @@ public class JwtCheckFilter extends OncePerRequestFilter {
                     }
                     log.info("accessToken and RefreshToken reissue - {}", username);
                     tokenCookieReset(response);
-                    accessTokenReissue(response, user);
-                    refreshTokenReissue(response, username, user);
-                    loginSuccess(customUserDetail);
+                    reissueTokenResponse(response, user);
+                    return;
                 } catch (LoginException e) {
                     clearToken(response, username);
                 }
             }
-        }catch (LoginException e) {
+        }catch (AuthenticationException e) {
             SecurityContextHolder.clearContext();
             authenticationEntryPoint.commence(request, response, e);
             return;
@@ -96,37 +99,41 @@ public class JwtCheckFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isEmptyRefreshToken(String username, String oldRefreshToken) {
-        return loginService.isEmptyRefreshToken(username, oldRefreshToken);
+    private boolean isWrongRefreshToken(String username, String oldRefreshToken) {
+        return loginService.isWrongRefreshToken(username, oldRefreshToken);
+
     }
 
-    private void accessTokenReissue(HttpServletResponse response, User user) {
+    private String accessTokenReissue(HttpServletResponse response, User user) {
+        String newAccessToken = createAccessToken(user);
         response.addCookie(
                 createAccessTokenCookie(
-                        createAccessToken(user)
+                        newAccessToken
                 )
         );
+        return newAccessToken;
     }
 
     private String createAccessToken(User user) {
         return jwtUtil.createAccessToken(user);
     }
 
-    private Cookie createAccessTokenCookie(String newRefreshToken) {
+    private Cookie createAccessTokenCookie(String accessToken) {
         return cookieUtil.createCookie(
                 ACCESS_TOKEN,
-                newRefreshToken,
+                accessToken,
                 (int) jwtUtil.getAccessTokenExpiredTime()
         );
     }
 
-    private void refreshTokenReissue(HttpServletResponse response, String username, User user) {
+    private String refreshTokenReissue(HttpServletResponse response, String username, User user) {
         log.info("refreshToken reissue - username : {}", username);
         final String refreshToken = createRefreshToken(user);
         response.addCookie(
                 createRefreshTokenCookie(refreshToken)
         );
         loginService.saveRefreshToken(username, refreshToken);
+        return refreshToken;
     }
 
     private Cookie createRefreshTokenCookie(String refreshToken) {
@@ -184,4 +191,38 @@ public class JwtCheckFilter extends OncePerRequestFilter {
         }
         return cookie.getValue();
     }
+
+    private void reissueTokenResponse(HttpServletResponse response, User user) throws IOException {
+        final JwtLoginResponse jwtLoginResponse = getJWTLoginResponse(user);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("utf-8");
+        response.getWriter().write(
+                mapper.writeValueAsString(
+                        jwtLoginResponse
+                )
+        );
+        response.setHeader("Authorization", BEARER+" " + jwtLoginResponse.getAccessToken());
+        response.addCookie(
+                cookieUtil.createCookie(ACCESS_TOKEN, jwtLoginResponse.getAccessToken(), (int)jwtUtil.getAccessTokenExpiredTime())
+        );
+        response.addCookie(
+                cookieUtil.createCookie(REFRESH_TOKEN, jwtLoginResponse.getRefreshToken(), (int)jwtUtil.getRefreshTokenExpiredTime())
+        );
+        loginService.saveRefreshToken(jwtLoginResponse.getUsername(), jwtLoginResponse.getRefreshToken());
+    }
+
+    private JwtLoginResponse getJWTLoginResponse(User user) {
+        final String accessToken = jwtUtil.createAccessToken(user);
+        final String refreshToken = jwtUtil.createRefreshToken(user);
+        return JwtLoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .username(user.getEmail())
+                .result(true)
+                .build();
+    }
+
+
+
+
 }

@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -42,7 +43,7 @@ public class CreateNoticeDto {
     @ApiModel("CreateNoticeDto_Response")
     @Getter
     @Builder
-    public static class Response{
+    public static class Response extends RepresentationModel<Response> {
         @ApiModelProperty(value = "noticeId", example = "1")
         private final Long noticeId;
 

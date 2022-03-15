@@ -1,5 +1,6 @@
 package com.onfree.common.error.handler;
 
+import com.onfree.common.error.code.ErrorCode;
 import com.onfree.common.error.exception.*;
 import com.onfree.common.error.response.ResponseResult;
 import lombok.extern.slf4j.Slf4j;
@@ -14,22 +15,19 @@ import javax.servlet.http.HttpServletRequest;
 public class GlobalExceptionHandler {
     @ExceptionHandler(UserException.class)
     public ResponseEntity<?>  userExceptionHandler(UserException e, HttpServletRequest request){
-        log.error("UserException  : {}", e.getErrorCode());
-        log.error("remoteHost: {},  request Url : {}",request.getRemoteHost(), request.getRequestURL());
+        printLog(request, "UserException", e.getErrorCode());
         return ResponseResult.fail(e.getErrorCode());
     }
 
     @ExceptionHandler(CustomerCenterException.class)
     public ResponseEntity<?> customerCenterExceptionHandler(CustomerCenterException e, HttpServletRequest request){
-        log.error("CustomerCenterException  : {}", e.getErrorCode());
-        log.error("remoteHost: {},  request Url : {}",request.getRemoteHost(), request.getRequestURL());
+        printLog(request, "CustomerCenterException", e.getErrorCode());
         return ResponseResult.fail(e.getErrorCode());
     }
 
     @ExceptionHandler(GlobalException.class)
     public ResponseEntity<?> globalExceptionHandler(GlobalException e, HttpServletRequest request){
-        log.error("GlobalException  : {}", e.getErrorCode());
-        log.error("remoteHost: {},  request Url : {}",request.getRemoteHost(), request.getRequestURL());
+        printLog(request, "GlobalException", e.getErrorCode());
         if(!e.getFieldErrors().isEmpty()){
             return ResponseResult.fail(e.getErrorCode(), e.getFieldErrors());
         }
@@ -38,14 +36,52 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MailSenderException.class)
     public ResponseEntity<?> mailSenderExceptionHandler(MailSenderException e, HttpServletRequest request){
-        log.error("MailSenderException  : {}", e.getErrorCode());
-        log.error("remoteHost: {},  request Url : {}",request.getRemoteHost(), request.getRequestURL());
+        printLog(request, "MailSenderException", e.getErrorCode());
         return ResponseResult.fail(e.getErrorCode());
     }
     @ExceptionHandler(SignUpException.class)
     public ResponseEntity<?> mailSenderExceptionHandler(SignUpException e, HttpServletRequest request){
-        log.error("SignUpException  : {}", e.getErrorCode());
-        log.error("remoteHost: {},  request Url : {}",request.getRemoteHost(), request.getRequestURL());
+        printLog(request, "SignUpException", e.getErrorCode());
         return ResponseResult.fail(e.getErrorCode());
+    }
+
+    @ExceptionHandler(DrawingFieldException.class)
+    public ResponseEntity<?> drawingFieldExceptionHandler(DrawingFieldException e, HttpServletRequest request){
+        printLog(request, "DrawingFieldException", e.getErrorCode());
+        return ResponseResult.fail(e.getErrorCode());
+    }
+
+    @ExceptionHandler(PortfolioException.class)
+    public ResponseEntity<?> portfolioExceptionHandler(PortfolioException e, HttpServletRequest request){
+        printLog(request, "PortfolioException", e.getErrorCode());
+        return ResponseResult.fail(e.getErrorCode());
+    }
+
+    @ExceptionHandler(FileException.class)
+    public ResponseEntity<?> fileExceptionHandler(FileException e, HttpServletRequest request){
+        printLog(request, "FileException", e.getErrorCode());
+        return ResponseResult.fail(e.getErrorCode());
+    }
+
+    @ExceptionHandler(RealTimeRequestException.class)
+    public ResponseEntity<?> realTimeRequestExceptionHandler(RealTimeRequestException e, HttpServletRequest request){
+        printLog(request, "RealTimeRequestException", e.getErrorCode());
+        return ResponseResult.fail(e.getErrorCode());
+    }
+
+    @ExceptionHandler(PortfolioRoomException.class)
+    public ResponseEntity<?> portfolioRoomExceptionHandler(PortfolioRoomException e, HttpServletRequest request){
+        printLog(request, "PortfolioRoomException", e.getErrorCode());
+        return ResponseResult.fail(e.getErrorCode());
+    }
+    @ExceptionHandler(RequestApplyException.class)
+    public ResponseEntity<?> requestApplyExceptionHandler(RequestApplyException e, HttpServletRequest request){
+        printLog(request, "RequestApplyException", e.getErrorCode());
+        return ResponseResult.fail(e.getErrorCode());
+    }
+
+    private void printLog(HttpServletRequest request, String exception, ErrorCode errorCode) {
+        log.error(exception + ": {}", errorCode);
+        log.error("remoteHost: {},  request Url : {}", request.getRemoteHost(), request.getRequestURL());
     }
 }

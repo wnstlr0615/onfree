@@ -4,9 +4,11 @@ import com.onfree.common.error.code.ErrorCode;
 import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.response.FieldErrorDto;
 import lombok.Getter;
+import org.springframework.validation.FieldError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class GlobalException extends RuntimeException{
@@ -25,10 +27,16 @@ public class GlobalException extends RuntimeException{
         this.errorCode = errorCode;
         this.errorMessage = errorCode.getDescription();
     }
-    public GlobalException(GlobalErrorCode errorCode, List<FieldErrorDto> fieldErrors) {
+    public GlobalException(GlobalErrorCode errorCode, List<FieldError> fieldErrors) {
         super(errorCode.getDescription());
         this.errorCode = errorCode;
         this.errorMessage = errorCode.getDescription();
-        this.fieldErrors=fieldErrors;
+        this.fieldErrors = getFieldErrorDtos(fieldErrors);
+    }
+
+    private List<FieldErrorDto> getFieldErrorDtos(List<FieldError> fieldErrors) {
+        return fieldErrors.stream()
+                .map(FieldErrorDto::fromFieldError)
+                .collect(Collectors.toList());
     }
 }

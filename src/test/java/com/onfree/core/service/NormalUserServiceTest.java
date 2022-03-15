@@ -1,17 +1,19 @@
 package com.onfree.core.service;
 
-import com.onfree.core.dto.user.DeletedUserResponse;
-import com.onfree.core.dto.user.normal.NormalUserDetail;
-import com.onfree.core.dto.user.normal.CreateNormalUser;
-import com.onfree.core.dto.user.normal.UpdateNormalUser;
-import com.onfree.core.entity.user.*;
-import com.onfree.core.repository.UserRepository;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
+import com.onfree.core.dto.user.artist.MobileCarrier;
+import com.onfree.core.dto.user.normal.CreateNormalUserDto;
+import com.onfree.core.dto.user.normal.NormalUserDetailDto;
+import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
+import com.onfree.core.entity.user.*;
+import com.onfree.core.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -37,9 +39,9 @@ class NormalUserServiceTest {
 
     @Test
     @DisplayName("[성공] 회원가입 요청 - 정상적인 요청 성공")
-    public void givenCreateUserRes_whenCreateUser_thenReturnSuccessfulResponse() throws Exception {
+    public void givenCreateUserRes_whenCreateUser_thenReturnSuccessfulResponse() {
         //given
-        final CreateNormalUser.Request userReq = givenCreateNormalUserReq();
+        final CreateNormalUserDto.Request userReq = givenCreateNormalUserReq();
         when(userRepository.save(any()))
                 .thenReturn(
                         getNormalUserEntity(userReq)
@@ -47,7 +49,7 @@ class NormalUserServiceTest {
         when(userRepository.countByEmail(any()))
                 .thenReturn(0);
         //when
-        CreateNormalUser.Response response = normalUserService.createdNormalUser(
+        CreateNormalUserDto.Response response = normalUserService.addNormalUser(
                 userReq
         );
         //then
@@ -56,12 +58,12 @@ class NormalUserServiceTest {
         assertThat(response)
                 .hasFieldOrPropertyWithValue("adultCertification", userReq.getAdultCertification())
                 .hasFieldOrPropertyWithValue("email", userReq.getEmail())
-                .hasFieldOrPropertyWithValue("gender", userReq.getGender().getName())
+                .hasFieldOrPropertyWithValue("gender", userReq.getGender())
                 .hasFieldOrPropertyWithValue("name", userReq.getName())
                 .hasFieldOrPropertyWithValue("nickname", userReq.getNickname())
-                .hasFieldOrPropertyWithValue("newsAgency", userReq.getNewsAgency())
+                .hasFieldOrPropertyWithValue("mobileCarrier", userReq.getMobileCarrier())
                 .hasFieldOrPropertyWithValue("phoneNumber", userReq.getPhoneNumber())
-                .hasFieldOrPropertyWithValue("bankName", userReq.getBankName().getBankName())
+                .hasFieldOrPropertyWithValue("bankName", userReq.getBankName())
                 .hasFieldOrPropertyWithValue("accountNumber", userReq.getAccountNumber())
                 .hasFieldOrPropertyWithValue("advertisementAgree", userReq.getAdvertisementAgree())
                 .hasFieldOrPropertyWithValue("personalInfoAgree", userReq.getPersonalInfoAgree())
@@ -72,7 +74,7 @@ class NormalUserServiceTest {
 
     @Test
     @DisplayName("[실패] 회원가입 요청 - 이메일(아이디) 중복으로 인한 회원가입 실패")
-    public void givenDuplicatedUserEmail_whenCreateUser_thenUserEmailDuplicatedError() throws Exception {
+    public void givenDuplicatedUserEmail_whenCreateUser_thenUserEmailDuplicatedError() {
         //given
         when(userRepository.countByEmail(any()))
                 .thenReturn(1);
@@ -80,7 +82,7 @@ class NormalUserServiceTest {
 
         //when
         UserException userException = assertThrows(UserException.class,
-                () -> normalUserService.createdNormalUser(
+                () -> normalUserService.addNormalUser(
                         givenCreateNormalUserReq()
                 ));
 
@@ -92,8 +94,8 @@ class NormalUserServiceTest {
 
     }
 
-    private CreateNormalUser.Request givenCreateNormalUserReq() {
-        return CreateNormalUser.Request
+    private CreateNormalUserDto.Request givenCreateNormalUserReq() {
+        return CreateNormalUserDto.Request
                 .builder()
                 .adultCertification(Boolean.TRUE)
                 .email("jun@naver.com")
@@ -101,7 +103,7 @@ class NormalUserServiceTest {
                 .gender(Gender.MAN)
                 .name("준식")
                 .nickname("온프리프리")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-8888-9999")
@@ -112,69 +114,45 @@ class NormalUserServiceTest {
                 .profileImage("http://onfree.io/images/123456789")
                 .build();
     }
-    private NormalUser getNormalUserEntity(CreateNormalUser.Request request){
-        return  getNormalUserEntity(request, 1L);
+
+    private NormalUser getNormalUserEntity(CreateNormalUserDto.Request request) {
+        return getNormalUserEntity(request, 1L);
     }
 
 
     @Test
     @DisplayName("[성공] 사용자 정보 조회 ")
-    public void givenUserId_whenGetUserInfo_thenUserInfo() throws Exception {
+    public void givenUserId_whenGetUserInfo_thenUserInfo() {
         //given
         final long userId = 1L;
-        final CreateNormalUser.Request request = givenCreateNormalUserReq();
-        when(userRepository.findById(any()))
+        when(userRepository.findById(anyLong()))
                 .thenReturn(
-                        Optional.of(
-                                getNormalUserEntity(request)
-                        )
+                        Optional.of(getNormalUserEntity(userId))
                 );
         //when
-        final NormalUserDetail userInfo = normalUserService.getUserDetail(userId);
+        final NormalUserDetailDto userInfo = normalUserService.getUserDetail(anyLong());
         //then
-        verify(userRepository, times(1)).findById(any());
         assertThat(userInfo)
-                .hasFieldOrPropertyWithValue("adultCertification", request.getAdultCertification())
-                .hasFieldOrPropertyWithValue("email", request.getEmail())
-                .hasFieldOrPropertyWithValue("gender", request.getGender().getName())
-                .hasFieldOrPropertyWithValue("name", request.getName())
-                .hasFieldOrPropertyWithValue("nickname", request.getNickname())
-                .hasFieldOrPropertyWithValue("newsAgency", request.getNewsAgency())
-                .hasFieldOrPropertyWithValue("phoneNumber", request.getPhoneNumber())
-                .hasFieldOrPropertyWithValue("bankName", request.getBankName().getBankName())
-                .hasFieldOrPropertyWithValue("accountNumber", request.getAccountNumber())
-                .hasFieldOrPropertyWithValue("advertisementAgree", request.getAdvertisementAgree())
-                .hasFieldOrPropertyWithValue("personalInfoAgree", request.getPersonalInfoAgree())
-                .hasFieldOrPropertyWithValue("policyAgree", request.getPolicyAgree())
-                .hasFieldOrPropertyWithValue("serviceAgree", request.getServiceAgree())
-                .hasFieldOrPropertyWithValue("profileImage", request.getProfileImage());
+                .hasFieldOrPropertyWithValue("adultCertification", true)
+                .hasFieldOrPropertyWithValue("email", "jun@naver.com")
+                .hasFieldOrPropertyWithValue("gender", Gender.MAN)
+                .hasFieldOrPropertyWithValue("name", "준식")
+                .hasFieldOrPropertyWithValue("nickname", "joon")
+                .hasFieldOrPropertyWithValue("mobileCarrier", MobileCarrier.SKT)
+                .hasFieldOrPropertyWithValue("phoneNumber", "010-8888-9999")
+                .hasFieldOrPropertyWithValue("bankName", BankName.IBK_BANK)
+                .hasFieldOrPropertyWithValue("accountNumber", "010-8888-9999")
+                .hasFieldOrPropertyWithValue("advertisementAgree", true)
+                .hasFieldOrPropertyWithValue("personalInfoAgree", true)
+                .hasFieldOrPropertyWithValue("policyAgree", true)
+                .hasFieldOrPropertyWithValue("serviceAgree", true)
+                .hasFieldOrPropertyWithValue("profileImage", "http://onfree.io/images/123456789")
+        ;
     }
 
-    @Test
-    @DisplayName("[실패] 사용자 정보 조회 - 없는 유저 아이디로 조회")
-    public void givenWrongUserId_whenGetUserInfo_thenNotFoundUserId() throws Exception {
-        //given
-        final long userId = 1L;
-        final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
-
-        when(userRepository.findById(any()))
-                .thenReturn(
-                        Optional.empty()
-                );
-        //when
-        final UserException userException = assertThrows(UserException.class,
-                () -> normalUserService.getUserDetail(userId)
-        );
-
-        //then
-        verify(userRepository, times(1)).findById(any());
-        assertThat(userException)
-                .hasFieldOrPropertyWithValue("errorCode", errorCode)
-                .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
-    }
     @Test
     @DisplayName("[성공] 사용자 계정 삭제")
-    public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse() throws Exception{
+    public void givenDeletedUserId_whenDeletedUser_thenDeleteUserResponse() {
         //given
         final long deletedUserId = 1L;
         when(userRepository.findById(deletedUserId))
@@ -184,21 +162,19 @@ class NormalUserServiceTest {
                         ))
                 );
         //when
-        final DeletedUserResponse deletedUserResponse = normalUserService.deletedNormalUser(deletedUserId);
+        normalUserService.removeNormalUser(deletedUserId);
         //then
-        assertThat(deletedUserResponse)
-                .hasFieldOrPropertyWithValue("userId", deletedUserId)
-                .hasFieldOrPropertyWithValue("deleted", true);
+
         verify(userRepository, times(1)).findById(eq(deletedUserId));
     }
 
-    private NormalUser getNormalUserEntity(CreateNormalUser.Request request, Long userId) {
+    private NormalUser getNormalUserEntity(CreateNormalUserDto.Request request, Long userId) {
         return getNormalUserEntity(request, userId, false);
     }
 
     @Test
     @DisplayName("[실패] 사용자 계정 삭제 - userId가 없는 경우")
-    public void givenWrongDeletedUserId_whenDeletedUser_thenNotFoundUserId() throws Exception{
+    public void givenWrongDeletedUserId_whenDeletedUser_thenNotFoundUserId() {
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.NOT_FOUND_USERID;
@@ -209,7 +185,7 @@ class NormalUserServiceTest {
                 );
         //when
         final UserException userException = assertThrows(UserException.class,
-                () -> normalUserService.deletedNormalUser(deletedUserId));
+                () -> normalUserService.removeNormalUser(deletedUserId));
         //then
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", errorCode)
@@ -219,7 +195,7 @@ class NormalUserServiceTest {
 
     @Test
     @DisplayName("[실패] 사용자 계정 삭제 - 이미 삭제된 계정인 경우")
-    public void givenAlreadyDeletedUserId_whenDeletedUser_thenAlreadyUserDeleted() throws Exception{
+    public void givenAlreadyDeletedUserId_whenDeletedUser_thenAlreadyUserDeleted() {
         //given
         final long deletedUserId = 1L;
         final UserErrorCode errorCode = UserErrorCode.ALREADY_USER_DELETED;
@@ -235,14 +211,15 @@ class NormalUserServiceTest {
                 );
         //when
         final UserException userException = assertThrows(UserException.class,
-                () -> normalUserService.deletedNormalUser(deletedUserId));
+                () -> normalUserService.removeNormalUser(deletedUserId));
         //then
         assertThat(userException)
                 .hasFieldOrPropertyWithValue("errorCode", errorCode)
                 .hasFieldOrPropertyWithValue("errorMessage", errorCode.getDescription());
         verify(userRepository, times(1)).findById(eq(deletedUserId));
     }
-    private NormalUser getNormalUserEntity(CreateNormalUser.Request request, Long userId, boolean deleted){
+
+    private NormalUser getNormalUserEntity(CreateNormalUserDto.Request request, Long userId, boolean deleted) {
         final BankInfo bankInfo = getBankInfo(request.getBankName(), request.getAccountNumber());
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(request.getAdvertisementAgree())
@@ -258,7 +235,7 @@ class NormalUserServiceTest {
                 .password(request.getPassword())
                 .gender(request.getGender())
                 .name(request.getName())
-                .newsAgency(request.getNewsAgency())
+                .mobileCarrier(request.getMobileCarrier())
                 .phoneNumber(request.getPhoneNumber())
                 .bankInfo(bankInfo)
                 .userAgree(userAgree)
@@ -268,31 +245,25 @@ class NormalUserServiceTest {
                 .role(Role.NORMAL)
                 .build();
     }
+
     @Test
     @DisplayName("[성공] 사용자 계정 수정 ")
-    public void givenUpdateNormalUserReq_whenModifiedUser_thenReturnUpdateNormalUserResponse() throws Exception{
+    public void givenUpdateNormalUserReq_whenModifiedUser_thenReturnUpdateNormalUserResponse() {
         //given
         final long userId = 1L;
-        final UpdateNormalUser.Request request = givenUpdateNormalUserReq();
+        final UpdateNormalUserDto.Request request = givenUpdateNormalUserReq();
         when(userRepository.findById(any()))
                 .thenReturn(
                         Optional.of(getNormalUserEntity(userId))
                 );
         //when
-        final UpdateNormalUser.Response response = normalUserService.modifyedUser(userId, request);
+        normalUserService.modifyNormalUser(userId, request);
         //then
-        assertThat(response)
-            .hasFieldOrPropertyWithValue("nickname",request.getNickname())
-            .hasFieldOrPropertyWithValue("bankName",request.getBankName())
-            .hasFieldOrPropertyWithValue("accountNumber",request.getAccountNumber())
-            .hasFieldOrPropertyWithValue("newsAgency",request.getNewsAgency())
-            .hasFieldOrPropertyWithValue("phoneNumber",request.getPhoneNumber())
-            .hasFieldOrPropertyWithValue("adultCertification",request.getAdultCertification())
-            .hasFieldOrPropertyWithValue("profileImage",request.getProfileImage())
-        ;
+
         verify(userRepository, times(1)).findById(eq(userId));
     }
-    public NormalUser getNormalUserEntity(long userId){
+
+    public NormalUser getNormalUserEntity(long userId) {
         return NormalUser.builder()
                 .userId(userId)
                 .adultCertification(Boolean.TRUE)
@@ -300,7 +271,8 @@ class NormalUserServiceTest {
                 .password("!Abcderghijk112")
                 .gender(Gender.MAN)
                 .name("준식")
-                .newsAgency("SKT")
+                .nickname("joon")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
                         getBankInfo(BankName.IBK_BANK, "010-8888-9999")
@@ -321,12 +293,13 @@ class NormalUserServiceTest {
                 .personalInfo(true)
                 .build();
     }
-    private UpdateNormalUser.Request givenUpdateNormalUserReq() {
-        return UpdateNormalUser.Request.builder()
+
+    private UpdateNormalUserDto.Request givenUpdateNormalUserReq() {
+        return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")
                 .bankName(BankName.IBK_BANK)
                 .accountNumber("010-0000-0000")
-                .newsAgency("SKT")
+                .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
                 .profileImage("http://onfree.io/images/aaa123")
@@ -339,23 +312,5 @@ class NormalUserServiceTest {
                 .accountNumber(accountNumber)
                 .build();
     }
-    @Test
-    @DisplayName("[실패] 사용자 계정 수정 - userId가 존재하지 않는 경우")
-    public void givenWrongUserId_whenModifiedUser_thenNorFoundUserId() throws Exception{
-        //given
-        final long wrongUserId = 1L;
-        final UpdateNormalUser.Request request = givenUpdateNormalUserReq();
-        when(userRepository.findById(any()))
-                .thenReturn(
-                        Optional.empty()
-                );
-        //when
-        final UserException userException = assertThrows(UserException.class, () -> normalUserService.modifyedUser(wrongUserId, request));
-        //then
-        assertThat(userException)
-                .hasFieldOrPropertyWithValue("errorCode", UserErrorCode.NOT_FOUND_USERID)
-                .hasFieldOrPropertyWithValue("errorMessage", UserErrorCode.NOT_FOUND_USERID.getDescription())
-        ;
-        verify(userRepository, times(1)).findById(eq(wrongUserId));
-    }
+
 }

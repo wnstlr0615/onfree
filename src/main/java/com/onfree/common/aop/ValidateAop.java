@@ -19,21 +19,32 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class ValidateAop {
+    //삭제 예정 ( *Add 로 메소드명 변경)
     @Pointcut("execution(* com.onfree.controller..create*(..))")
     public void isCreate(){}
 
     @Pointcut("execution(* com.onfree.controller..update*(..))")
-    public void isUpdate(){}
+    public void isUpdatePrefix(){}
 
-    @Around("isCreate() || isUpdate()")
+    @Pointcut("execution(* com.onfree.controller..*Update(..))")
+    public void isUpdateSuffix(){}
+
+    @Pointcut("execution(* com.onfree.controller..*Modify(..))")
+    public void isModify(){}
+
+    @Pointcut("execution(* com.onfree.controller..*Add(..))")
+    public void isAdd(){}
+
+
+
+    @Around("isCreate() || isUpdatePrefix() || isAdd() ||  isUpdateSuffix() || isModify()")
     public Object validatedRequestBody(ProceedingJoinPoint joinPoint) throws Throwable {
         for(Object o : joinPoint.getArgs()){
             if(o instanceof BindingResult){
                 BindingResult error = (BindingResult)o;
                 if(error.hasErrors()){
                     printFiledLog(error, joinPoint);
-                    final List<FieldErrorDto> fieldErrorDtos = getFieldErrorDtos(error);
-                    throw new GlobalException(GlobalErrorCode.NOT_VALIDATED_REQUEST, fieldErrorDtos);
+                    throw new GlobalException(GlobalErrorCode.NOT_VALIDATED_REQUEST, error.getFieldErrors());
                 }
             }
         }
@@ -49,11 +60,7 @@ public class ValidateAop {
                         )
                );
     }
-    private List<FieldErrorDto> getFieldErrorDtos(BindingResult errors) {
-        return errors.getFieldErrors().stream()
-                .map(FieldErrorDto::fromFieldError)
-                .collect(Collectors.toList());
-    }
+
 
 
 }

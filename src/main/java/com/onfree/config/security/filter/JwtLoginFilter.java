@@ -39,7 +39,7 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
     private final CookieUtil cookieUtil;
 
     public JwtLoginFilter(AuthenticationManager authenticationManager, AuthenticationFailureHandler authenticationFailureHandler, ObjectMapper mapper, LoginService loginService, JWTUtil jwtUtil, CookieUtil cookieUtil) {
-        super("/login", authenticationManager);
+        super("/api/v1/login", authenticationManager);
         super.setAuthenticationFailureHandler(authenticationFailureHandler);
         this.mapper = mapper;
         this.loginService = loginService;
