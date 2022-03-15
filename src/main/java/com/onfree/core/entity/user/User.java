@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class User extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

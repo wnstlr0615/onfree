@@ -91,17 +91,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         String[] onlyArtistUrl = new String[]{
                 "/api/v1/users/artist/**",
                 "/api/v1/upload/profile-image",
-                "/api/v1/upload/portfolio-content-image",
-                "/api/v1/real-time-requests/*/apply"
-        };
-        String[] authenticatedUrl= new String[]{
-                "/api/v1/users/me/**", "/api/v1/users/artist/*/apply",
+                "/api/v1/upload/portfolio-content-image"
         };
         http.authorizeRequests()
                 .antMatchers(whiteList).permitAll()
                 .antMatchers(HttpMethod.GET, getWhiteList).permitAll()
                 .antMatchers(HttpMethod.POST, postWhiteList).permitAll()
-                .antMatchers(authenticatedUrl).permitAll()
+                .antMatchers("/api/v1/users/me/**").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/notices/**", "/api/v1/questions/**").hasRole("ADMIN")
                 .antMatchers(onlyArtistUrl).hasRole("ARTIST")
                 .antMatchers("/api/v1/users/normal/**").hasRole("NORMAL")
                 .anyRequest().authenticated();
