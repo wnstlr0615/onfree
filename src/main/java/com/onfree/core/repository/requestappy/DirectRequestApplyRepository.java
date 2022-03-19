@@ -1,4 +1,4 @@
-package com.onfree.core.repository;
+package com.onfree.core.repository.requestappy;
 
 import com.onfree.core.entity.requestapply.DirectRequestApply;
 import com.onfree.core.entity.user.ArtistUser;
