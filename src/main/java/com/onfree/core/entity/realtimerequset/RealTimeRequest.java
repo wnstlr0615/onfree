@@ -22,11 +22,6 @@ public class RealTimeRequest extends BaseTimeEntity {
     @Column(nullable = false)
     private String content; // 프로젝트 내용
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @Setter
-    private User user;
-
     @Column(nullable = false)
     private LocalDate startDate; // 시작 일
 
@@ -36,6 +31,11 @@ public class RealTimeRequest extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UseType useType; // 용도
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @Setter
+    private User user;
 
     private String referenceLink; // 참고 링크
 

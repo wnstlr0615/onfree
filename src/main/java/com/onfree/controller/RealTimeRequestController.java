@@ -36,7 +36,7 @@ public class RealTimeRequestController {
     /**
      * 실시간 의뢰 전체 조회
      */
-    @ApiOperation(value = "실시간 의뢰 전체 보기", hidden = true)
+    @ApiOperation(value = "실시간 의뢰 전체 보기")
     @GetMapping("")
     public ResponseEntity<?>realTimeRequestList(
             @ApiParam(name = "page", example = "0", required = true)

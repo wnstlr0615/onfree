@@ -33,4 +33,8 @@ public abstract class RequestApply extends BaseTimeEntity {
         this.artistUser = artistUser;
         this.status = status;
     }
+
+    public void updateStatus(RequestApplyStatus status) {
+        this.status =status;
+    }
 }

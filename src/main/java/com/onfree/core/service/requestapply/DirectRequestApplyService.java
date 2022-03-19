@@ -7,7 +7,7 @@ import com.onfree.core.entity.requestapply.RequestApplyStatus;
 import com.onfree.core.entity.user.ArtistUser;
 import com.onfree.core.entity.user.User;
 import com.onfree.core.repository.ArtistUserRepository;
-import com.onfree.core.repository.DirectRequestApplyRepository;
+import com.onfree.core.repository.requestappy.DirectRequestApplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
