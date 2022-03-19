@@ -1,4 +1,4 @@
-package com.onfree.core.dto.external.toss.payment;
+package com.onfree.core.entity.payment;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,5 +1,6 @@
 package com.onfree.core.dto.external.toss.payment;
 
+import com.onfree.core.entity.payment.AcquireStatus;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

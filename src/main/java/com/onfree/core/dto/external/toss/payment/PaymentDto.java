@@ -1,6 +1,7 @@
 package com.onfree.core.dto.external.toss.payment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.onfree.core.entity.payment.TossPaymentStatus;
 import lombok.*;
 
 import java.util.Date;
