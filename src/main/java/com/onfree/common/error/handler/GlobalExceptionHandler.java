@@ -80,6 +80,11 @@ public class GlobalExceptionHandler {
         return ResponseResult.fail(e.getErrorCode());
     }
 
+    @ExceptionHandler(ChattingException.class)
+    public ResponseEntity<?> requestApplyExceptionHandler(ChattingException e, HttpServletRequest request){
+        printLog(request, "ChattingException", e.getErrorCode());
+        return ResponseResult.fail(e.getErrorCode());
+    }
     private void printLog(HttpServletRequest request, String exception, ErrorCode errorCode) {
         log.error(exception + ": {}", errorCode);
         log.error("remoteHost: {},  request Url : {}", request.getRemoteHost(), request.getRequestURL());
