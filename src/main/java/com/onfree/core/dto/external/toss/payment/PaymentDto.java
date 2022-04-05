@@ -1,10 +1,21 @@
 package com.onfree.core.dto.external.toss.payment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.onfree.core.entity.payment.Cancel;
+import com.onfree.core.entity.payment.Card;
+import com.onfree.core.entity.payment.Payment;
 import com.onfree.core.entity.payment.TossPaymentStatus;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,9 +43,52 @@ public class PaymentDto {
     private String easyPay; // 간편 결제 사용시 간편 결제 타입 정보
     private Long taxFreeAmount; //면세 금액
 
-    //결제 관련 정보보
+    //결제 관련 정보
     private CardDto card; // 카드 결제시 카드 관련 정보
 
+    //취소 관련 정보
+    private List<CancelDto> cancels ;
+
+    public Payment toEntity(){
+        Card card = (getCard() != null) ? getCard().toEntity(): null;
+        LocalDateTime requestedAtLocalDateTime
+                = requestedAt.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime approvedAtLocalDateTime
+                = approvedAt.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+        List<Cancel> cancels = new ArrayList<>();
+
+        if(this.cancels != null){
+            cancels = this.cancels.stream()
+                    .map(CancelDto::toCancel)
+                    .collect(Collectors.toList());
+        }
+
+        Payment payment = Payment.builder()
+                .paymentKey(paymentKey)
+                .orderId(orderId)
+                .orderName(orderName)
+                .currency(currency)
+                .method(method)
+                .totalAmount(totalAmount)
+                .balanceAmount(balanceAmount)
+                .suppliedAmount(suppliedAmount)
+                .vat(vat)
+                .status(status)
+                .requestedAt(requestedAtLocalDateTime)
+                .approvedAt(approvedAtLocalDateTime)
+                .useEscrow(useEscrow)
+                .cultureExpense(cultureExpense)
+                .secret(secret)
+                .type(type)
+                .easyPay(easyPay)
+                .taxFreeAmount(taxFreeAmount)
+                .card(card)
+                .build();
+        payment.getCancels().addAll(cancels);
+
+        return payment;
+    }
     @Override
     public String toString() {
         return "PaymentDto{" +

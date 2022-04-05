@@ -1,14 +1,17 @@
-package com.onfree.core.dto.external.toss.payment;
+package com.onfree.core.entity.payment;
 
-import com.onfree.core.entity.payment.AcquireStatus;
-import com.onfree.core.entity.payment.Card;
 import lombok.*;
 
+import javax.persistence.*;
+
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@ToString
-public class CardDto {
+@Builder
+public class Card {
+    @Id @GeneratedValue
+    private Long cardId;
     private String company; // 카드사 코드
     private String number; // 카드 번호 (일부 마스킹 처리됨)
     private Integer installmentPlanMonths; //할부 개월 수
@@ -17,21 +20,7 @@ public class CardDto {
     private String cardType; // 카드 타입(신용, 체크, 기프트)
     private String ownerType; // 카드 소유자 타입(개인, 법인)
     private String receiptUrl; //  카드 매출 전표 조회 페이지 주소
+    @Enumerated(EnumType.STRING)
     private AcquireStatus acquireStatus; //카드 결제의 매입상태
     private Boolean isInterestFree; // 무이자 할부 적용 여부
-
-    public  Card toEntity() {
-        return Card.builder()
-                .company(company)
-                .number(number)
-                .installmentPlanMonths(installmentPlanMonths)
-                .approveNo(approveNo)
-                .useCardPoint(useCardPoint)
-                .cardType(cardType)
-                .ownerType(ownerType)
-                .receiptUrl(receiptUrl)
-                .acquireStatus(acquireStatus)
-                .isInterestFree(isInterestFree)
-                .build();
-    }
 }

@@ -23,17 +23,18 @@ public class Chatting extends BaseTimeEntity {
     private User sender; // 보내는 사람
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipient_id")
-    private User recipient; // 받는 사람
-
+    @JoinColumn(name = "receiver_id")
+    private User receiver; // 받는 사람
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "apply_id")
     private RequestApply requestApply;
 
-    public Chatting(User sender, User recipient, RequestApply requestApply) {
+
+    public Chatting(User sender, User receiver, RequestApply requestApply) {
         this.sender = sender;
-        this.recipient = recipient;
+        this.receiver = receiver;
         this.requestApply = requestApply;
     }
+
 }

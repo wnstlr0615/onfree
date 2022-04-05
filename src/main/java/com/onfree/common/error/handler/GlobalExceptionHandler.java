@@ -81,8 +81,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ChattingException.class)
-    public ResponseEntity<?> requestApplyExceptionHandler(ChattingException e, HttpServletRequest request){
+    public ResponseEntity<?> chattingExceptionHandler(ChattingException e, HttpServletRequest request){
         printLog(request, "ChattingException", e.getErrorCode());
+        return ResponseResult.fail(e.getErrorCode());
+    }
+
+    @ExceptionHandler(TossPaymentException.class)
+    public ResponseEntity<?> tossPaymentExceptionHandler(TossPaymentException e, HttpServletRequest request){
+        printLog(request, "tossPaymentException", e.getErrorCode());
         return ResponseResult.fail(e.getErrorCode());
     }
     private void printLog(HttpServletRequest request, String exception, ErrorCode errorCode) {

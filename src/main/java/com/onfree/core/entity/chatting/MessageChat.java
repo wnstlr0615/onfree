@@ -19,15 +19,15 @@ public class MessageChat extends Chatting{
     private String message;
 
     @Builder
-    public MessageChat(User sender, User recipient, RequestApply requestApply, String message) {
-        super(sender, recipient, requestApply);
+    public MessageChat(User sender, User receiver, RequestApply requestApply, String message) {
+        super(sender, receiver, requestApply);
         this.message = message;
     }
 
-    public static MessageChat createMessageChat(User sender, User recipient, RequestApply requestApply, String message) {
+    public static MessageChat createMessageChat(User sender, User receiver, RequestApply requestApply, String message) {
         return MessageChat.builder()
                 .sender(sender)
-                .recipient(recipient)
+                .receiver(receiver)
                 .requestApply(requestApply)
                 .message(message)
                 .build();

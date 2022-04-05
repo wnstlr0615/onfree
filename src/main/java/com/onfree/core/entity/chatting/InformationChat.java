@@ -4,6 +4,7 @@ import com.onfree.core.entity.requestapply.RequestApply;
 import com.onfree.core.entity.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.DiscriminatorValue;
@@ -11,29 +12,27 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
-@DiscriminatorValue(value = "notification")
-public class NotificationChat extends Chatting{
-
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@DiscriminatorValue(value = "information")
+public class InformationChat extends Chatting{
     @Enumerated(EnumType.STRING)
-    private NotificationChatType type;
+    private InformationChatType type;
 
     @Builder
-    public NotificationChat(User sender, User receiver, RequestApply requestApply, String message, NotificationChatType type) {
+    public InformationChat(User sender, User receiver, RequestApply requestApply, InformationChatType type) {
         super(sender, receiver, requestApply);
         this.type = type;
     }
 
-    //== 생성 메서드 ==//
-    public static NotificationChat createNotificationChat(RequestApply requestApply, User sender, User receiver, NotificationChatType type) {
-        return NotificationChat.builder()
+    public static InformationChat createInformationChat(RequestApply requestApply, InformationChatType type){
+        return InformationChat.builder()
+                .sender(null)
+                .receiver(null)
                 .requestApply(requestApply)
-                .sender(sender)
-                .receiver(receiver)
                 .type(type)
                 .build();
     }
-
 }

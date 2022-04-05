@@ -252,7 +252,7 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
     private ArtistUser getArtistUser(long userId) {
         final BankInfo bankInfo = BankInfo.builder()
                 .accountNumber("010-0000-0000")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .build();
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(true)
@@ -337,7 +337,7 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
-                        BankInfo.createBankInfo(BankName.IBK_BANK, "010-8888-9999")
+                        BankInfo.createBankInfo(BankName.IBK, "010-8888-9999")
                 )
                 .userAgree(
                         UserAgree.createUserAgree(true,true,true,true)

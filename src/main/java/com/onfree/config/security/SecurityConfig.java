@@ -80,13 +80,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/api/v1/notices/**",  "/api/v1/questions/**",
                 "/api/v1/portfolios/**", "/api/v1/users/artist/**",
                 "/api/v1/images/**", "/api/v1/real-time-requests/**",
-                "/api/v1/portfolio-rooms/**"
+                "/api/v1/portfolio-rooms/**", "/api/v1/toss/payments/**"
 
         };
         String[] postWhiteList = new String[]{
                 "/api/v1/upload/profile-image",
                 "/api/v1/users/artist",
-                "/api/v1/users/normal"
+                "/api/v1/users/normal",
+                "/api/v1/applications/**"
         };
         String[] onlyArtistUrl = new String[]{
                 "/api/v1/users/artist/**",
