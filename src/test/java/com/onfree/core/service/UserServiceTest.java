@@ -85,7 +85,7 @@ class UserServiceTest {
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
-                        getBankInfo(BankName.IBK_BANK, "010-0000-0000")
+                        getBankInfo(BankName.IBK, "010-0000-0000")
                 )
                 .userAgree(
                         getUserAgree()

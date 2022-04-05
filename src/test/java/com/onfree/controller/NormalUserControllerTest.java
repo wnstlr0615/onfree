@@ -64,7 +64,7 @@ class NormalUserControllerTest extends ControllerBaseTest {
             .andExpect(jsonPath("$.email").value("jun@naver.com"))
             .andExpect(jsonPath("$.mobileCarrier").value(MobileCarrier.SKT.toString()))
             .andExpect(jsonPath("$.phoneNumber").value("010-8888-9999"))
-            .andExpect(jsonPath("$.bankName").value(BankName.IBK_BANK.name()))
+            .andExpect(jsonPath("$.bankName").value(BankName.IBK.name()))
             .andExpect(jsonPath("$.accountNumber").value("010-8888-9999"))
             .andExpect(jsonPath("$.serviceAgree").value(true))
             .andExpect(jsonPath("$.policyAgree").value(true))
@@ -89,7 +89,7 @@ class NormalUserControllerTest extends ControllerBaseTest {
                 .name("준식")
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-8888-9999")
                 .advertisementAgree(true)
                 .personalInfoAgree(true)
@@ -189,7 +189,7 @@ class NormalUserControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$.email").value("jun@naver.com"))
                 .andExpect(jsonPath("$.mobileCarrier").value(MobileCarrier.SKT.toString()))
                 .andExpect(jsonPath("$.phoneNumber").value("010-8888-9999"))
-                .andExpect(jsonPath("$.bankName").value(BankName.IBK_BANK.name()))
+                .andExpect(jsonPath("$.bankName").value(BankName.IBK.name()))
                 .andExpect(jsonPath("$.accountNumber").value("010-8888-9999"))
                 .andExpect(jsonPath("$.serviceAgree").value(true))
                 .andExpect(jsonPath("$.policyAgree").value(true))
@@ -212,7 +212,7 @@ class NormalUserControllerTest extends ControllerBaseTest {
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
-                        BankInfo.createBankInfo(BankName.IBK_BANK, "010-8888-9999")
+                        BankInfo.createBankInfo(BankName.IBK, "010-8888-9999")
                 )
                 .userAgree(
                         UserAgree.createUserAgree(true,true,true,true)
@@ -360,7 +360,7 @@ class NormalUserControllerTest extends ControllerBaseTest {
     private UpdateNormalUserDto.Response getUpdateNormalUserRes() {
         return UpdateNormalUserDto.Response.builder()
                 .nickname("온프리프리")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-0000-0000")
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
@@ -372,7 +372,7 @@ class NormalUserControllerTest extends ControllerBaseTest {
     private UpdateNormalUserDto.Request givenUpdateNormalUserReq() {
         return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-0000-0000")
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")

@@ -105,7 +105,7 @@ class NormalUserServiceTest {
                 .nickname("온프리프리")
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-8888-9999")
                 .advertisementAgree(true)
                 .personalInfoAgree(true)
@@ -140,7 +140,7 @@ class NormalUserServiceTest {
                 .hasFieldOrPropertyWithValue("nickname", "joon")
                 .hasFieldOrPropertyWithValue("mobileCarrier", MobileCarrier.SKT)
                 .hasFieldOrPropertyWithValue("phoneNumber", "010-8888-9999")
-                .hasFieldOrPropertyWithValue("bankName", BankName.IBK_BANK)
+                .hasFieldOrPropertyWithValue("bankName", BankName.IBK)
                 .hasFieldOrPropertyWithValue("accountNumber", "010-8888-9999")
                 .hasFieldOrPropertyWithValue("advertisementAgree", true)
                 .hasFieldOrPropertyWithValue("personalInfoAgree", true)
@@ -275,7 +275,7 @@ class NormalUserServiceTest {
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
-                        getBankInfo(BankName.IBK_BANK, "010-8888-9999")
+                        getBankInfo(BankName.IBK, "010-8888-9999")
                 )
                 .userAgree(
                         getUserAgree()
@@ -297,7 +297,7 @@ class NormalUserServiceTest {
     private UpdateNormalUserDto.Request givenUpdateNormalUserReq() {
         return UpdateNormalUserDto.Request.builder()
                 .nickname("온프리프리")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-0000-0000")
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")

@@ -21,6 +21,8 @@ public abstract class PortfolioContent extends BaseEntity {
     @JoinColumn(name = "port_folio_id")
     private Portfolio portFolio;
 
+
+    //== 연관 관계 메서드 ==//
     public void setPortfolio(Portfolio portFolio) {
         if(this.portFolio != null){
             this.portFolio.getPortfolioContents().remove(this);
@@ -30,7 +32,6 @@ public abstract class PortfolioContent extends BaseEntity {
 
         if(!portFolio.getPortfolioContents().contains(this)){
             portFolio.getPortfolioContents().add(this);
-
         }
     }
 }

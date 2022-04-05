@@ -90,7 +90,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
                 .name("준식")
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-8888-9999")
                 .advertisementAgree(true)
                 .personalInfoAgree(true)
@@ -351,7 +351,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
     private UpdateArtistUserDto.Response getUpdateArtistUserRes() {
         return UpdateArtistUserDto.Response.builder()
                 .nickname("온프리프리")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-0000-0000")
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
@@ -362,7 +362,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
     private UpdateArtistUserDto.Request givenUpdateArtistUserReq() {
         return UpdateArtistUserDto.Request.builder()
                 .nickname("온프리프리")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-0000-0000")
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
@@ -402,7 +402,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
     private ArtistUser getArtistUser() {
         final BankInfo bankInfo = BankInfo.builder()
                 .accountNumber("010-0000-0000")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .build();
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(true)

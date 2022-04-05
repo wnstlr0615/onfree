@@ -80,7 +80,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
     private ArtistUser getArtistUser() {
         final BankInfo bankInfo = BankInfo.builder()
                 .accountNumber("010-0000-0000")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .build();
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(true)

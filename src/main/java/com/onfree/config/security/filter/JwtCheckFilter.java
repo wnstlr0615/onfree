@@ -57,7 +57,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             if (verify.isResult()) { //accessToken 이 유효한 경우
                 try {
                     oldRefreshToken = getCookieValue(request, REFRESH_TOKEN);
-                    if(isWrongRefreshToken(username, oldRefreshToken)){// refreshToken 이 없거나 변저된 경우경우 (로그아웃 )
+                    if(isWrongRefreshToken(username, oldRefreshToken)){// refreshToken 이 없거나 변조된 경우 (로그아웃 )
                         log.info("refresh token empty - username : {} ", username);
                         clearToken(response, username);
                         filterChain.doFilter(request,response);
@@ -89,6 +89,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
                     return;
                 } catch (LoginException e) {
                     clearToken(response, username);
+                    throw e;
                 }
             }
         }catch (AuthenticationException e) {
