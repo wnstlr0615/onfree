@@ -30,11 +30,12 @@ public class Chatting extends BaseTimeEntity {
     @JoinColumn(name = "apply_id")
     private RequestApply requestApply;
 
-
     public Chatting(User sender, User receiver, RequestApply requestApply) {
         this.sender = sender;
         this.receiver = receiver;
         this.requestApply = requestApply;
     }
+
+
 
 }

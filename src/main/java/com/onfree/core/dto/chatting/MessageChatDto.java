@@ -31,21 +31,11 @@ public class MessageChatDto {
     public static class Response extends RepresentationModel<Response> {
         @ApiModelProperty(value = "메시지", example = "안녕하세요:)")
         private String message;
-        @ApiModelProperty(value = "보내는 사람 닉네임", example = "일반유저입니다.")
-        private String sender;
-        @ApiModelProperty(value = "받는 사람 닉네임", example = "작가입니다.")
-        private String receiver;
-        @ApiModelProperty(value = "타입", example = "message")
-        private String type;
 
         public static Response fromEntity(MessageChat messageChat){
             return Response.builder()
                     .message(messageChat.getMessage())
-                    .sender(messageChat.getSender().getNickname())
-                    .receiver(messageChat.getReceiver().getNickname())
-                    .type(ChatType.MESSAGE.name())
                     .build();
-
         }
     }
 }

@@ -2,18 +2,17 @@ package com.onfree.core.entity.chatting;
 
 import com.onfree.core.entity.requestapply.RequestApply;
 import com.onfree.core.entity.user.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue(value = "notification")
 public class NotificationChat extends Chatting{
 

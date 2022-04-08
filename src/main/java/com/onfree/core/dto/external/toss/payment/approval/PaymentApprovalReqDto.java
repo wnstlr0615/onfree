@@ -1,6 +1,5 @@
 package com.onfree.core.dto.external.toss.payment.approval;
 
-import io.swagger.annotations.ApiModel;
 import lombok.*;
 
 /** 결제 승인 DTO */
