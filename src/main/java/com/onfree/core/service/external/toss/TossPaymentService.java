@@ -8,10 +8,10 @@ import com.onfree.core.dto.external.toss.payment.approval.PaymentApprovalReqDto;
 import com.onfree.core.entity.chatting.*;
 import com.onfree.core.entity.payment.Payment;
 import com.onfree.core.entity.requestapply.RequestApply;
-import com.onfree.core.entity.user.User;
 import com.onfree.core.repository.chatting.ChattingRepository;
 import com.onfree.core.repository.chatting.EstimateSheetChatRepository;
 import com.onfree.core.repository.payment.PaymentRepository;
+import com.onfree.utils.SimpMessageTemplateComponent;
 import com.onfree.utils.TossComponent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class TossPaymentService {
     private final EstimateSheetChatRepository estimateSheetChatRepository;
     private final PaymentRepository paymentRepository;
     private final ChattingRepository chattingRepository;
-
+    private final SimpMessageTemplateComponent messageTemplateComponent;
 
     /** 결제 승인 요청 */
     @Transactional
@@ -59,15 +59,19 @@ public class TossPaymentService {
         savePayment(payment);
 
         //계약금 지불 완료 공지 Chat 저장
-        saveInformationChatOfDepositDownPayment(requestApply);
+        saveInformationChat(requestApply, InformationChatType.DEPOSIT_DOWN_PAYMENT);
 
         log.info("request approval end");
     }
 
-    private void saveInformationChatOfDepositDownPayment(RequestApply requestApply) {
+    private void saveInformationChat(RequestApply requestApply, InformationChatType informationChatType) {
         //계약금 지불 완료 알림 저장
-        InformationChat informationChat = InformationChat.createInformationChat(requestApply, InformationChatType.DEPOSIT_DOWN_PAYMENT);
-        chattingRepository.save(informationChat);
+        InformationChat informationChat = InformationChat.createInformationChat(requestApply, informationChatType);
+        InformationChat saveInformationChat = chattingRepository.save(informationChat);
+
+        //공지 메시지 전송
+        messageTemplateComponent.sendMessage(requestApply.getRequestApplyId(), saveInformationChat);
+
     }
 
     private Payment savePayment(Payment payment) {

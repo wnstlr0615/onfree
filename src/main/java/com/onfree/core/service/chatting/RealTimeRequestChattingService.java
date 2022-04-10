@@ -23,6 +23,7 @@ import com.onfree.core.repository.chatting.ChattingRepository;
 import com.onfree.core.repository.chatting.EstimateSheetChatRepository;
 import com.onfree.core.repository.payment.PaymentRepository;
 import com.onfree.core.repository.requestappy.RequestApplyRepository;
+import com.onfree.utils.SimpMessageTemplateComponent;
 import com.onfree.utils.TossComponent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class RealTimeRequestChattingService {
     private final TossComponent tossComponent;
+    private final SimpMessageTemplateComponent messageTemplateComponent;
 
     private final ChattingRepository chattingRepository;
     private final UserRepository userRepository;
@@ -89,9 +91,11 @@ public class RealTimeRequestChattingService {
 
     private MessageChat sendMessage(User sender, MessageChatDto.Request messageChatDto, RequestApply requestApply, User receiver) {
         //MessageChat Entity 저장
-        return saveMessageChat(
-                createMessageChat(sender, receiver, requestApply, messageChatDto.getMessage())
-        );
+        MessageChat messageChat = createMessageChat(sender, receiver, requestApply, messageChatDto.getMessage());
+
+        MessageChat saveMessageChat = saveMessageChat(messageChat);
+        messageTemplateComponent.sendMessage(requestApply.getRequestApplyId(), saveMessageChat);
+        return saveMessageChat;
     }
 
     private MessageChatDto.Response getMessageChatDtoResponse(MessageChat messageChatEntity) {
@@ -120,7 +124,10 @@ public class RealTimeRequestChattingService {
         EstimateSheetChat estimateSheetChat = createEstimateSheetChat(requestApply, sender, receiver, chatDto);
 
         //EstimateSheetChat Entity 저장
-        return saveEstimateSheetChat(estimateSheetChat);
+        EstimateSheetChat saveEstimateSheetChat = saveEstimateSheetChat(estimateSheetChat);
+
+        messageTemplateComponent.sendMessage(requestApply.getRequestApplyId(), saveEstimateSheetChat);
+        return saveEstimateSheetChat;
     }
 
     private EstimateSheetChatDto.Response getEstimateSheetChatDtoResponse(EstimateSheetChat estimateSheetChat) {
@@ -163,10 +170,14 @@ public class RealTimeRequestChattingService {
         sendNotification(requestApply, sender, sender, NotificationChatType.PAYMENT_REQUEST_ARTIST);
     }
 
-    private void sendNotification(RequestApply requestApply, User sender, User receiver, NotificationChatType type) {
+    private NotificationChat sendNotification(RequestApply requestApply, User sender, User receiver, NotificationChatType type) {
         //지급요청 알림 메시지 생성(의뢰자에게 보여지는 알림)
         NotificationChat notificationChat = createNotificationChat(requestApply, sender, receiver, type);
-        chattingRepository.save(notificationChat);
+
+        NotificationChat saveNotification = chattingRepository.save(notificationChat);
+
+        messageTemplateComponent.sendMessage(requestApply.getRequestApplyId(), saveNotification);
+        return saveNotification;
     }
 
     private NotificationChat createNotificationChat(RequestApply requestApply, User sender, User receiver, NotificationChatType type) {
@@ -235,12 +246,6 @@ public class RealTimeRequestChattingService {
 
 
 
-    private void verifyPaymentStatusIsDone(Payment payment) {
-        if(!payment.getStatus().equals(TossPaymentStatus.DONE)){
-            throw new TossPaymentException(TossPaymentErrorCode.TOSS_PAYMENT_STATUS_IS_NOT_DONE);
-        }
-    }
-
     /** 환불 요청 승인 하기*/
     @Transactional
     public void acceptRequestRefund(Long applyId, User sender, RefundRequestDto refundRequestDto) {
@@ -283,5 +288,11 @@ public class RealTimeRequestChattingService {
         Payment updatePayment = paymentDto.toEntity();
         payment.updatePayment(updatePayment);
 
+    }
+
+    private void verifyPaymentStatusIsDone(Payment payment) {
+        if(!payment.getStatus().equals(TossPaymentStatus.DONE)){
+            throw new TossPaymentException(TossPaymentErrorCode.TOSS_PAYMENT_STATUS_IS_NOT_DONE);
+        }
     }
 }
