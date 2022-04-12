@@ -16,17 +16,17 @@ import java.util.UUID;
 @Slf4j
 public class FileStore {
     @Value("${file.dir}")
-    private String LOCAL_PROFILE_IMAGE_PATH;
+    private String LOCAL_FILE_SAVE_PATH;
 
     public String getDirPath() {
-        return LOCAL_PROFILE_IMAGE_PATH;
+        return LOCAL_FILE_SAVE_PATH;
     }
 
     public UploadFile saveFile(MultipartFile multipartFile)  {
         String originalFileName = multipartFile.getOriginalFilename();
         String storeFileName = createStoreFileName(originalFileName);
         try {
-            multipartFile.transferTo(new File(LOCAL_PROFILE_IMAGE_PATH + storeFileName));
+            multipartFile.transferTo(new File(LOCAL_FILE_SAVE_PATH + storeFileName));
         } catch (IOException e) {
             log.error("파일 업로드중 에러가 발생 하였습니다.");
             throw new GlobalException(GlobalErrorCode.INTERNAL_SERVER_ERROR);
@@ -62,6 +62,6 @@ public class FileStore {
     }
 
     public File getFile(UploadFile uploadFile) {
-        return new File(LOCAL_PROFILE_IMAGE_PATH, uploadFile.getStoreFileName());
+        return new File(LOCAL_FILE_SAVE_PATH, uploadFile.getStoreFileName());
     }
 }

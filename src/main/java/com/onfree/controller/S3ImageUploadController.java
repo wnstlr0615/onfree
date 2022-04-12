@@ -7,13 +7,12 @@ import com.onfree.common.error.exception.FileException;
 import com.onfree.common.error.exception.SignUpException;
 import com.onfree.core.entity.fileitem.FileType;
 import com.onfree.core.service.AwsS3Service;
-import io.swagger.annotations.Api;
+import com.onfree.core.service.S3ImageUploadService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -28,10 +27,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/v1")
-public class S3UploadController {
+public class S3ImageUploadController {
 
-    private final AwsS3Service awsS3Service;
-
+    private final S3ImageUploadService s3ImageUploadService;
     /** 프로필 사진 업로드 */
     @ApiOperation(value = "프로필 사진 업로드 API")
     @PostMapping(value = "/upload/profile-image")
@@ -40,10 +38,10 @@ public class S3UploadController {
             @RequestParam MultipartFile file
     ) {
         validateFileType(file);
-        final String storefilename
-                = awsS3Service.s3ImageFileUpload(file, FileType.PROFILE_IMAGE_FILE);
+        final String storeFilename
+                = s3ImageUploadService.s3ImageFileUpload(file, FileType.PROFILE_IMAGE_FILE);
 
-        return getImageLoadUrl(storefilename);
+        return getImageLoadUrl(storeFilename);
     }
 
     private void validateFileType(MultipartFile file) {
@@ -71,7 +69,7 @@ public class S3UploadController {
             @RequestParam MultipartFile file){
         validateFileType(file);
         final String filename
-                = awsS3Service.s3ImageFileUpload(file, FileType.PORTFOLIO_CONTENT_IMAGE);
+                = s3ImageUploadService.s3ImageFileUpload(file, FileType.PORTFOLIO_CONTENT_IMAGE);
 
         return getImageLoadUrl(filename);
     }
@@ -85,14 +83,14 @@ public class S3UploadController {
     ){
         validateFileType(file);
         final String filename
-                = awsS3Service.s3ImageFileUpload(file, FileType.PORTFOLIO_MAIN_IMAGE);
+                = s3ImageUploadService.s3ImageFileUpload(file, FileType.PORTFOLIO_MAIN_IMAGE);
 
         return getImageLoadUrl(filename);
 
     }
 
     private String getImageLoadUrl(String storeFilename) {
-        return linkTo(S3UploadController.class).slash("images")
+        return linkTo(S3ImageUploadController.class).slash("images")
                 .slash(storeFilename)
                 .toString();
     }
@@ -102,7 +100,7 @@ public class S3UploadController {
             @ApiParam(value = "이미지 파일 UUID", defaultValue = "82d9c665-a4ba-4d4e-98d9-f02f069f21dd.PNG")
             @PathVariable("filename") String filename){
         return new UrlResource(
-                awsS3Service.getFile(filename)
+                s3ImageUploadService.getFile(filename)
         );
     }
 }
