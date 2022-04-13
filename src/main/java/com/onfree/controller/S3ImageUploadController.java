@@ -6,7 +6,6 @@ import com.onfree.common.error.code.SignUpErrorCode;
 import com.onfree.common.error.exception.FileException;
 import com.onfree.common.error.exception.SignUpException;
 import com.onfree.core.entity.fileitem.FileType;
-import com.onfree.core.service.AwsS3Service;
 import com.onfree.core.service.S3ImageUploadService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
@@ -90,17 +90,10 @@ public class S3ImageUploadController {
     }
 
     private String getImageLoadUrl(String storeFilename) {
-        return linkTo(S3ImageUploadController.class).slash("images")
+        return linkTo(S3DownLoadController.class).slash("images")
                 .slash(storeFilename)
                 .toString();
     }
 
-    @GetMapping("/images/{filename}")
-    public Resource display(
-            @ApiParam(value = "이미지 파일 UUID", defaultValue = "82d9c665-a4ba-4d4e-98d9-f02f069f21dd.PNG")
-            @PathVariable("filename") String filename){
-        return new UrlResource(
-                s3ImageUploadService.getFile(filename)
-        );
-    }
+
 }

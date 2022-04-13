@@ -23,16 +23,16 @@ public class DirectRequestChattingService {
     private final RequestApplyRepository requestApplyRepository;
 
     @Transactional
-    public void addChatting(Long applyId, User sender, Long recipientId, String message) {
-        RequestApply requestApply = requestApplyRepository.findById(applyId)
+    public void addChatting(Long applyId, User sender, Long receiverId, String message) {
+        RequestApply requestApply = requestApplyRepository.findByRequestApplyId(applyId)
                 .orElseThrow(() -> new RequestApplyException(RequestApplyErrorCode.NOT_FOUND_REQUEST_APPLY_ID));
-        User recipient = userRepository.findById(recipientId)
+        User receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND_USERID));
 
         MessageChat messageChat = MessageChat.builder()
                 .requestApply(requestApply)
                 .sender(sender)
-                .recipient(recipient)
+                .receiver(receiver)
                 .message(message)
                 .build();
 

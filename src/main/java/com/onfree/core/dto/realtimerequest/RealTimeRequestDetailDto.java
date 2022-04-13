@@ -1,14 +1,26 @@
 package com.onfree.core.dto.realtimerequest;
 
+import com.onfree.common.constant.AWSConstant;
+import com.onfree.controller.S3DownLoadController;
 import com.onfree.core.entity.realtimerequset.RealTimeRequest;
 import com.onfree.core.entity.realtimerequset.RequestStatus;
 import com.onfree.core.entity.realtimerequset.UseType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.springframework.core.io.UrlResource;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Getter
 @Builder
@@ -40,6 +52,9 @@ public class RealTimeRequestDetailDto extends RepresentationModel<RealTimeReques
     @ApiModelProperty(value = "참고 링크", example = "http://naver.com")
     private String referenceLink; // 참고 링크
 
+    @ApiModelProperty(value = "참고 파일")
+    private List<String> referenceFiles;
+
     @ApiModelProperty(value = "성인물 유무", example = "false")
     private Boolean adult; // 성인용 유무
 
@@ -67,6 +82,18 @@ public class RealTimeRequestDetailDto extends RepresentationModel<RealTimeReques
     }
 
     public static RealTimeRequestDetailDto fromEntity(RealTimeRequest realTimeRequest) {
+
+        //참조 파일 다운로드 경로 리스트
+
+        List<String> referenceFilePathList = new ArrayList<>();
+        if(StringUtils.hasText(realTimeRequest.getReferenceFiles())){
+            referenceFilePathList = Arrays.stream(realTimeRequest.getReferenceFiles().split(","))
+                    .map(String::valueOf)
+                    .map(filename -> linkTo(methodOn(S3DownLoadController.class).getReferenceFile(filename)).toString())
+                    .collect(Collectors.toList());
+        }
+
+
         return RealTimeRequestDetailDto.builder()
                 .realTimeRequestId(realTimeRequest.getRealTimeRequestId())
                 .title(realTimeRequest.getTitle())
@@ -76,6 +103,7 @@ public class RealTimeRequestDetailDto extends RepresentationModel<RealTimeReques
                 .endDate(realTimeRequest.getEndDate())
                 .useType(realTimeRequest.getUseType())
                 .referenceLink(realTimeRequest.getReferenceLink())
+                .referenceFiles(referenceFilePathList)
                 .adult(realTimeRequest.getAdult())
                 .status(realTimeRequest.getStatus())
                 .createDate(realTimeRequest.getCreatedDate().toLocalDate())

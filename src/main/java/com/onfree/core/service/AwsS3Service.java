@@ -21,8 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.net.URL;
 
-import static com.onfree.core.entity.fileitem.FileType.PROFILE_IMAGE_FILE;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -44,7 +42,7 @@ public class AwsS3Service {
         s3FileUpload(profileImageSavePathInS3, localFile); // s3에 파일 업로드
         saveFileItem(profileImageSavePathInS3, uploadFile, type); // FileItem Entity 저장
         removeLocalFile(localFile); // 로컬 파일 제거
-        return uploadFile.getStoreFileName();
+        return uploadFile.getStoreFilename();
     }
     private void removeLocalFile(File localFile) {
         fileStore.removeFile(localFile);

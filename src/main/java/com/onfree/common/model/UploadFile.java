@@ -13,6 +13,15 @@ import javax.persistence.Embeddable;
 @NoArgsConstructor
 @ToString
 public class UploadFile {
-    String uploadFileName;
-    String storeFileName;
+    String uploadFilename;
+    String storeFilename;
+
+    //== 생성 메서드 ==//
+    public static UploadFile createUploadFile(String uploadFileName, String storeFileName){
+        return builder()
+                .uploadFilename(uploadFileName)
+                .storeFilename(storeFileName)
+                .build();
+
+    }
 }

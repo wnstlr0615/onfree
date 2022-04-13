@@ -38,7 +38,7 @@ public class DirectRequestApplyService {
     }
 
     private DirectRequestApply createDirectRequestApply(User user, ArtistUser artistUser) {
-        return DirectRequestApply.createDirectRequestApply(user, artistUser, RequestApplyStatus.REQUEST_APPLY_CRATED);
+        return DirectRequestApply.createDirectRequestApply(user, artistUser, RequestApplyStatus.READY);
     }
 
     private ArtistUser getArtistUser(Long artistUserId) {

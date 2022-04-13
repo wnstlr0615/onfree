@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -81,7 +82,9 @@ class UserRealTimeRequestServiceTest {
         LocalDate endDate = LocalDate.of(2022,3,5);
         String referenceLink = "http://naver.com";
         LocalDateTime createdDate = LocalDateTime.of(2022, 3 ,2, 0, 0);
-        return RealTimeRequest.createRealTimeRequest(realTimeRequestId, title, content, user, startDate, endDate, useType, referenceLink, adult, status, createdDate);
+
+        String referenceFiles = UUID.randomUUID() + ".txt," + UUID.randomUUID() + ".png";
+        return RealTimeRequest.createRealTimeRequest(realTimeRequestId, title, content, user, startDate, endDate, useType, referenceLink, referenceFiles, adult, status, createdDate);
     }
 
     private ArtistUser getArtistUser(long userId) {

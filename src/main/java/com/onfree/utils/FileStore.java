@@ -5,6 +5,7 @@ import com.onfree.common.error.exception.GlobalException;
 import com.onfree.common.model.UploadFile;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,7 +23,7 @@ public class FileStore {
         return LOCAL_FILE_SAVE_PATH;
     }
 
-    public UploadFile saveFile(MultipartFile multipartFile)  {
+    public UploadFile saveFile(@NonNull MultipartFile multipartFile)  {
         String originalFileName = multipartFile.getOriginalFilename();
         String storeFileName = createStoreFileName(originalFileName);
         try {
@@ -36,8 +37,8 @@ public class FileStore {
 
     private UploadFile createUploadFile( String originalFileName, String storeFileName) {
         return UploadFile.builder()
-                .storeFileName(storeFileName)
-                .uploadFileName(originalFileName)
+                .storeFilename(storeFileName)
+                .uploadFilename(originalFileName)
                 .build();
     }
 
@@ -62,6 +63,6 @@ public class FileStore {
     }
 
     public File getFile(UploadFile uploadFile) {
-        return new File(LOCAL_FILE_SAVE_PATH, uploadFile.getStoreFileName());
+        return new File(LOCAL_FILE_SAVE_PATH, uploadFile.getStoreFilename());
     }
 }

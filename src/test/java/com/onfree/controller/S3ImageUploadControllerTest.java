@@ -138,44 +138,6 @@ class S3ImageUploadControllerTest extends ControllerBaseTest {
     }
 
 
-    @Test
-    @WithArtistUser
-    @DisplayName("[성공][GET} 이미지 불러오기")
-    public void givenImageUUID_whenDisplay_thenReturnImageResource() throws Exception{
-        //given
-        final String storeFilename = "0393e471-98df-459f-a314-292c910bcc44.PNG";
-        final String imageUrl = "https://onfree-store.s3.ap-northeast-2.amazonaws.com/portfolio/main-image/test-main-image.png";
-        when(s3ImageUploadService.getFile(anyString()))
-                .thenReturn(
-                        new URL(imageUrl)
-                );
-        //when //then
-        mvc.perform(get("/api/v1/images/{filename}", storeFilename)
-            .contentType(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk())
-        ;
-        verify(s3ImageUploadService).getFile(anyString());
-    }
 
-    @Test
-    @DisplayName("[실패][GET} 잘못된 파일이름으로 이미지 불러오기 - NOT_FOUND_FILENAME 에러 발생")
-    public void givenWrongImageUUID_whenDisplay_thenReturnNotFoundFilenameError() throws Exception{
-        //given
-        final String storeFilename = "0393e471-98df-459f-a314-292c910bcc44.PNG";
-        final FileErrorCode errorCode = FileErrorCode.NOT_FOUND_FILENAME;
-        when(s3ImageUploadService.getFile(anyString()))
-                .thenThrow(new FileException(errorCode));
-        //when //then
-        mvc.perform(get("/api/v1//images/{filename}", storeFilename)
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value(errorCode.toString()))
-                .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
-        ;
-        verify(s3ImageUploadService).getFile(anyString());
-    }
 
 }

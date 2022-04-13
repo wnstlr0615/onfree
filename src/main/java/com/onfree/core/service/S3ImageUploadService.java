@@ -1,7 +1,5 @@
 package com.onfree.core.service;
 
-import com.onfree.common.error.code.FileErrorCode;
-import com.onfree.common.error.exception.FileException;
 import com.onfree.common.model.UploadFile;
 import com.onfree.core.entity.fileitem.FileItem;
 import com.onfree.core.entity.fileitem.FileStatus;
@@ -16,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.net.URL;
 
 @Service
 @RequiredArgsConstructor
@@ -48,22 +45,6 @@ public class S3ImageUploadService {
         fileStore.removeFile(localFile);
 
         //파일 저장명 반환
-        return uploadFile.getStoreFileName();
+        return uploadFile.getStoreFilename();
     }
-
-    /** 이미지 조회 */
-    public URL getFile(String filename) {
-        final FileItem fileItem = findFileItemByFileName(filename);
-        return awsS3Component.getFile(filename, fileItem.getFileType());
-    }
-
-    private FileItem findFileItemByFileName(String filename) {
-        return fileItemRepository.findByStoreFileName(filename)
-                .orElseThrow(() ->new FileException(FileErrorCode.NOT_FOUND_FILENAME));
-    }
-
-
-
-
-
 }

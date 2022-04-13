@@ -11,6 +11,8 @@ import com.onfree.core.service.RealTimeRequestService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -21,12 +23,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/v1/real-time-requests")
@@ -90,13 +96,22 @@ public class RealTimeRequestController {
      */
     @ApiOperation("실시간 의뢰 추가")
     @PreAuthorize("isAuthenticated()")
-    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "")
     public ResponseEntity<?>realTimeRequestAdd(
             @LoginUser User user,
-            @Valid @RequestBody CreateRealTimeRequestDto.Request request,
-            BindingResult errors
-    ) {
-        CreateRealTimeRequestDto.Response reseponse = realTimeRequestService.addRealTimeRequest(user, request);
+            @Valid @RequestPart(value = "data") CreateRealTimeRequestDto.Request request,
+            BindingResult errors,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
+            ) {
+        if(files == null){
+            files = new ArrayList<>();
+        }
+        for (MultipartFile file: files) {
+            log.info(file.getOriginalFilename());
+        }
+        log.info("=============================end");
+
+        CreateRealTimeRequestDto.Response reseponse = realTimeRequestService.addRealTimeRequest(user, request, files);
 
         //링크 추가
         reseponse.add(
@@ -116,14 +131,15 @@ public class RealTimeRequestController {
      */
     @ApiOperation("실시간 의뢰 수정")
     @PreAuthorize("isAuthenticated()")
-    @PutMapping(value = "/{requestId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{requestId}")
     public SimpleResponse realTimeRequestModify(
             @PathVariable Long requestId,
             @LoginUser User user,
-            @Valid @RequestBody UpdateRealTimeRequestDto updateRealTimeRequestDto,
-            BindingResult errors
+            @Valid @RequestPart(value = "data") UpdateRealTimeRequestDto updateRealTimeRequestDto,
+            BindingResult errors,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        realTimeRequestService.modifyRealTimeRequest(requestId, user, updateRealTimeRequestDto);
+        realTimeRequestService.modifyRealTimeRequest(requestId, user, updateRealTimeRequestDto, files);
         SimpleResponse response = SimpleResponse.success("정상적으로 수정을 완료하였습니다.");
 
         //링크 추가
@@ -176,4 +192,6 @@ public class RealTimeRequestController {
         );
         return response;
     }
+
+
 }

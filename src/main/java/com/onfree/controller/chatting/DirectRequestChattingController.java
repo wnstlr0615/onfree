@@ -17,15 +17,15 @@ public class DirectRequestChattingController {
     private final DirectRequestChattingService directRequestChattingService;
 
 
-    @PostMapping(value = "/api/v1/applications/{applyId}/chatting/{recipientId}")
+    @PostMapping(value = "/api/v1/applications/{applyId}/chatting/{receiverId}")
     @PreAuthorize(value = "isAuthenticated()")
     public SimpleResponse chattingAdd(
             @PathVariable Long applyId,
-            @PathVariable Long recipientId,
+            @PathVariable Long receiverId,
             @LoginUser User sender,
             @RequestParam String message
     ){
-        directRequestChattingService.addChatting(applyId, sender, recipientId, message);
+        directRequestChattingService.addChatting(applyId, sender, receiverId, message);
         return SimpleResponse.success("메시지 전송이 완료되었습니다.");
     }
 }

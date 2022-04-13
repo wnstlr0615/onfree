@@ -5,10 +5,9 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.onfree.common.error.code.FileErrorCode;
-import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.exception.FileException;
-import com.onfree.common.error.exception.GlobalException;
 import com.onfree.common.properties.AmazonS3Properties;
+import com.onfree.core.entity.fileitem.FileItem;
 import com.onfree.core.entity.fileitem.FileType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,12 +40,12 @@ public class AwsS3Component {
         return savePath;
     }
 
-    public URL getFile(String fileName, FileType fileType){
-        String filePath = getFilePathByFileType(fileType);
+    public URL getFileUrl(FileItem fileItem){
+        String filePath = getFilePathByFileType(fileItem.getFileType());
         try {
-            return s3.getUrl(filePath, fileName);
+            return s3.getUrl(filePath, fileItem.getUploadFile().getStoreFilename());
         } catch (Exception e) {
-            log.error("aws s3로 부터 파일 로드 중 에러 발생 - filename : {}, fileType : {}, errorMessage : {}", fileName, fileType.name() , e.getMessage());
+            log.error("aws s3로 부터 파일 로드 중 에러 발생 - filename : {}, fileType : {}, errorMessage : {}", fileItem.getUploadFile().getUploadFilename(), fileItem.getFileType().name() , e.getMessage());
             e.printStackTrace();
             throw new FileException(FileErrorCode.LOAD_FILE_ERROR);
         }
