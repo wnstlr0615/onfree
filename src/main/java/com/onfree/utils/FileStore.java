@@ -5,6 +5,7 @@ import com.onfree.common.error.exception.GlobalException;
 import com.onfree.common.model.UploadFile;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,17 +17,17 @@ import java.util.UUID;
 @Slf4j
 public class FileStore {
     @Value("${file.dir}")
-    private String LOCAL_PROFILE_IMAGE_PATH;
+    private String LOCAL_FILE_SAVE_PATH;
 
     public String getDirPath() {
-        return LOCAL_PROFILE_IMAGE_PATH;
+        return LOCAL_FILE_SAVE_PATH;
     }
 
-    public UploadFile saveFile(MultipartFile multipartFile)  {
+    public UploadFile saveFile(@NonNull MultipartFile multipartFile)  {
         String originalFileName = multipartFile.getOriginalFilename();
         String storeFileName = createStoreFileName(originalFileName);
         try {
-            multipartFile.transferTo(new File(LOCAL_PROFILE_IMAGE_PATH + storeFileName));
+            multipartFile.transferTo(new File(LOCAL_FILE_SAVE_PATH + storeFileName));
         } catch (IOException e) {
             log.error("파일 업로드중 에러가 발생 하였습니다.");
             throw new GlobalException(GlobalErrorCode.INTERNAL_SERVER_ERROR);
@@ -36,8 +37,8 @@ public class FileStore {
 
     private UploadFile createUploadFile( String originalFileName, String storeFileName) {
         return UploadFile.builder()
-                .storeFileName(storeFileName)
-                .uploadFileName(originalFileName)
+                .storeFilename(storeFileName)
+                .uploadFilename(originalFileName)
                 .build();
     }
 
@@ -62,6 +63,6 @@ public class FileStore {
     }
 
     public File getFile(UploadFile uploadFile) {
-        return new File(LOCAL_PROFILE_IMAGE_PATH, uploadFile.getStoreFileName());
+        return new File(LOCAL_FILE_SAVE_PATH, uploadFile.getStoreFilename());
     }
 }

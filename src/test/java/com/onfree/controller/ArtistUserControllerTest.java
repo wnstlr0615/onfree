@@ -6,11 +6,12 @@ import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
 import com.onfree.config.webmvc.resolver.CurrentArtistUserArgumentResolver;
+import com.onfree.controller.user.ArtistUserController;
 import com.onfree.core.dto.user.artist.*;
 import com.onfree.core.dto.user.artist.status.StatusMarkDto;
 import com.onfree.core.entity.user.*;
-import com.onfree.core.service.ArtistUserService;
-import com.onfree.core.service.PortfolioService;
+import com.onfree.core.service.user.ArtistUserService;
+import com.onfree.core.service.portfolio.PortfolioService;
 import com.onfree.validator.StatusMarkValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -90,7 +91,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
                 .name("준식")
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-8888-9999")
                 .advertisementAgree(true)
                 .personalInfoAgree(true)
@@ -351,7 +352,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
     private UpdateArtistUserDto.Response getUpdateArtistUserRes() {
         return UpdateArtistUserDto.Response.builder()
                 .nickname("온프리프리")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-0000-0000")
                 .phoneNumber("010-0000-0000")
                 .adultCertification(Boolean.TRUE)
@@ -362,7 +363,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
     private UpdateArtistUserDto.Request givenUpdateArtistUserReq() {
         return UpdateArtistUserDto.Request.builder()
                 .nickname("온프리프리")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-0000-0000")
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
@@ -402,7 +403,7 @@ class ArtistUserControllerTest extends ControllerBaseTest {
     private ArtistUser getArtistUser() {
         final BankInfo bankInfo = BankInfo.builder()
                 .accountNumber("010-0000-0000")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .build();
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(true)

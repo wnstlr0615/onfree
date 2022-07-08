@@ -38,4 +38,13 @@ public class FileItem extends BaseEntity {
                 .status(status)
                 .build();
     }
+
+    //== 비즈니스 메서드 ==//
+    public String getFilePath(){
+        return bucketPath + "/" + uploadFile.getStoreFilename();
+    }
+
+    public void deleted(){
+        status = FileStatus.DELETED_TEMP;
+    }
 }

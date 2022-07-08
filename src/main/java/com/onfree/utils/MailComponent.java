@@ -14,7 +14,6 @@ import org.springframework.mail.MailPreparationException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.mail.internet.InternetAddress;
@@ -25,7 +24,6 @@ import javax.mail.internet.InternetAddress;
 public class MailComponent {
     public static final String ONFREE = "onfree";
     private final JavaMailSender sender;
-
     private final MailProperties mailProperties;
 
     public void sendMail( String toEmail, String title, String content){

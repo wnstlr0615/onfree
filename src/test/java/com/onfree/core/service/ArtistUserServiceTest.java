@@ -11,6 +11,7 @@ import com.onfree.core.repository.ArtistUserRepository;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
 import com.onfree.core.repository.UserRepository;
+import com.onfree.core.service.user.ArtistUserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -114,7 +115,7 @@ class ArtistUserServiceTest {
                 .nickname("온프리프리")
                 .mobileCarrier(MobileCarrier.KT)
                 .phoneNumber("010-8888-9999")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-8888-9999")
                 .advertisementAgree(true)
                 .personalInfoAgree(true)
@@ -151,7 +152,7 @@ class ArtistUserServiceTest {
                 .hasFieldOrPropertyWithValue("nickname", "joon")
                 .hasFieldOrPropertyWithValue("mobileCarrier", MobileCarrier.SKT)
                 .hasFieldOrPropertyWithValue("phoneNumber", "010-8888-9999")
-                .hasFieldOrPropertyWithValue("bankName", BankName.IBK_BANK)
+                .hasFieldOrPropertyWithValue("bankName", BankName.IBK)
                 .hasFieldOrPropertyWithValue("accountNumber", "010-8888-9999")
                 .hasFieldOrPropertyWithValue("advertisementAgree", true)
                 .hasFieldOrPropertyWithValue("personalInfoAgree", true)
@@ -296,7 +297,7 @@ class ArtistUserServiceTest {
                 .phoneNumber("010-8888-9999")
                 .portfolioUrl("http://onfree.io/portfolioUrl/123456789")
                 .bankInfo(
-                        getBankInfo(BankName.IBK_BANK, "010-8888-9999")
+                        getBankInfo(BankName.IBK, "010-8888-9999")
                 )
                 .userAgree(
                         getUserAgree()
@@ -317,7 +318,7 @@ class ArtistUserServiceTest {
     private UpdateArtistUserDto.Request givenUpdateArtistUserReq() {
         return UpdateArtistUserDto.Request.builder()
                 .nickname("온프리프리")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .accountNumber("010-0000-0000")
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")

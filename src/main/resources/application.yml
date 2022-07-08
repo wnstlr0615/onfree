@@ -1,0 +1,117 @@
+spring:
+  profiles:
+    active: local
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 1000
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+  mail:
+    username: onfreekr@gmail.com
+    password: qtyfdkrjndkmizly
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+jwt:
+  accessTokenExpiredTime: 1h
+  refreshTokenExpiredTime: 7d
+  secretKey: made_onFree_by_joon
+#logging.level:
+#  org.hibernate.SQL: debug
+file:
+  dir: C:/Users/wnstl/onfreeImage/
+server:
+  host:
+    api: http://localhost:8080
+external:
+  toss:
+    secret-key: test_ak_O6BYq7GWPVvEJBXdNyX3NE5vbo1d
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:postgresql://localhost:5433/onfree
+    username: joon
+    password: 3621
+    driver-class-name: org.postgresql.Driver
+
+---
+spring:
+  config:
+    activate:
+      on-profile: develop-aws
+  datasource:
+    url: jdbc:mariadb://onfree-test-server.cua4honp6ft4.ap-northeast-2.rds.amazonaws.com:3306/onfree_test
+    username: onfree_test
+    password: onfree1022
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  redis:
+    host: onfree-redis.nnmwwh.ng.0001.apn2.cache.amazonaws.com
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: none
+  sql:
+    init:
+      schema-locations: classpath:data-develop/schema-dev.sql
+      data-locations: classpath:data-develop/data-dev.sql
+      mode: always
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
+file:
+  dir: /tmp/images/
+server:
+  host:
+    api: http://www.onfree.co.kr
+
+---
+spring:
+  config:
+    activate:
+      on-profile: develop-local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/onfree
+    username: joon
+    password: 3621
+    driver-class-name: org.postgresql.Driver
+
+  redis:
+    host: localhost
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: create
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
+file:
+  dir: /tmp/images/
+server:
+  host:
+    api: http://www.onfree.co.kr
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  jpa:
+    database: h2
+  redis:
+    host: localhost
+    port: 6381

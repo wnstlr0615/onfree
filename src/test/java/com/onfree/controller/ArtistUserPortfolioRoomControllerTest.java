@@ -4,6 +4,7 @@ import com.onfree.anotation.WithArtistUser;
 import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.PortfolioRoomErrorCode;
 import com.onfree.common.error.exception.PortfolioRoomException;
+import com.onfree.controller.portfolioroom.ArtistUserPortfolioRoomController;
 import com.onfree.core.dto.portfolioroom.UpdatePortfolioStatusDto;
 import com.onfree.core.dto.portfolioroom.UpdateStatusMessageDto;
 import com.onfree.core.dto.user.artist.MobileCarrier;
@@ -70,7 +71,7 @@ class ArtistUserPortfolioRoomControllerTest extends ControllerBaseTest {
     private ArtistUser getArtistUser(long userId) {
         final BankInfo bankInfo = BankInfo.builder()
                 .accountNumber("010-0000-0000")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .build();
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(true)

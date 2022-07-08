@@ -8,7 +8,7 @@ import com.onfree.core.dto.drawingfield.CreateDrawingFieldDto;
 import com.onfree.core.dto.drawingfield.DrawingFieldDto;
 import com.onfree.core.dto.drawingfield.UpdateDrawingFieldDto;
 import com.onfree.core.entity.drawingfield.DrawingFieldStatus;
-import com.onfree.core.service.DrawingFieldService;
+import com.onfree.core.service.drawingfield.DrawingFieldService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;

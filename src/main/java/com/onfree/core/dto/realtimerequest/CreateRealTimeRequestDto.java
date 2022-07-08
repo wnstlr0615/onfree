@@ -1,16 +1,23 @@
 package com.onfree.core.dto.realtimerequest;
 
+import com.onfree.controller.aws.S3DownLoadController;
 import com.onfree.core.entity.realtimerequset.RealTimeRequest;
 import com.onfree.core.entity.realtimerequset.RequestStatus;
 import com.onfree.core.entity.realtimerequset.UseType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.util.StringUtils;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 public class CreateRealTimeRequestDto extends RepresentationModel<CreateRealTimeRequestDto> {
@@ -109,10 +116,22 @@ public class CreateRealTimeRequestDto extends RepresentationModel<CreateRealTime
         @ApiModelProperty(value = "참고 링크", example = "http://naver.com")
         private String referenceLink; // 참고 링크
 
+        @ApiModelProperty(value = "참고파일 링크", example = "http://localhost:8080/reference-files/a8b78a16-083f-4ba7-b204-563b3ede54ac.csv")
+        private List<String> referenceFileUrlList;
+
         @ApiModelProperty(value = "성인물 유무", example = "false")
         private Boolean adult; // 성인용 유무
 
         public static Response fromEntity(RealTimeRequest realTimeRequest) {
+            String referenceFiles = realTimeRequest.getReferenceFiles();
+            List<String> referenceFileUrlList = new ArrayList<>();
+
+            if(StringUtils.hasText(referenceFiles)){
+                referenceFileUrlList = Arrays.stream(referenceFiles.split(","))
+                        .map(filename -> linkTo(methodOn(S3DownLoadController.class).getReferenceFile(filename)).toString())
+                        .collect(Collectors.toList());
+            }
+
             return Response.builder()
                     .realTimeRequestId(realTimeRequest.getRealTimeRequestId())
                     .title(realTimeRequest.getTitle())
@@ -121,6 +140,7 @@ public class CreateRealTimeRequestDto extends RepresentationModel<CreateRealTime
                     .endDate(realTimeRequest.getEndDate())
                     .useType(realTimeRequest.getUseType())
                     .referenceLink(realTimeRequest.getReferenceLink())
+                    .referenceFileUrlList(referenceFileUrlList)
                     .adult(realTimeRequest.getAdult())
                     .build();
         }
