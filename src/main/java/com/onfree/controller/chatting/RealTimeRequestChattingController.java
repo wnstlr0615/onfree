@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,15 +35,14 @@ public class RealTimeRequestChattingController {
     public ResponseEntity<?> messageChatAdd(
             @PathVariable Long applyId,
             @LoginUser User sender,
-            @Valid @RequestBody MessageChatDto.Request messageChatDto,
-            BindingResult errors
+            @Valid @RequestBody MessageChatDto.Request messageChatDto
     ) {
 
         MessageChatDto.Response response = chattingService.addMessage(applyId, sender, messageChatDto);
 
         response.add(
           linkTo(
-                  methodOn(RealTimeRequestChattingController.class).messageChatAdd(applyId, sender, messageChatDto, errors)
+                  methodOn(RealTimeRequestChattingController.class).messageChatAdd(applyId, sender, messageChatDto)
           ).withSelfRel(),
             Link.of(linkTo(SwaggerController.class) + "/#/real-time-request-chatting-controller/messageChatAddUsingPOST").withRel("profile")
         );
@@ -57,15 +55,14 @@ public class RealTimeRequestChattingController {
     public ResponseEntity<?> estimateSheetAdd(
             @PathVariable Long applyId,
             @LoginUser User sender,
-            @Valid @RequestBody EstimateSheetChatDto.Request chatDto,
-            BindingResult errors
+            @Valid @RequestBody EstimateSheetChatDto.Request chatDto
     ) {
 
         EstimateSheetChatDto.Response response = chattingService.addEstimateSheet(applyId, sender, chatDto);
 
         response.add(
                 linkTo(
-                        methodOn(RealTimeRequestChattingController.class).estimateSheetAdd(applyId, sender, chatDto, errors)
+                        methodOn(RealTimeRequestChattingController.class).estimateSheetAdd(applyId, sender, chatDto)
                 ).withSelfRel(),
                 Link.of(linkTo(SwaggerController.class) + "/#/real-time-request-chatting-controller/estimateSheetAddUsingPOST").withRel("profile")
         );
@@ -112,8 +109,7 @@ public class RealTimeRequestChattingController {
     public SimpleResponse refundRequestAccept(
             @PathVariable Long applyId,
             @LoginUser User sender,
-            @Valid @RequestBody RefundRequestDto refundRequestDto,
-            BindingResult errors
+            @Valid @RequestBody RefundRequestDto refundRequestDto
     ){
         chattingService.acceptRequestRefund(applyId, sender, refundRequestDto);
         return SimpleResponse.success("환불요청이 완료되었습니다.");

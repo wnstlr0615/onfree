@@ -4,9 +4,9 @@ import com.onfree.anotation.WithArtistUser;
 import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.FileErrorCode;
 import com.onfree.common.error.code.SignUpErrorCode;
-import com.onfree.common.error.exception.FileException;
+import com.onfree.controller.aws.S3ImageUploadController;
 import com.onfree.core.entity.fileitem.FileType;
-import com.onfree.core.service.S3ImageUploadService;
+import com.onfree.core.service.aws.S3ImageUploadService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import static org.mockito.ArgumentMatchers.any;

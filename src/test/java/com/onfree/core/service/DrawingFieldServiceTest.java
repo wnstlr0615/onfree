@@ -9,6 +9,7 @@ import com.onfree.core.dto.drawingfield.UpdateDrawingFieldDto;
 import com.onfree.core.entity.drawingfield.DrawingField;
 import com.onfree.core.entity.drawingfield.DrawingFieldStatus;
 import com.onfree.core.repository.DrawingFieldRepository;
+import com.onfree.core.service.drawingfield.DrawingFieldService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

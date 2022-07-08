@@ -19,6 +19,7 @@ import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.DrawingFieldRepository;
 import com.onfree.core.repository.PortfolioRepository;
 import com.onfree.core.repository.UserRepository;
+import com.onfree.core.service.portfolio.PortfolioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

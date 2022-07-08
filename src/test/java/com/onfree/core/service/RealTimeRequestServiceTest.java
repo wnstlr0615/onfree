@@ -17,6 +17,7 @@ import com.onfree.core.entity.realtimerequset.UseType;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.FileItemRepository;
 import com.onfree.core.repository.RealTimeRequestRepository;
+import com.onfree.core.service.realtimerequest.RealTimeRequestService;
 import com.onfree.utils.AwsS3Component;
 import com.onfree.utils.FileStore;
 import org.junit.jupiter.api.Disabled;

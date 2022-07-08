@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JsonUtils {
     private final ObjectMapper mapper;
-
     public String toJson(Object o) throws JsonProcessingException {
         try {
             return mapper.writeValueAsString(o);

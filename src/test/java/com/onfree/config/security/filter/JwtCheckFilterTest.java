@@ -8,7 +8,7 @@ import com.onfree.core.entity.user.Gender;
 import com.onfree.core.entity.user.NormalUser;
 import com.onfree.core.entity.user.Role;
 import com.onfree.core.entity.user.User;
-import com.onfree.core.service.LoginService;
+import com.onfree.core.service.user.LoginService;
 import com.onfree.utils.JWTUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,9 +24,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.util.StreamUtils;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import java.time.Duration;
 

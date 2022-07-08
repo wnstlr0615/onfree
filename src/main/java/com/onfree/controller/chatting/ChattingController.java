@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -96,8 +95,7 @@ public class ChattingController {
     public void refundRequestAccept(
             @PathVariable Long applyId,
             @LoginUser User sender,
-            @Valid @RequestBody RefundRequestDto refundRequestDto,
-            BindingResult errors
+            @Valid @RequestBody RefundRequestDto refundRequestDto
     ){
         chattingService.acceptRequestRefund(applyId, sender, refundRequestDto);
     }

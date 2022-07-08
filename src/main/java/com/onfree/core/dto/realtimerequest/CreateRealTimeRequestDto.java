@@ -1,6 +1,6 @@
 package com.onfree.core.dto.realtimerequest;
 
-import com.onfree.controller.S3DownLoadController;
+import com.onfree.controller.aws.S3DownLoadController;
 import com.onfree.core.entity.realtimerequset.RealTimeRequest;
 import com.onfree.core.entity.realtimerequset.RequestStatus;
 import com.onfree.core.entity.realtimerequset.UseType;
@@ -8,10 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.ArrayList;

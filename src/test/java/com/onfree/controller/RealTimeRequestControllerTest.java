@@ -5,6 +5,7 @@ import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.RealTimeRequestErrorCode;
 import com.onfree.common.error.exception.RealTimeRequestException;
+import com.onfree.controller.realtimerequest.RealTimeRequestController;
 import com.onfree.core.dto.realtimerequest.CreateRealTimeRequestDto;
 import com.onfree.core.dto.realtimerequest.RealTimeRequestDetailDto;
 import com.onfree.core.dto.realtimerequest.SimpleRealtimeRequestDto;
@@ -13,7 +14,7 @@ import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.realtimerequset.RequestStatus;
 import com.onfree.core.entity.realtimerequset.UseType;
 import com.onfree.core.entity.user.*;
-import com.onfree.core.service.RealTimeRequestService;
+import com.onfree.core.service.realtimerequest.RealTimeRequestService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -248,8 +249,8 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
 
     private CreateRealTimeRequestDto.Request createRealTimeRequestDto(String title, UseType useType, boolean adult) {
         String content = "실시간 의뢰 내용입니다.";
-        LocalDate startDate = LocalDate.of(2022, 3, 5);
-        LocalDate endDate = LocalDate.of(2022, 3, 7);
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(3);
         String referenceLink = "referenceLink";
 
         return CreateRealTimeRequestDto.Request.createRealTimeRequestDtoRequest(title, content, startDate, endDate, useType, referenceLink, adult);
@@ -401,9 +402,9 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
     }
 
     private UpdateRealTimeRequestDto createUpdateRealTimeRequestDto(String title, UseType useType, boolean adult) {
-        String content = "";
-        LocalDate startDate = LocalDate.of(2022, 3, 7);
-        LocalDate endDate = LocalDate.of(2022, 3, 9);
+        String content = "실시간 의뢰 내용을 변경합니다.";
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(3);
         String referenceLink = "referenceLink";
         return UpdateRealTimeRequestDto.createUpdateRealTimeRequestDto(title, content, startDate, endDate, useType, referenceLink, adult);
     }

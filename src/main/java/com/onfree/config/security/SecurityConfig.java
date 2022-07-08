@@ -6,7 +6,7 @@ import com.onfree.config.security.filter.JwtLoginFilter;
 import com.onfree.config.security.handler.CustomAccessDeniedHandler;
 import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
 import com.onfree.config.security.handler.JwtLoginAuthenticationFailHandler;
-import com.onfree.core.service.LoginService;
+import com.onfree.core.service.user.LoginService;
 import com.onfree.utils.CookieUtil;
 import com.onfree.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +31,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Configuration
 @EnableWebSecurity

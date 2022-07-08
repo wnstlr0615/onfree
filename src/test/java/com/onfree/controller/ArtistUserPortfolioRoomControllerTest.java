@@ -4,6 +4,7 @@ import com.onfree.anotation.WithArtistUser;
 import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.PortfolioRoomErrorCode;
 import com.onfree.common.error.exception.PortfolioRoomException;
+import com.onfree.controller.portfolioroom.ArtistUserPortfolioRoomController;
 import com.onfree.core.dto.portfolioroom.UpdatePortfolioStatusDto;
 import com.onfree.core.dto.portfolioroom.UpdateStatusMessageDto;
 import com.onfree.core.dto.user.artist.MobileCarrier;

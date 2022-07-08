@@ -8,6 +8,7 @@ import com.onfree.core.dto.user.normal.NormalUserDetailDto;
 import com.onfree.core.dto.user.normal.UpdateNormalUserDto;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.UserRepository;
+import com.onfree.core.service.user.NormalUserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,14 +1,11 @@
 package com.onfree.core.dto.realtimerequest;
 
-import com.onfree.common.constant.AWSConstant;
-import com.onfree.controller.S3DownLoadController;
+import com.onfree.controller.aws.S3DownLoadController;
 import com.onfree.core.entity.realtimerequset.RealTimeRequest;
 import com.onfree.core.entity.realtimerequset.RequestStatus;
 import com.onfree.core.entity.realtimerequset.UseType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
-import org.springframework.core.io.UrlResource;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.util.StringUtils;
 

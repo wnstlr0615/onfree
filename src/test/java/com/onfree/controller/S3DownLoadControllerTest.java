@@ -1,10 +1,10 @@
 package com.onfree.controller;
 
-import com.onfree.anotation.WithArtistUser;
 import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.FileErrorCode;
 import com.onfree.common.error.exception.FileException;
 import com.onfree.common.model.UploadFile;
+import com.onfree.controller.aws.S3DownLoadController;
 import com.onfree.core.entity.fileitem.FileItem;
 import com.onfree.core.entity.fileitem.FileStatus;
 import com.onfree.core.entity.fileitem.FileType;

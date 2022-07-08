@@ -14,6 +14,7 @@ import com.onfree.core.entity.portfoliocontent.VideoContent;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.ArtistUserRepository;
 import com.onfree.core.repository.PortfolioRepository;
+import com.onfree.core.service.portfolio.ArtistUserPortfolioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

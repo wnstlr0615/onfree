@@ -11,6 +11,7 @@ import com.onfree.core.repository.ArtistUserRepository;
 import com.onfree.common.error.code.UserErrorCode;
 import com.onfree.common.error.exception.UserException;
 import com.onfree.core.repository.UserRepository;
+import com.onfree.core.service.user.ArtistUserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

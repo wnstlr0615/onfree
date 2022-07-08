@@ -7,6 +7,7 @@ import com.onfree.core.entity.realtimerequset.RequestStatus;
 import com.onfree.core.entity.realtimerequset.UseType;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.RealTimeRequestRepository;
+import com.onfree.core.service.realtimerequest.UserRealTimeRequestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

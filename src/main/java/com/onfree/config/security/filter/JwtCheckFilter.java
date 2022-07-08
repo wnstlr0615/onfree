@@ -9,7 +9,7 @@ import com.onfree.config.security.CustomUserDetailService;
 import com.onfree.config.security.dto.JwtLoginResponse;
 import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
 import com.onfree.core.entity.user.User;
-import com.onfree.core.service.LoginService;
+import com.onfree.core.service.user.LoginService;
 import com.onfree.utils.CookieUtil;
 import com.onfree.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;

@@ -5,7 +5,7 @@ import com.onfree.common.model.SimpleResponse;
 import com.onfree.core.dto.drawingfield.artist.UpdateDrawingFieldsDto;
 import com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto;
 import com.onfree.core.entity.user.ArtistUser;
-import com.onfree.core.service.ArtistUserDrawingFieldService;
+import com.onfree.core.service.drawingfield.ArtistUserDrawingFieldService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
