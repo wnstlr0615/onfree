@@ -23,7 +23,6 @@ public class MailTemplateService {
         saveMailTemplate(CHECK_EMAIL_TEMPLATE, "[이메일 인증] 온프리 이메일 인증 확인", "<a href='<URL>'>이메일 인증하기</a>");
         saveMailTemplate(PASSWORD_RESET_TEMPLATE, "[이메일 인증] 온프리 비밀번호 설정", "<a href='<URL>'>비밀번호 변경하기</a>");
     }
-
     private void saveMailTemplate(String templateName, String title, String content) {
         mailTemplateRepository.save(
                 MailTemplate.builder()

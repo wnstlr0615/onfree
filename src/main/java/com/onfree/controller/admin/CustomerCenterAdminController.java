@@ -15,7 +15,6 @@ import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -34,8 +33,7 @@ public class CustomerCenterAdminController {
     @PreAuthorize("hasRole('ADMIN') and isAuthenticated()")
     @PostMapping(value = "/notices", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CreateNoticeDto.Response noticeAdd(
-            @Valid @RequestBody CreateNoticeDto.Request request,
-            BindingResult errors
+            @Valid @RequestBody CreateNoticeDto.Request request
     ){
         final CreateNoticeDto.Response response = customerCenterService.createNotice(
                 request
@@ -54,8 +52,7 @@ public class CustomerCenterAdminController {
     public SimpleResponse noticeModify(
             @ApiParam(value = "해당 공지 ID", example = "1")
             @PathVariable("noticeId")Long noticeId,
-            @Valid @RequestBody UpdateNoticeDto.Request request,
-            BindingResult errors
+            @Valid @RequestBody UpdateNoticeDto.Request request
     ){
         customerCenterService.updateNotice(noticeId, request);
 
@@ -75,8 +72,7 @@ public class CustomerCenterAdminController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CreateQuestionDto.Response questionAdd(
-            @Valid @RequestBody CreateQuestionDto.Request request,
-            BindingResult errors){
+            @Valid @RequestBody CreateQuestionDto.Request request){
         CreateQuestionDto.Response response = customerCenterService.createQuestion(request);
 
         //링크 추가
@@ -94,8 +90,7 @@ public class CustomerCenterAdminController {
     public SimpleResponse questionModify(
             @ApiParam(value = "해당 질문 ID", example = "1")
             @PathVariable("questionId")Long questionId,
-            @Valid @RequestBody UpdateQuestionDto.Request request,
-            BindingResult errors
+            @Valid @RequestBody UpdateQuestionDto.Request request
     ){
          customerCenterService.updateQuestion(questionId, request);
 

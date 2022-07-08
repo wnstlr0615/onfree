@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum FileStatus {
     TEMP("임시 저장 파일"),
     USED("현재 사용중인 파일"),
+    DELETED_TEMP("삭제 예정 파일")
     ;
     private final  String description;
 }

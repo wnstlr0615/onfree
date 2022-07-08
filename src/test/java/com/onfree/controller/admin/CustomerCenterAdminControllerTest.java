@@ -52,7 +52,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
             .andDo(print())
             .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.noticeId").value(1))
-                .andExpect(jsonPath("$.title").value("제목"))
+                .andExpect(jsonPath("$.title").value("안녕하세요 제목입니다."))
                 .andExpect(jsonPath("$.content").value("내용"))
                 .andExpect(jsonPath("$.top").value(true))
                 .andExpect(jsonPath("$.disabled").value(false))
@@ -64,7 +64,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
 
     private CreateNoticeDto.Request givenCreateNoticeDtoRequest() {
         return CreateNoticeDto.Request.builder()
-                .title("제목")
+                .title("안녕하세요 제목입니다.")
                 .content("내용")
                 .top(true)
                 .build();
@@ -73,7 +73,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
     private CreateNoticeDto.Response givenCreateNoticeDtoResponse() {
         return CreateNoticeDto.Response.builder()
                 .noticeId(1L)
-                .title("제목")
+                .title("안녕하세요 제목입니다.")
                 .content("내용")
                 .top(true)
                 .disabled(false)
@@ -112,7 +112,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
 
     private UpdateNoticeDto.Request givenUpdateNoticeDtoRequest() {
         return UpdateNoticeDto.Request.builder()
-                .title("제목")
+                .title("안녕하세요 공지 제목입니다.")
                 .content("내용")
                 .top(true)
                 .disabled(false)
@@ -122,7 +122,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
     private UpdateNoticeDto.Response givenUpdateNoticeDtoResponse() {
         return UpdateNoticeDto.Response.builder()
                 .noticeId(1L)
-                .title("제목")
+                .title("안녕하세요 공지 제목입니다.")
                 .content("내용")
                 .top(true)
                 .disabled(false)
@@ -179,7 +179,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.questionId").value(1))
-                .andExpect(jsonPath("$.title").value("제목"))
+                .andExpect(jsonPath("$.title").value("안녕하세요 질문하기 제목입니다."))
                 .andExpect(jsonPath("$.content").value("내용"))
                 .andExpect(jsonPath("$.top").value(true))
                 .andExpect(jsonPath("$.disabled").value(false))
@@ -191,7 +191,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
 
     private CreateQuestionDto.Request givenCreateQuestionDtoRequest() {
         return CreateQuestionDto.Request.builder()
-                .title("제목")
+                .title("안녕하세요 질문하기 제목입니다.")
                 .content("내용")
                 .top(true)
                 .build();
@@ -200,7 +200,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
     private CreateQuestionDto.Response givenCreateQuestionDtoResponse() {
         return CreateQuestionDto.Response.builder()
                 .questionId(1L)
-                .title("제목")
+                .title("안녕하세요 질문하기 제목입니다.")
                 .content("내용")
                 .top(true)
                 .disabled(false)
@@ -241,7 +241,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
 
     private UpdateQuestionDto.Request givenUpdateQuestionDtoRequest() {
         return UpdateQuestionDto.Request.builder()
-                .title("제목")
+                .title("수정된 질문 제목")
                 .content("내용")
                 .top(true)
                 .disabled(false)
@@ -251,7 +251,7 @@ class CustomerCenterAdminControllerTest extends ControllerBaseTest {
     private UpdateQuestionDto.Response givenUpdateQuestionDtoResponse() {
         return UpdateQuestionDto.Response.builder()
                 .questionId(1L)
-                .title("제목")
+                .title("수정된 질문 제목")
                 .content("내용")
                 .top(true)
                 .disabled(false)

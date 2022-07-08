@@ -9,7 +9,7 @@ import com.onfree.config.security.CustomUserDetailService;
 import com.onfree.config.security.dto.JwtLoginResponse;
 import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
 import com.onfree.core.entity.user.User;
-import com.onfree.core.service.LoginService;
+import com.onfree.core.service.user.LoginService;
 import com.onfree.utils.CookieUtil;
 import com.onfree.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +57,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             if (verify.isResult()) { //accessToken 이 유효한 경우
                 try {
                     oldRefreshToken = getCookieValue(request, REFRESH_TOKEN);
-                    if(isWrongRefreshToken(username, oldRefreshToken)){// refreshToken 이 없거나 변저된 경우경우 (로그아웃 )
+                    if(isWrongRefreshToken(username, oldRefreshToken)){// refreshToken 이 없거나 변조된 경우 (로그아웃 )
                         log.info("refresh token empty - username : {} ", username);
                         clearToken(response, username);
                         filterChain.doFilter(request,response);
@@ -89,6 +89,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
                     return;
                 } catch (LoginException e) {
                     clearToken(response, username);
+                    throw e;
                 }
             }
         }catch (AuthenticationException e) {

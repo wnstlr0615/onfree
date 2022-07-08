@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Getter
 public class User extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +43,7 @@ public class User extends BaseTimeEntity {
     private UserAgree userAgree; // 사용자동의정보
 
     @Embedded
+    @Column(nullable = false)
     private UserNotification userNotification;
 
     @Column(nullable = false)
@@ -65,8 +66,7 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private Role role; // 권한
 
-
-
+    //== 생성 메서드 ==//
     public User(Long userId, String name, String nickname, String email, String password, MobileCarrier mobileCarrier, String phoneNumber, BankInfo bankInfo, UserAgree userAgree, Boolean adultCertification, Gender gender, String profileImage, Boolean deleted, Role role) {
         this.userId = userId;
         this.name = name;
@@ -85,10 +85,15 @@ public class User extends BaseTimeEntity {
         this.userNotification = UserNotification.allTrueUserNotification();
     }
 
+    //== 비즈니스 메서드 ==//
     public void encryptPassword(String encryptPassword){
         this.password=encryptPassword;
     }
 
+
+    public boolean isEqualsUserId(User otherUser){
+        return this.getUserId().equals(otherUser.getUserId());
+    }
     protected void setDeleted() {
         this.deleted=true;
         this.deletedTime=LocalDateTime.now();
@@ -102,6 +107,8 @@ public class User extends BaseTimeEntity {
         this.phoneNumber= phoneNumber;
         this.profileImage= profileImage;
     }
+
+
 
     public void resetPassword(String bcryptPassword) {
         password=bcryptPassword;

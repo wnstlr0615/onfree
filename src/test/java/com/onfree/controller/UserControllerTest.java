@@ -3,13 +3,12 @@ package com.onfree.controller;
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.ControllerBaseTest;
-import com.onfree.common.error.code.GlobalErrorCode;
-import com.onfree.common.error.exception.GlobalException;
 import com.onfree.config.webmvc.resolver.LoginUserArgumentResolver;
+import com.onfree.controller.user.UserController;
 import com.onfree.core.dto.user.UpdateUserNotificationDto;
 import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.user.*;
-import com.onfree.core.service.UserService;
+import com.onfree.core.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -91,7 +90,7 @@ class UserControllerTest extends ControllerBaseTest {
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
-                        BankInfo.createBankInfo(BankName.IBK_BANK, "010-8888-9999")
+                        BankInfo.createBankInfo(BankName.IBK, "010-8888-9999")
                 )
                 .userAgree(
                         UserAgree.createUserAgree(true,true,true,true)
@@ -138,7 +137,7 @@ class UserControllerTest extends ControllerBaseTest {
                 .name("joon")
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-0000-0000")
-                .bankInfo(BankInfo.createBankInfo(BankName.IBK_BANK, "010-0000-0000"))
+                .bankInfo(BankInfo.createBankInfo(BankName.IBK, "010-0000-0000"))
                 .userAgree(UserAgree.createUserAgree(true, true, true, true))
                 .adultCertification(true)
                 .profileImage("http://www.onfree.co.kr/images/dasdasfasd")

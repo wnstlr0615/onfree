@@ -1,0 +1,7 @@
+# 해당 스토리지는 삭제되었습니다.
+cloud:
+  aws:
+    bucket_name: onfree-store
+    access_key: AKIA4N54U3AQJCD6OEET
+    secret_key: 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
+    region: ap-northeast-2

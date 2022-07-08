@@ -24,7 +24,9 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     @Override
     public User resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication != null && authentication.isAuthenticated()) {
+        if(authentication != null
+                && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof User) {
             return (User)authentication.getPrincipal();
         }
         throw new GlobalException(GlobalErrorCode.ACCESS_DENIED);

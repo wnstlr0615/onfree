@@ -5,7 +5,7 @@ import com.onfree.controller.SwaggerController;
 import com.onfree.core.dto.drawingfield.CreateDrawingFieldDto;
 import com.onfree.core.dto.drawingfield.DrawingFieldDto;
 import com.onfree.core.dto.drawingfield.UpdateDrawingFieldDto;
-import com.onfree.core.service.DrawingFieldService;
+import com.onfree.core.service.drawingfield.DrawingFieldService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,6 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -73,9 +72,7 @@ public class DrawingFieldAdminController {
     @ApiOperation(value = "그림분야 추가", notes = "그림 분야 추가 API")
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?>drawingFieldAdd(
-            @Valid @RequestBody CreateDrawingFieldDto createDrawingFieldDto,
-            BindingResult errors
-    ){
+            @Valid @RequestBody CreateDrawingFieldDto createDrawingFieldDto){
         DrawingFieldDto response = drawingFieldService.addDrawingField(createDrawingFieldDto);
         //링크 추가
 
@@ -98,8 +95,7 @@ public class DrawingFieldAdminController {
     public SimpleResponse drawingFieldModify(
             @ApiParam(value = "그림분야 PK", example = "1")
             @PathVariable("drawingFieldId") Long drawingFieldId,
-            @Valid @RequestBody UpdateDrawingFieldDto updateDrawingFieldDto,
-            BindingResult errors
+            @Valid @RequestBody UpdateDrawingFieldDto updateDrawingFieldDto
     ){
         drawingFieldService.updateDrawingField(drawingFieldId, updateDrawingFieldDto);
         SimpleResponse response = SimpleResponse.success("성공적으로 그림 분야 수정이 완료되었습니다.");

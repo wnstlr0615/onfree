@@ -6,7 +6,7 @@ import com.onfree.config.security.filter.JwtLoginFilter;
 import com.onfree.config.security.handler.CustomAccessDeniedHandler;
 import com.onfree.config.security.handler.CustomAuthenticationEntryPoint;
 import com.onfree.config.security.handler.JwtLoginAuthenticationFailHandler;
-import com.onfree.core.service.LoginService;
+import com.onfree.core.service.user.LoginService;
 import com.onfree.utils.CookieUtil;
 import com.onfree.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +31,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Configuration
 @EnableWebSecurity
@@ -79,26 +75,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         String[] getWhiteList = new String[]{
                 "/api/v1/notices/**",  "/api/v1/questions/**",
                 "/api/v1/portfolios/**", "/api/v1/users/artist/**",
-                "/api/v1/images/**", "/api/v1/real-time-requests/**",
-                "/api/v1/portfolio-rooms/**"
+                "/images/**", "/reference-files/**",  "/api/v1/real-time-requests/**",
+                "/api/v1/portfolio-rooms/**", "/api/v1/toss/payments/**"
 
         };
         String[] postWhiteList = new String[]{
                 "/api/v1/upload/profile-image",
                 "/api/v1/users/artist",
-                "/api/v1/users/normal"
+                "/api/v1/users/normal",
+                "/api/v1/applications/**"
         };
         String[] onlyArtistUrl = new String[]{
                 "/api/v1/users/artist/**",
                 "/api/v1/upload/profile-image",
-                "/api/v1/upload/portfolio-content-image"
+                "/api/v1/upload/portfolio-content-image",
+                "/api/v1/real-time-requests/*/apply"
+        };
+        String[] authenticatedUrl= new String[]{
+                "/api/v1/users/me/**", "/api/v1/users/artist/*/apply",
         };
         http.authorizeRequests()
                 .antMatchers(whiteList).permitAll()
                 .antMatchers(HttpMethod.GET, getWhiteList).permitAll()
                 .antMatchers(HttpMethod.POST, postWhiteList).permitAll()
-                .antMatchers("/api/v1/users/me/**").authenticated()
-                .antMatchers(HttpMethod.POST, "/api/v1/notices/**", "/api/v1/questions/**").hasRole("ADMIN")
+                .antMatchers(authenticatedUrl).permitAll()
                 .antMatchers(onlyArtistUrl).hasRole("ARTIST")
                 .antMatchers("/api/v1/users/normal/**").hasRole("NORMAL")
                 .anyRequest().authenticated();
