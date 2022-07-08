@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.antMatcher("/test/**")
+        http.antMatcher("/test/**").antMatcher("/app/**").antMatcher("/gs-guide-websocket/**")
                 .authorizeRequests().anyRequest().permitAll();
         http.csrf().disable();
     }

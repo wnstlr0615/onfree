@@ -7,18 +7,18 @@ import com.onfree.common.error.code.GlobalErrorCode;
 import com.onfree.common.error.code.PortfolioErrorCode;
 import com.onfree.common.error.exception.PortfolioException;
 import com.onfree.config.webmvc.resolver.CurrentArtistUserArgumentResolver;
+import com.onfree.controller.portfolio.PortfolioController;
 import com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto;
 import com.onfree.core.dto.portfolio.*;
 import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.portfolio.PortfolioStatus;
 import com.onfree.core.entity.user.*;
-import com.onfree.core.service.PortfolioService;
+import com.onfree.core.service.portfolio.PortfolioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -80,7 +80,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
     private ArtistUser getArtistUser() {
         final BankInfo bankInfo = BankInfo.builder()
                 .accountNumber("010-0000-0000")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .build();
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(true)
@@ -182,7 +182,7 @@ class PortfolioControllerTest extends ControllerBaseTest {
 
         return CreatePortfolioDto.Request.createPortfolioDtoRequest(
                 title,
-                null,
+                "http://onfree.co.kr/images/123",
                 List.of(),
                 createPortfolioContentDtoList,
                 List.of(),
@@ -339,8 +339,6 @@ class PortfolioControllerTest extends ControllerBaseTest {
         final long userId = 1L;
         final String artistUser = "joon@naver.com";
         final String title = "제목입니다";
-        final boolean temporary = true;
-        final boolean representative = false;
         ErrorCode errorCode = GlobalErrorCode.ACCESS_DENIED;
 
         when(portfolioService.findPortfolio(

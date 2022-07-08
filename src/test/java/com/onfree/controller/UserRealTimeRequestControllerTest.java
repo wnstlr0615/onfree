@@ -4,11 +4,12 @@ package com.onfree.controller;
 import com.onfree.anotation.WithArtistUser;
 import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.ControllerBaseTest;
+import com.onfree.controller.realtimerequest.UserRealTimeRequestController;
 import com.onfree.core.dto.realtimerequest.SimpleRealtimeRequestDto;
 import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.realtimerequset.RequestStatus;
 import com.onfree.core.entity.user.*;
-import com.onfree.core.service.UserRealTimeRequestService;
+import com.onfree.core.service.realtimerequest.UserRealTimeRequestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,7 +108,7 @@ class UserRealTimeRequestControllerTest extends ControllerBaseTest {
     private ArtistUser getArtistUser() {
         final BankInfo bankInfo = BankInfo.builder()
                 .accountNumber("010-0000-0000")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .build();
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(true)
@@ -208,7 +209,7 @@ class UserRealTimeRequestControllerTest extends ControllerBaseTest {
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
-                        BankInfo.createBankInfo(BankName.IBK_BANK, "010-8888-9999")
+                        BankInfo.createBankInfo(BankName.IBK, "010-8888-9999")
                 )
                 .userAgree(
                         UserAgree.createUserAgree(true,true,true,true)

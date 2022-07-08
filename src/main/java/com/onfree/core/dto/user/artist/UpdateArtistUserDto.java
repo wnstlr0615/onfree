@@ -29,7 +29,7 @@ public class UpdateArtistUserDto {
         @Pattern(regexp = "^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", message="핸드폰번호 패턴이 올바르지 않습니다.")
         private final String phoneNumber;
 
-        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = " ${BankName.joinString()}" )
+        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" )
         @NotNull(message = "은행명은 공백일 수 없습니다.")
         private final BankName bankName;
 
@@ -67,7 +67,7 @@ public class UpdateArtistUserDto {
         @Pattern(regexp = "^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", message="핸드폰번호 패턴이 올바르지 않습니다.")
         private final String phoneNumber;
 
-        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = " ${BankName.joinString()}" )
+        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK"  )
         @NotNull(message = "은행명은 공백일 수 없습니다.")
         private final BankName bankName;
 

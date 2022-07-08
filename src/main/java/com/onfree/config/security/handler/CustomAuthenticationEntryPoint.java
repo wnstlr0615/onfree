@@ -21,7 +21,7 @@ import java.io.IOException;
 
 @Slf4j
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
-    private ObjectMapper mapper=new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {

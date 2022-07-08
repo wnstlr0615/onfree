@@ -7,6 +7,7 @@ import com.onfree.core.entity.realtimerequset.RequestStatus;
 import com.onfree.core.entity.realtimerequset.UseType;
 import com.onfree.core.entity.user.*;
 import com.onfree.core.repository.RealTimeRequestRepository;
+import com.onfree.core.service.realtimerequest.UserRealTimeRequestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -81,13 +83,15 @@ class UserRealTimeRequestServiceTest {
         LocalDate endDate = LocalDate.of(2022,3,5);
         String referenceLink = "http://naver.com";
         LocalDateTime createdDate = LocalDateTime.of(2022, 3 ,2, 0, 0);
-        return RealTimeRequest.createRealTimeRequest(realTimeRequestId, title, content, user, startDate, endDate, useType, referenceLink, adult, status, createdDate);
+
+        String referenceFiles = UUID.randomUUID() + ".txt," + UUID.randomUUID() + ".png";
+        return RealTimeRequest.createRealTimeRequest(realTimeRequestId, title, content, user, startDate, endDate, useType, referenceLink, referenceFiles, adult, status, createdDate);
     }
 
     private ArtistUser getArtistUser(long userId) {
         final BankInfo bankInfo = BankInfo.builder()
                 .accountNumber("010-0000-0000")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .build();
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(true)
@@ -167,7 +171,7 @@ class UserRealTimeRequestServiceTest {
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
-                        BankInfo.createBankInfo(BankName.IBK_BANK, "010-8888-9999")
+                        BankInfo.createBankInfo(BankName.IBK, "010-8888-9999")
                 )
                 .userAgree(
                         UserAgree.createUserAgree(true,true,true,true)

@@ -3,6 +3,9 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
+jar{
+    enabled = false
+}
 
 group = 'com.onfree'
 version = '0.0.3-SNAPSHOT'
@@ -26,22 +29,35 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
  //  implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
+
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    // implementation 'it.ozimov:embedded-redis:0.7.3'
+     implementation 'it.ozimov:embedded-redis:0.7.2'
+
+    // WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.webjars:webjars-locator-core'
+    implementation 'org.webjars:sockjs-client:1.0.2'
+    implementation 'org.webjars:stomp-websocket:2.3.3'
+    implementation 'org.webjars:bootstrap:3.3.7'
+    implementation 'org.webjars:jquery:3.1.1-1'
 
     // amazon s3
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.137'
+
     //develop 용 db
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
     //JWT Token
     implementation group: 'com.auth0', name: 'java-jwt', version: '3.18.1'
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.7'
+
     //swagger
 // https://mvnrepository.com/artifact/io.springfox/springfox-boot-starter
     implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
+
     //정정 메소드 테스트용
-    testImplementation 'org.mockito:mockito-inline:3.11.2'
+    testImplementation 'org.mockito:mockito-inline'
 
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'

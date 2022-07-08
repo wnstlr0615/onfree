@@ -137,7 +137,7 @@ public class CreateArtistUserDto {
         @ApiModelProperty(value = "핸드폰번호", example = "010-0000-0000")
         private final String phoneNumber;
 
-        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK" ,allowableValues = "${BankName.joinString()}" )
+        @ApiModelProperty(value = "은행명", example = "BUSAN_BANK")
         private final BankName bankName;
 
         @ApiModelProperty(value = "계좌번호", example = "123456-456789-12")

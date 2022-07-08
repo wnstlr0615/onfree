@@ -5,6 +5,7 @@ import com.onfree.anotation.WithNormalUser;
 import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.RealTimeRequestErrorCode;
 import com.onfree.common.error.exception.RealTimeRequestException;
+import com.onfree.controller.realtimerequest.RealTimeRequestController;
 import com.onfree.core.dto.realtimerequest.CreateRealTimeRequestDto;
 import com.onfree.core.dto.realtimerequest.RealTimeRequestDetailDto;
 import com.onfree.core.dto.realtimerequest.SimpleRealtimeRequestDto;
@@ -13,7 +14,7 @@ import com.onfree.core.dto.user.artist.MobileCarrier;
 import com.onfree.core.entity.realtimerequset.RequestStatus;
 import com.onfree.core.entity.realtimerequset.UseType;
 import com.onfree.core.entity.user.*;
-import com.onfree.core.service.RealTimeRequestService;
+import com.onfree.core.service.realtimerequest.RealTimeRequestService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,9 +24,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -199,20 +202,24 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
         String title = "실시간 의뢰 제목";
         UseType useType = UseType.COMMERCIAL;
         boolean adult = false;
+        String jsonData = mapper.writeValueAsString(
+                createRealTimeRequestDto(title, useType, adult)
+        );
 
-        when(realTimeRequestService.addRealTimeRequest(any(User.class), any()))
+        MockMultipartFile  data = new MockMultipartFile("data", "data", MediaType.APPLICATION_JSON_VALUE, jsonData.getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile imageFile = new MockMultipartFile("files", "referenceImageFile", MediaType.IMAGE_PNG_VALUE, "image".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile textFile = new MockMultipartFile("files", "referenceTextFile", MediaType.TEXT_PLAIN_VALUE, "text".getBytes(StandardCharsets.UTF_8));
+
+        when(realTimeRequestService.addRealTimeRequest(any(User.class), any(), any()))
                 .thenReturn(
                         getCreateRealTimeRequestResponse(realTimeRequestId, title, useType, adult)
                 );
         //when //then
-        mvc.perform(post("/api/v1/real-time-requests")
+        mvc.perform(multipart("/api/v1/real-time-requests")
+                .file(data)
+                .file(imageFile)
+                .file(textFile)
                 .with(authentication(new UsernamePasswordAuthenticationToken(artistUser, null, getAuthority("ROLE_ARTIST"))))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(
-                    mapper.writeValueAsString(
-                            createRealTimeRequestDto(title, useType, adult)
-                    )
-            )
         )
             .andDo(print())
             .andExpect(status().isCreated())
@@ -228,7 +235,7 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
             .andExpect(jsonPath("$._links.self").isNotEmpty())
             .andExpect(jsonPath("$._links.profile").isNotEmpty())
         ;
-        verify(realTimeRequestService).addRealTimeRequest(any(User.class), any());
+        verify(realTimeRequestService).addRealTimeRequest(any(User.class), any(), any());
 
     }
 
@@ -242,8 +249,8 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
 
     private CreateRealTimeRequestDto.Request createRealTimeRequestDto(String title, UseType useType, boolean adult) {
         String content = "실시간 의뢰 내용입니다.";
-        LocalDate startDate = LocalDate.of(2022, 3, 5);
-        LocalDate endDate = LocalDate.of(2022, 3, 7);
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(3);
         String referenceLink = "referenceLink";
 
         return CreateRealTimeRequestDto.Request.createRealTimeRequestDtoRequest(title, content, startDate, endDate, useType, referenceLink, adult);
@@ -252,7 +259,7 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
     private ArtistUser getArtistUser(long userId) {
         final BankInfo bankInfo = BankInfo.builder()
                 .accountNumber("010-0000-0000")
-                .bankName(BankName.IBK_BANK)
+                .bankName(BankName.IBK)
                 .build();
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(true)
@@ -295,14 +302,24 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
         UseType useType = UseType.COMMERCIAL;
         boolean adult = false;
 
-        when(realTimeRequestService.addRealTimeRequest(any(User.class), any()))
+        String jsonData = mapper.writeValueAsString(
+                createRealTimeRequestDto(title, useType, adult)
+        );
+
+        MockMultipartFile  data = new MockMultipartFile("data", "data", MediaType.APPLICATION_JSON_VALUE, jsonData.getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile imageFile = new MockMultipartFile("files", "referenceImageFile", MediaType.IMAGE_PNG_VALUE, "image".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile textFile = new MockMultipartFile("files", "referenceTextFile", MediaType.TEXT_PLAIN_VALUE, "text".getBytes(StandardCharsets.UTF_8));
+
+        when(realTimeRequestService.addRealTimeRequest(any(User.class), any(), any()))
                 .thenReturn(
                         getCreateRealTimeRequestResponse(realTimeRequestId, title, useType, adult)
                 );
         //when //then
-        mvc.perform(post("/api/v1/real-time-requests")
+        mvc.perform(multipart("/api/v1/real-time-requests")
+                .file(data)
+                .file(imageFile)
+                .file(textFile)
                 .with(authentication(new UsernamePasswordAuthenticationToken(normalUser, null, getAuthority("ROLE_NORMAL"))))
-                .contentType(MediaType.APPLICATION_JSON)
                 .content(
                         mapper.writeValueAsString(
                                 createRealTimeRequestDto(title, useType, adult)
@@ -323,7 +340,7 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$._links.self").isNotEmpty())
                 .andExpect(jsonPath("$._links.profile").isNotEmpty())
         ;
-        verify(realTimeRequestService).addRealTimeRequest(any(User.class), any());
+        verify(realTimeRequestService).addRealTimeRequest(any(User.class), any(), any());
 
     }
     public NormalUser getNormalUser(long userId){
@@ -337,7 +354,7 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
                 .mobileCarrier(MobileCarrier.SKT)
                 .phoneNumber("010-8888-9999")
                 .bankInfo(
-                        BankInfo.createBankInfo(BankName.IBK_BANK, "010-8888-9999")
+                        BankInfo.createBankInfo(BankName.IBK, "010-8888-9999")
                 )
                 .userAgree(
                         UserAgree.createUserAgree(true,true,true,true)
@@ -355,17 +372,23 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
         long requestId = 1L;
         ArtistUser artistUser = getArtistUser(requestId);
         doNothing().when(realTimeRequestService)
-                .modifyRealTimeRequest(anyLong(), any(User.class), any(UpdateRealTimeRequestDto.class));
-
+                .modifyRealTimeRequest(anyLong(), any(User.class), any(UpdateRealTimeRequestDto.class), any());
+        String jsonData = mapper.writeValueAsString(
+                createUpdateRealTimeRequestDto("변경된 제목", UseType.NOT_COMMERCIAL, true)
+        );
+        MockMultipartFile jsonFile = createMultipartFile("data", "image.png", MediaType.APPLICATION_JSON_VALUE, jsonData);
+        MockMultipartFile imageFile = createMultipartFile("files", "image.png", MediaType.IMAGE_PNG_VALUE, "imageFile");
+        MockMultipartFile textFile = createMultipartFile("files", "text.txt", MediaType.TEXT_PLAIN_VALUE, "textFile");
         //when //then
-        mvc.perform(put("/api/v1/real-time-requests/{requestId}", requestId)
+
+
+
+        mvc.perform(multipart("/api/v1/real-time-requests/{requestId}", requestId)
+                .file(jsonFile)
+                .file(imageFile)
+                .file(textFile)
                 .with(authentication(new UsernamePasswordAuthenticationToken(artistUser, null, getAuthority("ROLE_ARTIST"))))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(
-                    mapper.writeValueAsString(
-                            createUpdateRealTimeRequestDto("변경된 제목", UseType.NOT_COMMERCIAL, true)
-                    )
-            )
+            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         )
             .andDo(print())
             .andExpect(status().isOk())
@@ -374,35 +397,39 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
             .andExpect(jsonPath("$._links.self").isNotEmpty())
             .andExpect(jsonPath("$._links.profile").isNotEmpty())
         ;
-        verify(realTimeRequestService).modifyRealTimeRequest(eq(requestId), any(User.class), any(UpdateRealTimeRequestDto.class));
+        verify(realTimeRequestService).modifyRealTimeRequest(eq(requestId), any(User.class), any(UpdateRealTimeRequestDto.class), any());
+
     }
 
     private UpdateRealTimeRequestDto createUpdateRealTimeRequestDto(String title, UseType useType, boolean adult) {
-        String content = "";
-        LocalDate startDate = LocalDate.of(2022, 3, 7);
-        LocalDate endDate = LocalDate.of(2022, 3, 9);
+        String content = "실시간 의뢰 내용을 변경합니다.";
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(3);
         String referenceLink = "referenceLink";
         return UpdateRealTimeRequestDto.createUpdateRealTimeRequestDto(title, content, startDate, endDate, useType, referenceLink, adult);
     }
 
     @Test
-    @DisplayName("[성공][PUT]일반 유저 실시간 의뢰 수정")
+    @DisplayName("[성공][POST]일반 유저 실시간 의뢰 수정")
     public void givenRequestIdAndUpdateRealTimeRequestDto_whenRealTimRequestModifyByNormalUser_thenNothing() throws Exception{
         //given
         long requestId = 1L;
         NormalUser normalUser = getNormalUser(requestId);
         doNothing().when(realTimeRequestService)
-                .modifyRealTimeRequest(anyLong(), any(User.class), any(UpdateRealTimeRequestDto.class));
+                .modifyRealTimeRequest(anyLong(), any(User.class), any(UpdateRealTimeRequestDto.class), any());
 
         //when //then
-        mvc.perform(put("/api/v1/real-time-requests/{requestId}", requestId)
+        String jsonData = mapper.writeValueAsString(
+                createUpdateRealTimeRequestDto("변경된 제목", UseType.NOT_COMMERCIAL, true)
+        );
+
+        MockMultipartFile jsonFile = createMultipartFile("data", "image.png", MediaType.APPLICATION_JSON_VALUE, jsonData);
+        MockMultipartFile updateTextFile = createMultipartFile("files","updateFile.txt", MediaType.TEXT_PLAIN_VALUE, "update");
+
+        mvc.perform(multipart("/api/v1/real-time-requests/{requestId}", requestId)
+                .file(jsonFile)
+                .file(updateTextFile)
                 .with(authentication(new UsernamePasswordAuthenticationToken(normalUser, null, getAuthority("ROLE_ARTIST"))))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                        mapper.writeValueAsString(
-                                createUpdateRealTimeRequestDto("변경된 제목", UseType.NOT_COMMERCIAL, true)
-                        )
-                )
         )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -411,28 +438,33 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$._links.self").isNotEmpty())
                 .andExpect(jsonPath("$._links.profile").isNotEmpty())
         ;
-        verify(realTimeRequestService).modifyRealTimeRequest(eq(requestId), any(User.class), any(UpdateRealTimeRequestDto.class));
+        verify(realTimeRequestService).modifyRealTimeRequest(eq(requestId), any(User.class), any(UpdateRealTimeRequestDto.class), any());
+    }
+
+    private MockMultipartFile createMultipartFile(String name, String originalFilename, String contentType, String content) {
+        return new MockMultipartFile(name, originalFilename, contentType, content.getBytes(StandardCharsets.UTF_8));
     }
 
     @Test
-    @DisplayName("[실패][PUT] 삭제된 실시간 의뢰 수정 요청 - REAL_TIME_REQUEST_DELETED")
+    @DisplayName("[실패][POST] 삭제된 실시간 의뢰 수정 요청 - REAL_TIME_REQUEST_DELETED")
     public void givenDeletedRequestIdAndUpdateRealTimeRequestDto_whenRealTimRequestModify_thenRealTimeRequestDeletedError() throws Exception{
         //given
         long deletedRequestId = 1L;
         ArtistUser artistUser = getArtistUser(deletedRequestId);
         RealTimeRequestErrorCode errorCode = RealTimeRequestErrorCode.REAL_TIME_REQUEST_DELETED;
         doThrow(new RealTimeRequestException(errorCode)).when(realTimeRequestService)
-                .modifyRealTimeRequest(anyLong(), any(User.class), any(UpdateRealTimeRequestDto.class));
+                .modifyRealTimeRequest(anyLong(), any(User.class), any(UpdateRealTimeRequestDto.class), any());
 
         //when //then
-        mvc.perform(put("/api/v1/real-time-requests/{requestId}", deletedRequestId)
+        String jsonData = mapper.writeValueAsString(
+                createUpdateRealTimeRequestDto("변경된 제목", UseType.NOT_COMMERCIAL, true)
+        );
+        MockMultipartFile jsonFile = createMultipartFile("data", "image.png", MediaType.APPLICATION_JSON_VALUE, jsonData);
+
+
+        mvc.perform(multipart("/api/v1/real-time-requests/{requestId}", deletedRequestId)
+                .file(jsonFile)
                 .with(authentication(new UsernamePasswordAuthenticationToken(artistUser, null, getAuthority("ROLE_ARTIST"))))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                        mapper.writeValueAsString(
-                                createUpdateRealTimeRequestDto("변경된 제목", UseType.NOT_COMMERCIAL, true)
-                        )
-                )
         )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -440,7 +472,7 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
 
         ;
-        verify(realTimeRequestService).modifyRealTimeRequest(eq(deletedRequestId), any(User.class), any(UpdateRealTimeRequestDto.class));
+        verify(realTimeRequestService).modifyRealTimeRequest(eq(deletedRequestId), any(User.class), any(UpdateRealTimeRequestDto.class), any());
     }
 
     @Test
@@ -451,17 +483,16 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
         ArtistUser artistUser = getArtistUser(deletedRequestId);
         RealTimeRequestErrorCode errorCode = RealTimeRequestErrorCode.FINISH_REQUEST_CAN_NOT_UPDATE;
         doThrow(new RealTimeRequestException(errorCode)).when(realTimeRequestService)
-                .modifyRealTimeRequest(anyLong(), any(User.class), any(UpdateRealTimeRequestDto.class));
+                .modifyRealTimeRequest(anyLong(), any(User.class), any(UpdateRealTimeRequestDto.class), any());
+        String jsonData = mapper.writeValueAsString(
+                createUpdateRealTimeRequestDto("변경된 제목", UseType.NOT_COMMERCIAL, true)
+        );
+        MockMultipartFile jsonFile = createMultipartFile("data", "image.png", MediaType.APPLICATION_JSON_VALUE, jsonData);
 
         //when //then
-        mvc.perform(put("/api/v1/real-time-requests/{requestId}", deletedRequestId)
+        mvc.perform(multipart("/api/v1/real-time-requests/{requestId}", deletedRequestId)
+                .file(jsonFile)
                 .with(authentication(new UsernamePasswordAuthenticationToken(artistUser, null, getAuthority("ROLE_ARTIST"))))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                        mapper.writeValueAsString(
-                                createUpdateRealTimeRequestDto("변경된 제목", UseType.NOT_COMMERCIAL, true)
-                        )
-                )
         )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -469,7 +500,7 @@ class RealTimeRequestControllerTest extends ControllerBaseTest {
                 .andExpect(jsonPath("$.errorMessage").value(errorCode.getDescription()))
 
         ;
-        verify(realTimeRequestService).modifyRealTimeRequest(eq(deletedRequestId), any(User.class), any(UpdateRealTimeRequestDto.class));
+        verify(realTimeRequestService).modifyRealTimeRequest(eq(deletedRequestId), any(User.class), any(UpdateRealTimeRequestDto.class), any());
     }
 
     @Test

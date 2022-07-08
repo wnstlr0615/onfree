@@ -3,6 +3,7 @@ package com.onfree.controller;
 import com.onfree.common.ControllerBaseTest;
 import com.onfree.common.error.code.PortfolioRoomErrorCode;
 import com.onfree.common.error.exception.PortfolioRoomException;
+import com.onfree.controller.portfolioroom.PortfolioRoomController;
 import com.onfree.core.dto.drawingfield.artist.UsedDrawingFieldDto;
 import com.onfree.core.dto.portfolioroom.PortfolioRoomDetailDto;
 import com.onfree.core.entity.user.StatusMark;

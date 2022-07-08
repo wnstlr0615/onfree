@@ -45,7 +45,7 @@ class JWTUtilTest {
     }
 
     private NormalUser givenNormalUser(String email) {
-        final BankInfo bankInfo = getBankInfo(BankName.IBK_BANK, "010-8888-9999");
+        final BankInfo bankInfo = getBankInfo(BankName.IBK, "010-8888-9999");
         UserAgree userAgree = UserAgree.builder()
                 .advertisement(true)
                 .personalInfo(true)

@@ -1,12 +1,16 @@
 package com.onfree.core.entity.realtimerequset;
 
 import com.onfree.common.model.BaseTimeEntity;
+import com.onfree.core.entity.fileitem.FileItem;
 import com.onfree.core.entity.user.User;
 import lombok.*;
+import org.hibernate.annotations.CollectionType;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -22,11 +26,6 @@ public class RealTimeRequest extends BaseTimeEntity {
     @Column(nullable = false)
     private String content; // 프로젝트 내용
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @Setter
-    private User user;
-
     @Column(nullable = false)
     private LocalDate startDate; // 시작 일
 
@@ -37,7 +36,15 @@ public class RealTimeRequest extends BaseTimeEntity {
     @Column(nullable = false)
     private UseType useType; // 용도
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @Setter
+    private User user;
+
     private String referenceLink; // 참고 링크
+
+    @Setter
+    private String referenceFiles;
 
     @Column(nullable = false)
     private Boolean adult; // 성인용 유무
@@ -48,7 +55,7 @@ public class RealTimeRequest extends BaseTimeEntity {
 
 
     @Builder
-    public RealTimeRequest(LocalDateTime createdDate, LocalDateTime updatedDate, Long realTimeRequestId, String title, String content, User user, LocalDate startDate, LocalDate endDate, UseType useType, String referenceLink, Boolean adult, RequestStatus status) {
+    public RealTimeRequest(LocalDateTime createdDate, LocalDateTime updatedDate, Long realTimeRequestId, String title, String content, User user, LocalDate startDate, LocalDate endDate, UseType useType, String referenceLink, String referenceFiles, Boolean adult, RequestStatus status) {
         super(createdDate, updatedDate);
         this.realTimeRequestId = realTimeRequestId;
         this.title = title;
@@ -58,6 +65,7 @@ public class RealTimeRequest extends BaseTimeEntity {
         this.endDate = endDate;
         this.useType = useType;
         this.referenceLink = referenceLink;
+        this.referenceFiles = referenceFiles;
         this.adult = adult;
         this.status = status;
     }
@@ -65,7 +73,7 @@ public class RealTimeRequest extends BaseTimeEntity {
     //== 생성 메소드 ==//
     public static RealTimeRequest createRealTimeRequest(
             Long realTimeRequestId, String title, String content, User user, LocalDate startDate,
-            LocalDate endDate, UseType useType, String referenceLink, Boolean adult, RequestStatus status, LocalDateTime createdDate
+            LocalDate endDate, UseType useType, String referenceLink, String referenceFiles ,Boolean adult, RequestStatus status, LocalDateTime createdDate
     ){
         return RealTimeRequest.builder()
                 .realTimeRequestId(realTimeRequestId)
@@ -76,8 +84,10 @@ public class RealTimeRequest extends BaseTimeEntity {
                 .endDate(endDate)
                 .useType(useType)
                 .referenceLink(referenceLink)
+                .referenceFiles(referenceFiles)
                 .adult(adult)
                 .status(status)
+
                 .createdDate(createdDate)
                 .build();
     }
